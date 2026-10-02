@@ -126,6 +126,11 @@ export class Engine {
     this.world.clearBodies();
   }
 
+  /** Share of a group's dots still in formation; drops when a bomb hits it. */
+  integrity(group: string): number {
+    return this.world.integrity(group);
+  }
+
   hasGroup(group: string): boolean {
     return this.world.hasGroup(group);
   }
