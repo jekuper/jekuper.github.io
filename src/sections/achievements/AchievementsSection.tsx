@@ -28,7 +28,7 @@ export function AchievementsSection({ data }: { data: AchievementsData }) {
             viewport={onceInView}
           >
             <span className="profile-platform">{profile.platform}</span>
-            <DotText as="span" className="profile-value" text={profile.value} spacing={3} fill={5} showEmitter={false} />
+            <DotText as="span" className="profile-value" text={profile.value} spacing={3} fill={6} showEmitter={false} />
             <span className="profile-value-label">{profile.valueLabel}</span>
             <span className="profile-detail">{profile.detail}</span>
           </motion.a>

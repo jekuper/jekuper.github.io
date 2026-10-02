@@ -3,6 +3,7 @@ import type { Rgb } from './math';
 import { artFromContours, loopLength, resampleLoop, traceMask } from './trace';
 
 const ALPHA_THRESHOLD = 128;
+const HATCH_MARGIN = 1.5;
 
 export interface TextArtOptions {
   /** CSS font shorthand, e.g. from getComputedStyle. */
@@ -10,7 +11,7 @@ export interface TextArtOptions {
   letterSpacing?: string;
   /** Distance between outline dots, CSS pixels. */
   spacing: number;
-  /** Grid step for dots inside the glyphs; 0 draws outlines only. */
+  /** Gap between diagonal hatch lines inside the glyphs; 0 draws outlines only. */
   fill?: number;
   /** Upper bound on dots; spacing grows to stay under it. */
   maxPoints?: number;
@@ -36,7 +37,7 @@ function context2d(width: number, height: number): CanvasRenderingContext2D {
   return canvas.getContext('2d', { willReadFrequently: true })!;
 }
 
-/** Dots along the outline (and optionally inside) of rendered text. */
+/** Dots along the outline of rendered text, optionally hatched inside with diagonal lines. */
 export function textToArt(text: string, options: TextArtOptions): TextArt {
   const scale = options.oversample ?? 2;
   const probe = context2d(1, 1);
@@ -64,26 +65,49 @@ export function textToArt(text: string, options: TextArtOptions): TextArt {
   for (let i = 0; i < mask.length; i++) mask[i] = pixels[i * 4 + 3] >= ALPHA_THRESHOLD ? 1 : 0;
 
   const loops = traceMask(mask, w, h).map((loop) => loop.map((v) => v / scale));
-  const fillStep = options.fill ?? 0;
-  const fill: number[] = [];
-  if (fillStep > 0) {
-    for (let y = fillStep / 2; y < height; y += fillStep) {
-      for (let x = fillStep / 2; x < width; x += fillStep) {
-        if (mask[Math.floor(y * scale) * w + Math.floor(x * scale)]) fill.push(x, y);
+  let spacing = options.spacing;
+  const perimeter = loops.reduce((sum, loop) => sum + loopLength(loop), 0);
+  if (options.maxPoints) spacing = Math.max(spacing, perimeter / options.maxPoints);
+  const contours = loops.filter((loop) => loopLength(loop) >= spacing * 3).map((loop) => resampleLoop(loop, spacing));
+  const open = contours.map(() => false);
+
+  const hatch = options.fill ?? 0;
+  if (hatch > 0) {
+    // A sample counts as inside only with some margin, so hatch lines stop short of the outline.
+    const margin = HATCH_MARGIN;
+    const inside = (x: number, y: number) =>
+      [
+        [0, 0],
+        [margin, 0],
+        [-margin, 0],
+        [0, margin],
+        [0, -margin],
+      ].every(([dx, dy]) => {
+        const px = Math.floor((x + dx) * scale);
+        const py = Math.floor((y + dy) * scale);
+        return px >= 0 && py >= 0 && px < w && py < h && mask[py * w + px] === 1;
+      });
+    // Lines x + y = c, rising left to right; c steps so the lines sit `hatch` apart.
+    const step = spacing / Math.SQRT2;
+    for (let c = hatch; c < width + height; c += hatch * Math.SQRT2) {
+      let run: number[] = [];
+      const flush = () => {
+        if (run.length >= 4) {
+          contours.push(Float32Array.from(run));
+          open.push(true);
+        }
+        run = [];
+      };
+      for (let x = Math.max(0, c - height); x <= Math.min(width, c); x += step) {
+        const y = c - x;
+        if (inside(x, y)) run.push(x, y);
+        else flush();
       }
+      flush();
     }
   }
 
-  let spacing = options.spacing;
-  const perimeter = loops.reduce((sum, loop) => sum + loopLength(loop), 0);
-  if (options.maxPoints) {
-    const outlineBudget = Math.max(1, options.maxPoints - fill.length / 2);
-    spacing = Math.max(spacing, perimeter / outlineBudget);
-  }
-  const contours = loops.filter((loop) => loopLength(loop) >= spacing * 3).map((loop) => resampleLoop(loop, spacing));
-  for (let i = 0; i < fill.length; i += 2) contours.push(new Float32Array([fill[i], fill[i + 1]]));
-
-  const art = artFromContours(contours);
+  const art = artFromContours(contours, undefined, open);
   return {
     art,
     offsetX: art.offsetX - pad,
