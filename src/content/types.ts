@@ -44,6 +44,23 @@ export interface AboutData {
   highlight: string;
   /** Words drifting behind the text, one row each. */
   traits: string[];
+  /** Paragraphs next to the portrait. */
+  bio: string[];
+  /** Path under public/, transparent background. */
+  portrait: string;
+  portraitAlt: string;
+}
+
+export interface Milestone {
+  year: string;
+  title: string;
+  place: string;
+  text: string;
+}
+
+export interface JourneyData {
+  title: string;
+  milestones: Milestone[];
 }
 
 export interface Stat {
@@ -92,6 +109,7 @@ export type SectionEntry =
   | Entry<'intro', IntroData>
   | Entry<'skills', SkillsData>
   | Entry<'about', AboutData>
+  | Entry<'journey', JourneyData>
   | Entry<'stats', StatsData>
   | Entry<'projects', ProjectsData>
   | Entry<'contact', ContactData>;

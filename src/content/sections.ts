@@ -1,5 +1,5 @@
 import { links } from './identity';
-import type { AboutData, ContactData, IntroData, ProjectsData, SkillsData, StatsData } from './types';
+import type { AboutData, ContactData, IntroData, JourneyData, ProjectsData, SkillsData, StatsData } from './types';
 
 export const intro: IntroData = {
   title: 'Did you Know?',
@@ -29,6 +29,30 @@ export const about: AboutData = {
   lines: [{ head: 'Craft solutions' }, { head: 'Refine Ideas' }, { head: 'To', tail: 'Make' }],
   highlight: 'Great Work',
   traits: ['Adaptable', 'Curious', 'Collaborative', 'Curious', 'Collaborative', 'Adaptable'],
+  bio: [
+    '[Placeholder: two or three sentences on who you are and what you build]',
+    '[Placeholder: one sentence on what you are into outside of work]',
+  ],
+  portrait: 'images/about/portrait.webp',
+  portraitAlt: 'Joe Sharipov',
+};
+
+const milestone = (hint: string) => ({
+  year: '[Year]',
+  title: `[Placeholder: ${hint}]`,
+  place: '[Placeholder: school, studio or company]',
+  text: '[Placeholder: one line on what you did or learned]',
+});
+
+export const journey: JourneyData = {
+  title: 'Journey',
+  milestones: [
+    milestone('how it started'),
+    milestone('first game you shipped'),
+    milestone('studies'),
+    milestone('first job or contract'),
+    milestone('current role'),
+  ],
 };
 
 export const stats: StatsData = {
