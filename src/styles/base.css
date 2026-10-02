@@ -1,0 +1,131 @@
+:root {
+  --color-bg: #0d0c0d;
+  --font-display: 'Spaced', 'Space Grotesk', sans-serif;
+  --font-grotesk: 'Aktiv Grotesk Corp', 'Space Grotesk', sans-serif;
+  --font-alliance: 'Alliance No.1', 'Space Grotesk', sans-serif;
+  --font-space: 'Space Grotesk', sans-serif;
+  --font-mono: 'Jura', sans-serif;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--color-bg);
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-button {
+  display: none;
+}
+
+::-webkit-scrollbar-track {
+  background: rgb(22, 22, 22);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(44, 44, 44);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #383838;
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: rgb(77, 77, 77);
+}
+
+/* Name and role, shared by the header and the hero title */
+
+.h1-title {
+  margin: 0;
+  font-size: 3vw;
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 6px;
+  background: linear-gradient(to right, #101010, #060606, #101010);
+  color: transparent;
+  text-shadow: 0 3px 4px rgb(255 255 255 / 16%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: brightness(7);
+}
+
+.occupation-title {
+  margin: 0;
+  margin-left: 1em;
+  font-size: 2vw;
+  font-family: var(--font-space);
+  font-weight: 100;
+  letter-spacing: 3px;
+  color: #616161;
+}
+
+/* Sections over the canvas */
+
+.section {
+  z-index: 1;
+  position: relative;
+  min-height: 100vh;
+  padding-top: 25vh;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-rows: 30vh auto;
+  grid-template-columns: 1fr 1fr;
+  pointer-events: none;
+}
+
+.section-title {
+  color: #a6a6a6;
+  font-family: var(--font-mono);
+  font-size: 3.5vw;
+  font-weight: lighter;
+  text-align: center;
+  margin: 0;
+  grid-column: span 2;
+  pointer-events: all;
+}
+
+.skill-underline {
+  position: absolute;
+  background: #323232;
+  height: 1px;
+  width: 90%;
+  left: 10%;
+}
+
+@media screen and (max-width: 1200px) {
+  .h1-title {
+    font-size: 5vw;
+  }
+}
+
+@media screen and (max-width: 470px) {
+  .h1-title {
+    font-size: 6.7vw;
+  }
+
+  .occupation-title {
+    margin-top: 1.3vh;
+    font-size: 4.6vw;
+    margin-left: 0;
+  }
+
+  .line-break {
+    display: block;
+  }
+
+  .section {
+    grid-template-rows: 35vh auto;
+  }
+}

@@ -1,0 +1,199 @@
+.hero {
+  position: relative;
+}
+
+/* Spans the whole hero so the sticky canvas and hint stop where the hero ends. */
+.hero-backdrop {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.hero-canvas {
+  position: sticky;
+  top: 0;
+  flex: none;
+  width: 100vw;
+  height: 100vh;
+  background: var(--color-bg);
+  z-index: 0;
+}
+
+.hero--mobile .hero-canvas {
+  position: relative;
+}
+
+.hero-content {
+  width: 50vw;
+  overflow-x: hidden;
+}
+
+.hero--mobile .hero-content {
+  width: 100vw;
+  min-height: 200vh;
+}
+
+.emitter-anchor {
+  position: fixed;
+  bottom: 4vh;
+  right: 25vw;
+}
+
+.hero--mobile .emitter-anchor {
+  position: absolute;
+  bottom: auto;
+  right: auto;
+  top: 50vh;
+  left: 50vw;
+}
+
+/* Title */
+
+.hero-title {
+  width: 50vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  pointer-events: none;
+  transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+}
+
+.hero-title.off {
+  opacity: 0;
+  transform: translateY(-30px) scale(0.95);
+}
+
+.title-wrapper {
+  margin-bottom: 1.6em;
+  z-index: 1;
+  display: flex;
+  align-items: baseline;
+  pointer-events: all;
+}
+
+.title-arrow {
+  z-index: 1;
+  position: absolute;
+  bottom: 3vh;
+  height: 3vh;
+}
+
+/* Controls hint (desktop) */
+
+.canvas-hint {
+  position: sticky;
+  bottom: 0;
+  flex: none;
+  align-self: flex-end;
+  margin-top: auto;
+  width: 50vw;
+  height: 5vh;
+  overflow: hidden;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 -3px 20px 0 black;
+  z-index: 999;
+  mask-image: linear-gradient(to left, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 80%, rgba(0, 0, 0, 0) 100%);
+}
+
+.canvas-hint p {
+  color: #616161;
+  margin: 0;
+  display: inline-block;
+  animation: marquee 20s linear infinite;
+  font-family: var(--font-mono);
+  font-size: 1vw;
+  transition: color 0.1s ease-in-out;
+}
+
+.canvas-hint:hover p {
+  animation-play-state: paused;
+  color: white;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(50vw);
+  }
+  to {
+    transform: translateX(-60vw);
+  }
+}
+
+/* Controls overlay (touch) */
+
+.mobile-overlay {
+  background: #0d0c0dcc;
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  text-align: center;
+}
+
+.mobile-overlay h1 {
+  position: absolute;
+  top: 3%;
+  width: 100%;
+  color: #acacac;
+  text-shadow: 0 2.902px 2.902px rgba(0, 0, 0, 0.25);
+  font-family: var(--font-grotesk);
+  font-size: 5vw;
+  font-weight: 400;
+  letter-spacing: 1px;
+  line-height: normal;
+  text-transform: uppercase;
+}
+
+.mobile-overlay p {
+  color: #acacac;
+  font-family: var(--font-mono);
+  font-size: 3.2vw;
+  font-weight: 500;
+  line-height: normal;
+  margin-bottom: 0;
+  margin-top: 3vh;
+}
+
+.mobile-overlay p:last-of-type {
+  margin-bottom: 2em;
+}
+
+@media screen and (max-width: 1200px) {
+  .hero-title {
+    width: 100vw;
+    align-items: flex-end;
+    z-index: 5;
+  }
+
+  .title-wrapper {
+    margin-bottom: 7vh;
+  }
+}
+
+@media screen and (max-width: 470px) {
+  .title-wrapper {
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .mobile-overlay h1 {
+    font-size: 7.7vw;
+  }
+
+  .mobile-overlay p {
+    font-size: 6.5vw;
+    margin-bottom: 0;
+    margin-top: 3vh;
+  }
+}
