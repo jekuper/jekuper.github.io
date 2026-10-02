@@ -23,6 +23,8 @@ export interface ViewMorphOptions {
   rootMargin?: string;
   /** Named clip region the dots are drawn inside. */
   clip?: string;
+  /** Draw the emitter bar; off for small elements where it would sit on nearby text. */
+  showEmitter?: boolean;
 }
 
 const RESIZE_DEBOUNCE_MS = 400;
@@ -57,6 +59,8 @@ export function useViewMorph(
   const rootMargin = options.rootMargin ?? '0px';
   const clipRef = useRef(options.clip);
   clipRef.current = options.clip;
+  const showEmitterRef = useRef(options.showEmitter ?? true);
+  showEmitterRef.current = options.showEmitter ?? true;
   /** World position of the element's corner when the group was placed; null while not formed. */
   const anchor = useRef<Point | null>(null);
 
@@ -67,7 +71,7 @@ export function useViewMorph(
     const placed = await buildRef.current(el);
     if (!placed || id !== request.current || !onScreen.current || !activeRef.current) return;
     const spawn = emitterRef.current(el.getBoundingClientRect());
-    engine.setEmitter(group, engine.viewToWorld(spawn.x, spawn.y));
+    engine.setEmitter(group, engine.viewToWorld(spawn.x, spawn.y), showEmitterRef.current);
     const center = engine.viewToWorld(placed.left + placed.width / 2, placed.top + placed.height / 2);
     engine.morph(group, {
       art: placed.art,
@@ -140,7 +144,7 @@ export function useViewMorph(
       if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) return;
       engine.moveGroup(group, dx, dy);
       const spawn = emitterRef.current(rect);
-      engine.setEmitter(group, engine.viewToWorld(spawn.x, spawn.y));
+      engine.setEmitter(group, engine.viewToWorld(spawn.x, spawn.y), showEmitterRef.current);
       anchor.current = now;
     };
     const onScroll = () => {

@@ -44,7 +44,7 @@ export function EducationCard({ education }: { education: Education }) {
         </div>
       </div>
       <div className="education-gpa">
-        <DotText as="span" className="education-gpa-value" text={education.gpa} spacing={2.5} fill={4} color={GPA_COLOR} />
+        <DotText as="span" className="education-gpa-value" text={education.gpa} spacing={2.5} fill={4} color={GPA_COLOR} showEmitter={false} />
         <span className="education-gpa-label">GPA / {education.gpaScale}</span>
       </div>
     </motion.div>
