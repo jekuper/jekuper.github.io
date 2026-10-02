@@ -3,19 +3,28 @@ import { useRef } from 'react';
 import { onceInView, slideIn, wipeIn } from '../../components/motion';
 import { SplitText } from '../../components/Text';
 import type { AboutData, Layout } from '../../content/types';
-import { useAmbientField } from '../../react/useAmbientField';
+import { rgb } from '../../engine';
+import { useGalaxy } from '../../react/useGalaxy';
 import { Portrait } from './Portrait';
 import './AboutSection.css';
 
 const WORD_REPEATS = 4;
 const GLASS_PANES = 6;
-const AMBIENT_DOTS: Record<Layout, number> = { desktop: 2500, mobile: 900 };
-const AMBIENT_ALPHA = 0.55;
+const GALAXY_DOTS: Record<Layout, number> = { desktop: 4000, mobile: 1500 };
+const GALAXY_COLOR = rgb(170, 160, 225);
 
 export function AboutSection({ data, layout }: { data: AboutData; layout: Layout }) {
   const desktop = layout === 'desktop';
   const stage = useRef<HTMLDivElement>(null);
-  useAmbientField(stage, AMBIENT_DOTS[layout], AMBIENT_ALPHA);
+  useGalaxy(stage, {
+    x: desktop ? 0.66 : 0.5,
+    y: 0.5,
+    radius: desktop ? 0.55 : 0.45,
+    count: GALAXY_DOTS[layout],
+    magnitude: 1600,
+    alpha: 0.6,
+    color: GALAXY_COLOR,
+  });
 
   // Child order matters: the word rows are styled with div:nth-of-type, counting the stage as the first div.
   // The glass panes live in the stage so they cover the slogan, not the portrait.
