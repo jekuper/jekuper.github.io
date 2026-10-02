@@ -1,0 +1,18 @@
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+*.log
+.DS_Store
+.env*.local
+__pycache__/
+
+# local only
+CLAUDE.local.md
+.claude/
+
+# private or non-redistributable, provided locally (see public/fonts/README.md)
+public/resume.pdf
+public/fonts/*
+!public/fonts/fonts.css
+!public/fonts/README.md
