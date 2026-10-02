@@ -16,7 +16,6 @@ interface EngineStageProps {
 export function EngineStage({ layout, pin, children }: EngineStageProps) {
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
   const [engine, setEngine] = useState<Engine | null>(null);
-  const anchor = useRef<HTMLDivElement>(null);
   const pinEnd = useRef(0);
   const finePointer = useFinePointer();
 
@@ -29,11 +28,6 @@ export function EngineStage({ layout, pin, children }: EngineStageProps) {
       console.error(err);
       return;
     }
-    instance.setEmitterAnchor(() => {
-      if (!anchor.current) return null;
-      const a = anchor.current.getBoundingClientRect();
-      return { x: a.left + a.width / 2, y: a.top + a.height / 2 };
-    });
     instance.setCamera(() => ({ x: 0, y: Math.max(0, window.scrollY - pinEnd.current) }));
     setEngine(instance);
     return () => {
@@ -62,7 +56,6 @@ export function EngineStage({ layout, pin, children }: EngineStageProps) {
   return (
     <EngineContext.Provider value={engine}>
       <canvas ref={setCanvas} className="engine-canvas" />
-      <div ref={anchor} className={`emitter-anchor emitter-anchor--${layout}`} />
       {children}
     </EngineContext.Provider>
   );

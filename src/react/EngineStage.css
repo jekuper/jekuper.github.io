@@ -7,16 +7,3 @@
   background: var(--color-bg);
   z-index: 0;
 }
-
-.emitter-anchor {
-  position: fixed;
-  bottom: 4vh;
-  right: 25vw;
-}
-
-.emitter-anchor--mobile {
-  bottom: auto;
-  right: auto;
-  top: 50vh;
-  left: 50vw;
-}

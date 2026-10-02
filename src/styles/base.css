@@ -148,4 +148,6 @@ body {
   color: transparent;
   -webkit-text-fill-color: transparent;
   text-shadow: none;
+  background: none;
+  filter: none;
 }

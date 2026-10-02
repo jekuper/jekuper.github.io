@@ -1,8 +1,8 @@
 import { useRef, type ElementType } from 'react';
 import { rgb, textToArt, type Rgb } from '../engine';
-import { useViewMorph, type ViewArt } from '../react/useViewMorph';
+import { useViewMorph, type ViewArt, type ViewMorphOptions } from '../react/useViewMorph';
 
-interface DotTextProps {
+interface DotTextProps extends ViewMorphOptions {
   text: string;
   as?: ElementType;
   className?: string;
@@ -16,9 +16,17 @@ interface DotTextProps {
 const DEFAULT_COLOR = rgb(210, 210, 210);
 
 /** Single-line text redrawn in dots at the exact spot of the real (now invisible) text. */
-export function DotText({ text, as: Tag = 'span', className = '', spacing = 3, fill = 0, color = DEFAULT_COLOR }: DotTextProps) {
+export function DotText({
+  text,
+  as: Tag = 'span',
+  className = '',
+  spacing = 3,
+  fill = 0,
+  color = DEFAULT_COLOR,
+  ...options
+}: DotTextProps) {
   const ref = useRef<HTMLElement>(null);
-  const { formed } = useViewMorph(ref, async (el) => measure(el, text, spacing, fill, color));
+  const { formed } = useViewMorph(ref, async (el) => measure(el, text, spacing, fill, color), options);
   return (
     <Tag ref={ref} className={`dot-text ${formed ? 'is-drawn' : ''} ${className}`}>
       {text}
