@@ -161,6 +161,15 @@ export class World {
       }
       slots.push(i);
     }
+    const existing = this.groups.get(name);
+    if (existing) {
+      // Joins a group that is already showing something; the next morph reuses these dots.
+      for (const i of slots) {
+        existing.slots.push(i);
+        existing.gens.push(p.gen[i]);
+      }
+      return;
+    }
     this.groups.set(name, {
       slots,
       gens: slots.map((i) => p.gen[i]),
@@ -364,7 +373,7 @@ export class World {
 
     const order: number[] = [];
     for (let k = members.length; k < art.pointCount; k++) order.push(this.spawnAtEmitter(target.color));
-    order.push(...members);
+    for (const i of members) order.push(i);
 
     for (let c = 0; c < art.contourCount; c++) {
       const start = art.starts[c];
@@ -393,7 +402,7 @@ export class World {
       }
     }
 
-    order.push(...kept);
+    for (const i of kept) order.push(i);
     group.slots = order;
     group.gens = order.map((i) => p.gen[i]);
     group.phase = 'forming';
