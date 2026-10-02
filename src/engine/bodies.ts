@@ -7,6 +7,8 @@ export interface Well {
   magnitude: number;
   /** Drawn above particles (user placed) or below (scene placed). */
   onTop: boolean;
+  /** Top of the screen-sized band it wraps within, in world pixels. */
+  wrapTop: number;
 }
 
 export interface Bomb {
@@ -20,12 +22,23 @@ export interface Bomb {
   /** False while aiming (follows the cursor), true once launched. */
   flying: boolean;
   triggered: boolean;
+  wrapTop: number;
+  /** Recent positions as x, y pairs, newest last. */
+  trail: number[];
 }
 
-export function createWell(x: number, y: number, magnitude: number, onTop: boolean): Well {
-  return { x, y, vx: 0, vy: 0, magnitude, onTop };
+export interface Spark {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  life: number;
+}
+
+export function createWell(x: number, y: number, magnitude: number, onTop: boolean, wrapTop: number): Well {
+  return { x, y, vx: 0, vy: 0, magnitude, onTop, wrapTop };
 }
 
 export function createBomb(x: number, y: number): Bomb {
-  return { x, y, vx: 0, vy: 0, anchorX: x, anchorY: y, flying: false, triggered: false };
+  return { x, y, vx: 0, vy: 0, anchorX: x, anchorY: y, flying: false, triggered: false, wrapTop: 0, trail: [] };
 }

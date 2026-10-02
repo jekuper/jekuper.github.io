@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { LineArt } from './art';
 import { FIXED_DT } from './config';
 import { ALIVE, FIX_ACTIVE, LINKED } from './particles';
+import { createBomb } from './bodies';
 import { DrawBatch } from './renderer';
 import { World, type MorphTarget } from './simulation';
 
@@ -85,5 +86,47 @@ describe('World', () => {
     world.eraseAtCursor();
     expect(world.particles.live).toBe(0);
     expect(world.wells).toHaveLength(0);
+  });
+
+  it('cuts a long line that a bomb hits between its ends', () => {
+    const world = new World();
+    world.setBounds(2000, 1000);
+    const p = world.particles;
+    const a = p.spawn(100, 500);
+    const b = p.spawn(900, 500);
+    p.setLink(a, b, 0);
+    p.setLink(b, a, 0);
+    const bomb = createBomb(500, 505);
+    bomb.flying = true;
+    bomb.triggered = true;
+    world.bombs.push(bomb);
+    world.fixedStep(FIXED_DT);
+    expect(world.bombs).toHaveLength(0);
+    expect(p.flags[a] & LINKED).toBe(0);
+    expect(p.flags[b] & LINKED).toBe(0);
+    expect(world.sparks.length).toBeGreaterThan(0);
+  });
+
+  it('keeps surplus dots drifting and releases after the hold', () => {
+    const world = new World();
+    world.setBounds(800, 600);
+    world.locateEmitter = () => ({ x: 400, y: 590 });
+    world.seedField('hero', { x: 0, y: 0, width: 400, height: 300 }, 50, 0);
+    world.morph('hero', { ...target(squareArt()), holdTime: 1, surplus: 'release', afterHold: 'release' });
+    run(world, 10);
+    const p = world.particles;
+    expect(p.live).toBe(50);
+    expect(aliveSlots(world).filter((i) => p.flags[i] & FIX_ACTIVE)).toHaveLength(0);
+    expect(world.hasGroup('hero')).toBe(true);
+  });
+
+  it('scatters a group outward', () => {
+    const world = new World();
+    world.setBounds(800, 600);
+    world.seedField('hero', { x: 100, y: 100, width: 200, height: 200 }, 100, 0);
+    world.scatter('hero', 500);
+    const p = world.particles;
+    const moving = aliveSlots(world).filter((i) => Math.hypot(p.vx[i], p.vy[i]) > 50);
+    expect(moving.length).toBeGreaterThan(90);
   });
 });

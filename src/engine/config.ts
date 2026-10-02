@@ -80,3 +80,28 @@ export const GRAVITY = {
   barnesHutThreshold: 64,
   theta: 0.75,
 };
+
+export const CURSOR = {
+  radius: 140,
+  /** Pull at the cursor, falling to zero at the radius. */
+  strength: 2200,
+  /** Velocity kept per step inside the radius, so stirring does not heat the field. */
+  drag: 0.97,
+};
+
+export const TRAIL = {
+  length: 28,
+  startColor: rgb(200, 0, 0),
+  endColor: rgb(40, 0, 0),
+};
+
+export const SPARKS = {
+  count: 48,
+  speed: 520,
+  life: 0.7,
+  size: 3,
+  damping: 0.94,
+  color: rgb(255, 150, 60),
+};
+
+export const SCATTER_SPEED = 600;
