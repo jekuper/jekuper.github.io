@@ -16,7 +16,7 @@ export interface MorphRequest {
   density: number;
   holdTime?: number;
   surplus?: 'retire' | 'release';
-  afterHold?: 'dissolve' | 'release';
+  afterHold?: 'dissolve' | 'release' | 'scatter';
 }
 
 /**
@@ -104,6 +104,14 @@ export class Engine {
 
   clear(): void {
     this.world.clear();
+  }
+
+  removeGroup(group: string): void {
+    this.world.removeGroup(group);
+  }
+
+  clearBodies(): void {
+    this.world.clearBodies();
   }
 
   hasGroup(group: string): boolean {

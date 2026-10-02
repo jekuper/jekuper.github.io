@@ -104,4 +104,4 @@ export const SPARKS = {
   color: rgb(255, 150, 60),
 };
 
-export const SCATTER_SPEED = 600;
+export const SCATTER_SPEED = 350;

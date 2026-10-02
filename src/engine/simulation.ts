@@ -54,8 +54,8 @@ export interface MorphTarget {
   holdTime: number;
   /** Dots the art does not need: sent into the emitter, or left drifting. */
   surplus?: 'retire' | 'release';
-  /** After the hold: return the dots to the emitter, or let them drift. */
-  afterHold?: 'dissolve' | 'release';
+  /** After the hold: return the dots to the emitter, let them drift, or throw them outward. */
+  afterHold?: 'dissolve' | 'release' | 'scatter';
 }
 
 export interface FieldOptions {
@@ -119,6 +119,21 @@ export class World {
     this.groups.clear();
     this.shakeTime = 0;
     this.eraserVisible = false;
+  }
+
+  /** Destroys a group's dots at once. */
+  removeGroup(name: string): void {
+    const group = this.groups.get(name);
+    if (!group) return;
+    this.forEachMember(group, (i) => this.particles.destroy(i));
+    this.groups.delete(name);
+  }
+
+  /** Removes wells, bombs and sparks. */
+  clearBodies(): void {
+    this.wells.length = 0;
+    this.bombs.length = 0;
+    this.sparks.length = 0;
   }
 
   hasGroup(name: string): boolean {
@@ -332,8 +347,9 @@ export class World {
         case 'holding':
           group.timer -= dt;
           if (group.timer > 0) break;
-          if (group.target?.afterHold === 'release') {
-            this.release(name);
+          if (group.target?.afterHold === 'release' || group.target?.afterHold === 'scatter') {
+            if (group.target.afterHold === 'scatter') this.scatter(name);
+            else this.release(name);
             group.timer = Infinity;
           } else {
             this.dissolve(name);
