@@ -118,12 +118,14 @@ export const TRAIL = {
   endColor: rgb(40, 0, 0),
 };
 
-/** Vacuum bomb: sparks rush out to the blast edge, stall, then get sucked back in. */
+/** Vacuum bomb: sparks rush out, turn at the blast edge and get sucked back in. */
 export const SPARKS = {
   count: 72,
-  life: 1.2,
+  life: 0.75,
   /** Share of the life spent flying out. */
-  outPortion: 0.35,
+  outPortion: 0.4,
+  /** How far back in time the trail reaches, seconds. */
+  trail: 0.07,
   /** Reach as a multiple of the blast radius. */
   minReach: 0.7,
   maxReach: 1.4,

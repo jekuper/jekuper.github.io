@@ -52,6 +52,7 @@ export class DrawBatch {
     ar: number, ag: number, ab: number,
     br: number, bg: number, bb: number,
     alpha: number,
+    alphaB = alpha,
   ): void {
     let o = this.lineCount * LINE_FLOATS;
     if (o + LINE_FLOATS > this.lines.length) this.lines = grow(this.lines);
@@ -67,7 +68,7 @@ export class DrawBatch {
     l[o++] = br;
     l[o++] = bg;
     l[o++] = bb;
-    l[o] = alpha;
+    l[o] = alphaB;
     this.lineCount++;
   }
 }

@@ -785,23 +785,26 @@ export class World {
     }
   }
 
-  /** Out to the reach with ease-out, stall, then sucked back in and fading near the center. */
+  /**
+   * Radius follows two half parabolas meeting at the reach, like a ball under a
+   * constant pull: zero speed only at the turn, fastest on the way back in.
+   */
+  private sparkAt(s: Spark, age: number): { x: number; y: number; alpha: number } {
+    const t = Math.min(Math.max(age / SPARKS.life, 0), 1);
+    const p = SPARKS.outPortion;
+    const k = t < p ? (p - t) / p : (t - p) / (1 - p);
+    const r = s.reach * (1 - k * k);
+    const angle = s.angle + s.spin * t;
+    return { x: s.cx + Math.cos(angle) * r, y: s.cy + Math.sin(angle) * r, alpha: t < p ? 1 : r / s.reach };
+  }
+
   private drawSparks(batch: DrawBatch): void {
     const c = SPARKS.color;
     for (const s of this.sparks) {
-      const t = s.age / SPARKS.life;
-      let r: number;
-      let alpha = 1;
-      if (t < SPARKS.outPortion) {
-        const k = t / SPARKS.outPortion;
-        r = s.reach * (1 - (1 - k) ** 3);
-      } else {
-        const k = (t - SPARKS.outPortion) / (1 - SPARKS.outPortion);
-        r = s.reach * (1 - k * k * k);
-        alpha = r / s.reach;
-      }
-      const angle = s.angle + s.spin * t;
-      batch.glow.push(s.cx + Math.cos(angle) * r, s.cy + Math.sin(angle) * r, c.r, c.g, c.b, alpha, SPARKS.size);
+      const head = this.sparkAt(s, s.age);
+      const tail = this.sparkAt(s, s.age - SPARKS.trail);
+      batch.line(tail.x, tail.y, head.x, head.y, c.r, c.g, c.b, c.r, c.g, c.b, 0, head.alpha);
+      batch.glow.push(head.x, head.y, c.r, c.g, c.b, head.alpha, SPARKS.size);
     }
   }
 
