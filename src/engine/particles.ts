@@ -7,13 +7,15 @@ export const FIX_ACTIVE = 8;
 export const SPIRALING = 16;
 export const LINKED = 32;
 export const COLOR_FADING = 64;
+/** Drawn additively with `alpha`, so dense clusters glow. */
+export const GLOW = 128;
 
 export const ARRIVE_NONE = 0;
 export const ARRIVE_FIX = 1;
 export const ARRIVE_DESTROY = 2;
 
 const F64 = ['x', 'y', 'vx', 'vy', 'fx', 'fy', 'fixX', 'fixY', 'spStartX', 'spStartY', 'spTargetX', 'spTargetY'] as const;
-const F32 = ['damping', 'size', 'r', 'g', 'b', 'tr', 'tg', 'tb', 'fadeSpeed', 'fixK', 'spTime', 'spDuration', 'spRadius', 'linkAlpha', 'linkAccel'] as const;
+const F32 = ['damping', 'size', 'alpha', 'r', 'g', 'b', 'tr', 'tg', 'tb', 'fadeSpeed', 'fixK', 'spTime', 'spDuration', 'spRadius', 'linkAlpha', 'linkAccel'] as const;
 const I32 = ['link'] as const;
 const U32 = ['gen', 'linkGen'] as const;
 const U8 = ['flags', 'onArrive'] as const;
@@ -54,6 +56,7 @@ export class ParticleStore {
 
   declare damping: Float32Array;
   declare size: Float32Array;
+  declare alpha: Float32Array;
   declare r: Float32Array;
   declare g: Float32Array;
   declare b: Float32Array;
@@ -95,6 +98,7 @@ export class ParticleStore {
     this.vx[i] = this.vy[i] = this.fx[i] = this.fy[i] = 0;
     this.damping[i] = 1;
     this.size[i] = 0;
+    this.alpha[i] = 1;
     this.r[i] = this.g[i] = this.b[i] = 0;
     this.spTime[i] = this.spRadius[i] = 0;
     this.spDuration[i] = 1;

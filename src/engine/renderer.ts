@@ -3,30 +3,48 @@ import { BACKGROUND, LINK } from './config';
 const POINT_FLOATS = 7; // x, y, r, g, b, a, size
 const LINE_FLOATS = 12; // ax, ay, bx, by, rgba at a, rgba at b
 
-/** CPU side vertex data for one frame. Colors are 0-255, alpha 0-1. */
-export class DrawBatch {
-  points = new Float32Array(POINT_FLOATS * 8192);
-  pointCount = 0;
-  lines = new Float32Array(LINE_FLOATS * 8192);
-  lineCount = 0;
+function grow(a: Float32Array): Float32Array {
+  const b = new Float32Array(a.length * 2);
+  b.set(a);
+  return b;
+}
 
-  reset(): void {
-    this.pointCount = 0;
-    this.lineCount = 0;
-  }
+export class PointList {
+  data: Float32Array = new Float32Array(POINT_FLOATS * 8192);
+  count = 0;
 
-  point(x: number, y: number, r: number, g: number, b: number, size: number): void {
-    let o = this.pointCount * POINT_FLOATS;
-    if (o + POINT_FLOATS > this.points.length) this.points = grow(this.points);
-    const p = this.points;
+  push(x: number, y: number, r: number, g: number, b: number, a: number, size: number): void {
+    let o = this.count * POINT_FLOATS;
+    if (o + POINT_FLOATS > this.data.length) this.data = grow(this.data);
+    const p = this.data;
     p[o++] = x;
     p[o++] = y;
     p[o++] = r;
     p[o++] = g;
     p[o++] = b;
-    p[o++] = 1;
+    p[o++] = a;
     p[o] = size;
-    this.pointCount++;
+    this.count++;
+  }
+}
+
+/** CPU side vertex data for one frame, in world device pixels. Colors are 0-255, alpha 0-1. */
+export class DrawBatch {
+  /** Blended normally. */
+  points = new PointList();
+  /** Blended additively, so overlapping dots brighten. */
+  glow = new PointList();
+  lines: Float32Array = new Float32Array(LINE_FLOATS * 8192);
+  lineCount = 0;
+
+  reset(): void {
+    this.points.count = 0;
+    this.glow.count = 0;
+    this.lineCount = 0;
+  }
+
+  point(x: number, y: number, r: number, g: number, b: number, size: number): void {
+    this.points.push(x, y, r, g, b, 1, size);
   }
 
   line(
@@ -54,10 +72,12 @@ export class DrawBatch {
   }
 }
 
-function grow(a: Float32Array): Float32Array {
-  const b = new Float32Array(a.length * 2);
-  b.set(a);
-  return b;
+/** Where the viewport sits in the world, plus a clip-space shake offset. */
+export interface View {
+  x: number;
+  y: number;
+  shakeX: number;
+  shakeY: number;
 }
 
 const POINT_VS = `#version 300 es
@@ -65,10 +85,11 @@ in vec2 a_pos;
 in vec4 a_color;
 in float a_size;
 uniform vec2 u_resolution;
+uniform vec2 u_camera;
 uniform vec2 u_offset;
 out vec4 v_color;
 void main() {
-  vec2 clip = a_pos / u_resolution * 2.0 - 1.0;
+  vec2 clip = (a_pos - u_camera) / u_resolution * 2.0 - 1.0;
   gl_Position = vec4(clip.x + u_offset.x, -clip.y + u_offset.y, 0.0, 1.0);
   gl_PointSize = a_size;
   v_color = vec4(a_color.rgb / 255.0, a_color.a);
@@ -82,6 +103,7 @@ in vec2 a_to;
 in vec4 a_colorFrom;
 in vec4 a_colorTo;
 uniform vec2 u_resolution;
+uniform vec2 u_camera;
 uniform vec2 u_offset;
 uniform float u_width;
 out vec4 v_color;
@@ -89,7 +111,7 @@ void main() {
   vec2 axis = a_to - a_from;
   vec2 normal = normalize(vec2(-axis.y, axis.x));
   vec2 p = a_from + axis * a_corner.x + normal * u_width * a_corner.y;
-  vec2 clip = p / u_resolution * 2.0 - 1.0;
+  vec2 clip = (p - u_camera) / u_resolution * 2.0 - 1.0;
   gl_Position = vec4(clip.x + u_offset.x, -clip.y + u_offset.y, 0.0, 1.0);
   vec4 from = vec4(a_colorFrom.rgb / 255.0, a_colorFrom.a);
   vec4 to = vec4(a_colorTo.rgb / 255.0, a_colorTo.a);
@@ -112,13 +134,16 @@ interface Pass {
   buffer: WebGLBuffer;
   capacity: number;
   resolution: WebGLUniformLocation | null;
+  camera: WebGLUniformLocation | null;
   offset: WebGLUniformLocation | null;
 }
 
 export class Renderer {
   private gl: WebGL2RenderingContext;
+  private glow: Pass | null = null;
   private points: Pass | null = null;
   private lines: Pass | null = null;
+  private programs: WebGLProgram[] = [];
   private lineWidth: WebGLUniformLocation | null = null;
   private quad: WebGLBuffer | null = null;
   private width = 1;
@@ -135,15 +160,16 @@ export class Renderer {
   init(): void {
     const gl = this.gl;
     gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.clearColor(BACKGROUND.r / 255, BACKGROUND.g / 255, BACKGROUND.b / 255, 1);
 
     const pointProgram = link(gl, POINT_VS, COLOR_FS);
-    this.points = createPass(gl, pointProgram, (stride) => {
+    const pointLayout = (stride: number) => {
       attrib(gl, pointProgram, 'a_pos', 2, stride, 0, 0);
       attrib(gl, pointProgram, 'a_color', 4, stride, 2, 0);
       attrib(gl, pointProgram, 'a_size', 1, stride, 6, 0);
-    }, POINT_FLOATS);
+    };
+    this.glow = createPass(gl, pointProgram, pointLayout, POINT_FLOATS);
+    this.points = createPass(gl, pointProgram, pointLayout, POINT_FLOATS);
 
     const lineProgram = link(gl, LINE_VS, COLOR_FS);
     this.lines = createPass(gl, lineProgram, (stride) => {
@@ -157,6 +183,7 @@ export class Renderer {
       attrib(gl, lineProgram, 'a_corner', 2, 0, 0, 0);
     }, LINE_FLOATS);
     this.lineWidth = gl.getUniformLocation(lineProgram, 'u_width');
+    this.programs = [pointProgram, lineProgram];
   }
 
   resize(width: number, height: number): void {
@@ -165,18 +192,23 @@ export class Renderer {
     this.gl.viewport(0, 0, width, height);
   }
 
-  /** Offsets are in clip space and implement screen shake. */
-  draw(batch: DrawBatch, offsetX: number, offsetY: number): void {
+  draw(batch: DrawBatch, view: View): void {
     const gl = this.gl;
     gl.clear(gl.COLOR_BUFFER_BIT);
-    if (gl.isContextLost() || !this.points || !this.lines) return;
+    if (gl.isContextLost() || !this.glow || !this.points || !this.lines) return;
 
-    if (batch.pointCount > 0) {
-      this.bind(this.points, batch.points, batch.pointCount * POINT_FLOATS, offsetX, offsetY);
-      gl.drawArrays(gl.POINTS, 0, batch.pointCount);
+    if (batch.glow.count > 0) {
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+      this.bind(this.glow, batch.glow.data, batch.glow.count * POINT_FLOATS, view);
+      gl.drawArrays(gl.POINTS, 0, batch.glow.count);
+    }
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    if (batch.points.count > 0) {
+      this.bind(this.points, batch.points.data, batch.points.count * POINT_FLOATS, view);
+      gl.drawArrays(gl.POINTS, 0, batch.points.count);
     }
     if (batch.lineCount > 0) {
-      this.bind(this.lines, batch.lines, batch.lineCount * LINE_FLOATS, offsetX, offsetY);
+      this.bind(this.lines, batch.lines, batch.lineCount * LINE_FLOATS, view);
       gl.uniform1f(this.lineWidth, LINK.width);
       gl.drawArraysInstanced(gl.TRIANGLES, 0, 6, batch.lineCount);
     }
@@ -186,17 +218,18 @@ export class Renderer {
   /** Frees GPU objects but keeps the context, so the canvas can be reused. */
   dispose(): void {
     const gl = this.gl;
-    for (const pass of [this.points, this.lines]) {
+    for (const pass of [this.glow, this.points, this.lines]) {
       if (!pass) continue;
-      gl.deleteProgram(pass.program);
       gl.deleteVertexArray(pass.vao);
       gl.deleteBuffer(pass.buffer);
     }
+    for (const program of this.programs) gl.deleteProgram(program);
     gl.deleteBuffer(this.quad);
-    this.points = this.lines = null;
+    this.glow = this.points = this.lines = null;
+    this.programs = [];
   }
 
-  private bind(pass: Pass, data: Float32Array, floats: number, offsetX: number, offsetY: number): void {
+  private bind(pass: Pass, data: Float32Array, floats: number, view: View): void {
     const gl = this.gl;
     gl.useProgram(pass.program);
     gl.bindVertexArray(pass.vao);
@@ -207,7 +240,8 @@ export class Renderer {
     }
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, data, 0, floats);
     gl.uniform2f(pass.resolution, this.width, this.height);
-    gl.uniform2f(pass.offset, offsetX, offsetY);
+    gl.uniform2f(pass.camera, view.x, view.y);
+    gl.uniform2f(pass.offset, view.shakeX, view.shakeY);
   }
 }
 
@@ -229,6 +263,7 @@ function createPass(
     buffer,
     capacity: 0,
     resolution: gl.getUniformLocation(program, 'u_resolution'),
+    camera: gl.getUniformLocation(program, 'u_camera'),
     offset: gl.getUniformLocation(program, 'u_offset'),
   };
 }
