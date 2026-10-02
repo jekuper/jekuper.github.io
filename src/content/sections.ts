@@ -35,6 +35,13 @@ export const about: AboutData = {
   ],
   portrait: 'images/about/portrait.webp',
   portraitAlt: 'Joe Sharipov',
+  education: {
+    school: 'Pace University',
+    degree: '[Placeholder: degree and major]',
+    years: '[Placeholder: start year - graduation year]',
+    gpa: '[GPA]',
+    logo: 'images/about/pace-logo.svg',
+  },
 };
 
 const milestone = (hint: string) => ({

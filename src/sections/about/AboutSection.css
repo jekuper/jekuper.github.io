@@ -397,6 +397,87 @@
   pointer-events: auto;
 }
 
+/* Education */
+
+.education {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3vw;
+  max-width: 38vw;
+  margin-top: 4vh;
+  padding-top: 4vh;
+  border-top: 1px solid #2a2a2a;
+  pointer-events: auto;
+}
+
+.education-school {
+  display: flex;
+  align-items: center;
+  gap: 1.4vw;
+}
+
+.education-logo,
+.education-monogram {
+  flex: none;
+  width: 3.6vw;
+  height: 3.6vw;
+}
+
+.education-logo {
+  object-fit: contain;
+}
+
+.education-monogram {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #3a3a3a;
+  border-radius: 50%;
+  color: #a6a6a6;
+  font-family: var(--font-grotesk);
+  font-size: 1vw;
+  letter-spacing: 0.1em;
+}
+
+.education h3 {
+  margin: 0 0 0.3em;
+  color: #d2d2d2;
+  font-family: var(--font-grotesk);
+  font-size: 1.3vw;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.education-degree,
+.education-years {
+  margin: 0;
+  color: #7a7a7a;
+  font-family: var(--font-mono);
+  font-size: 1vw;
+}
+
+.education-gpa {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.education-gpa-value {
+  color: #d2d2d2;
+  font-family: var(--font-display);
+  font-size: 3.4vw;
+  line-height: 1.1;
+}
+
+.education-gpa-label {
+  color: #7a7a7a;
+  font-family: var(--font-mono);
+  font-size: 0.9vw;
+  letter-spacing: 0.3em;
+}
+
 @media screen and (max-width: 1200px) {
   .about-profile {
     flex-direction: column;
@@ -411,5 +492,41 @@
   .about-bio p {
     max-width: none;
     font-size: 4.2vw;
+  }
+
+  .education {
+    max-width: none;
+    gap: 6vw;
+  }
+
+  .education-school {
+    gap: 4vw;
+  }
+
+  .education-logo,
+  .education-monogram {
+    width: 11vw;
+    height: 11vw;
+  }
+
+  .education-monogram {
+    font-size: 3vw;
+  }
+
+  .education h3 {
+    font-size: 4vw;
+  }
+
+  .education-degree,
+  .education-years {
+    font-size: 3.2vw;
+  }
+
+  .education-gpa-value {
+    font-size: 10vw;
+  }
+
+  .education-gpa-label {
+    font-size: 2.8vw;
   }
 }

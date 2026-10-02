@@ -49,6 +49,16 @@ export interface AboutData {
   /** Path under public/, transparent background. */
   portrait: string;
   portraitAlt: string;
+  education: Education;
+}
+
+export interface Education {
+  school: string;
+  degree: string;
+  years: string;
+  gpa: string;
+  /** Path under public/; a monogram is shown while the file is missing. */
+  logo: string;
 }
 
 export interface Milestone {

@@ -5,6 +5,7 @@ import { SplitText } from '../../components/Text';
 import type { AboutData, Layout } from '../../content/types';
 import { rgb } from '../../engine';
 import { useGalaxy } from '../../react/useGalaxy';
+import { EducationCard } from './EducationCard';
 import { Portrait } from './Portrait';
 import './AboutSection.css';
 
@@ -73,11 +74,14 @@ export function AboutSection({ data, layout }: { data: AboutData; layout: Layout
       ))}
       <div className="about-profile">
         <Portrait src={data.portrait} alt={data.portraitAlt} layout={layout} />
-        <motion.div {...slideIn(0.2)} className="about-bio">
-          {data.bio.map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
-        </motion.div>
+        <div className="about-text">
+          <motion.div {...slideIn(0.2)} className="about-bio">
+            {data.bio.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </motion.div>
+          <EducationCard education={data.education} />
+        </div>
       </div>
     </div>
   );
