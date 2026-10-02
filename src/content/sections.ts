@@ -1,4 +1,5 @@
-import type { AboutData, IntroData, ProjectsData, SkillsData, StatsData } from './types';
+import { links } from './identity';
+import type { AboutData, ContactData, IntroData, ProjectsData, SkillsData, StatsData } from './types';
 
 export const intro: IntroData = {
   title: 'Did you Know?',
@@ -42,44 +43,66 @@ export const projects: ProjectsData = {
     {
       title: 'Graph IO',
       description: 'A complex mobile puzzle game, with over 50 levels.',
+      details: '[Placeholder: your role, the tech stack and one highlight]',
       image: 'images/projects/graphio.webp',
       href: 'https://jekuper.itch.io/graph-io',
+      linkLabel: 'Play on itch.io',
     },
     {
       title: 'Ronikara',
       description: 'First Person Multiplayer Game with unique techniques.',
+      details: '[Placeholder: your role, the tech stack and one highlight]',
       image: 'images/projects/ronikara.webp',
       href: 'https://jekuper.itch.io/ronikara',
+      linkLabel: 'Play on itch.io',
     },
     {
       title: 'Meta Cube',
       description: 'A fun little game about mutations.',
+      details: '[Placeholder: your role, the tech stack and one highlight]',
       image: 'images/projects/metacube.webp',
       href: 'https://jekuper.itch.io/metacube',
+      linkLabel: 'Play on itch.io',
     },
     {
       title: 'Demo 1',
       description: 'A tech demo of 3D procedural dungeon generation.',
+      details: '[Placeholder: your role, the tech stack and one highlight]',
       image: 'images/projects/demo.webp',
       href: 'https://github.com/jekuper/proceduralDungeon3DGame',
+      linkLabel: 'View source',
     },
     {
       title: 'Giga Wolf',
       description: 'A casual PC game with simple animal simulation.',
+      details: '[Placeholder: your role, the tech stack and one highlight]',
       image: 'images/projects/gigawolf.webp',
       href: 'https://jekuper.itch.io/wolf-simulator',
+      linkLabel: 'Play on itch.io',
     },
     {
       title: 'Emotional Maze',
       description: 'A puzzle game with procedural maze.',
+      details: '[Placeholder: your role, the tech stack and one highlight]',
       image: 'images/projects/maze.webp',
       href: 'https://jekuper.itch.io/emotional-maze',
+      linkLabel: 'Play on itch.io',
     },
     {
       title: 'Card Trainer',
       description: 'A flashcard based language learning app.',
+      details: '[Placeholder: your role, the tech stack and one highlight]',
       image: 'images/projects/cardtrainer.webp',
       href: 'https://jekuper.itch.io/cardtrainer',
+      linkLabel: 'Play on itch.io',
     },
   ],
+};
+
+export const contact: ContactData = {
+  heading: "LET'S TALK",
+  text: '[Placeholder: one or two lines on what kind of work or roles you are looking for]',
+  email: 'joesharipov@gmail.com',
+  links,
+  footer: 'Joe Sharipov',
 };

@@ -55,14 +55,25 @@ export interface StatsData {
 export interface Project {
   title: string;
   description: string;
+  /** Longer text shown next to the project: role, stack, highlights. */
+  details: string;
   /** Path under public/. */
   image: string;
   href: string;
+  linkLabel: string;
 }
 
 export interface ProjectsData {
   title: SplitText;
   projects: Project[];
+}
+
+export interface ContactData {
+  heading: string;
+  text: string;
+  email: string;
+  links: SocialLink[];
+  footer: string;
 }
 
 interface Entry<T extends string, D> {
@@ -77,7 +88,8 @@ export type SectionEntry =
   | Entry<'skills', SkillsData>
   | Entry<'about', AboutData>
   | Entry<'stats', StatsData>
-  | Entry<'projects', ProjectsData>;
+  | Entry<'projects', ProjectsData>
+  | Entry<'contact', ContactData>;
 
 export type SectionType = SectionEntry['type'];
 
