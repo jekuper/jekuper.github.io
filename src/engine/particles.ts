@@ -25,7 +25,7 @@ const F32 = ['damping', 'size', 'alpha', 'r', 'g', 'b', 'tr', 'tg', 'tb', 'fadeS
 const I32 = ['link'] as const;
 const U32 = ['gen', 'linkGen'] as const;
 const U16 = ['flags'] as const;
-const U8 = ['onArrive', 'layer'] as const;
+const U8 = ['onArrive', 'layer', 'clip'] as const;
 
 type TypedArray = Float64Array | Float32Array | Int32Array | Uint32Array | Uint16Array | Uint8Array;
 type ArrayCtor = { new (length: number): TypedArray };
@@ -90,6 +90,8 @@ export class ParticleStore {
   declare flags: Uint16Array;
   declare onArrive: Uint8Array;
   declare layer: Uint8Array;
+  /** Clip region index (0 for none); outside it the dot is simulated but not drawn. */
+  declare clip: Uint8Array;
 
   private free = new Int32Array(0);
   private freeCount = 0;
@@ -120,6 +122,7 @@ export class ParticleStore {
     this.linkAlpha[i] = this.linkAccel[i] = 0;
     this.onArrive[i] = ARRIVE_NONE;
     this.layer[i] = MAIN_LAYER;
+    this.clip[i] = 0;
     this.flags[i] = ALIVE | GRAVITATABLE;
     return i;
   }

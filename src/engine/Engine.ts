@@ -17,6 +17,8 @@ export interface MorphRequest {
   holdTime?: number;
   /** Named emitter (see `setEmitter`) the dots come from and return to. */
   emitter?: string;
+  /** Named clip region (see `defineClip`) the dots are drawn inside. */
+  clip?: string;
   surplus?: 'retire' | 'release';
   afterHold?: 'dissolve' | 'release' | 'scatter';
 }
@@ -90,6 +92,12 @@ export class Engine {
     this.world.setEmitter(name, at.x * this.dpr, at.y * this.dpr, visible);
   }
 
+  /** Names a world rectangle (CSS pixels) that groups can be clipped to. */
+  defineClip(name: string, rect: Rect): void {
+    const d = this.dpr;
+    this.world.defineClip(name, { x: rect.x * d, y: rect.y * d, width: rect.width * d, height: rect.height * d });
+  }
+
   removeEmitter(name: string): void {
     this.world.removeEmitter(name);
   }
@@ -148,6 +156,7 @@ export class Engine {
       density: request.density,
       holdTime: request.holdTime ?? Infinity,
       emitter: request.emitter,
+      clip: request.clip,
       surplus: request.surplus,
       afterHold: request.afterHold,
     });

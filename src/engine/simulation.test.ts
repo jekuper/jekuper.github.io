@@ -197,5 +197,20 @@ describe('World', () => {
     world.eraseAtCursor();
     expect(world.particles.live).toBe(400);
   });
+
+  it('does not draw clipped dots outside their region', () => {
+    const world = new World();
+    world.setBounds(800, 600);
+    world.defineClip('box', { x: 0, y: 0, width: 400, height: 300 });
+    world.seedField('f', { x: 100, y: 100, width: 100, height: 100 }, 100, 0, { clip: 'box' });
+    const batch = new DrawBatch();
+    world.frame(0, batch);
+    const inside = batch.glow.count;
+    const p = world.particles;
+    for (const i of aliveSlots(world).slice(0, 40)) p.y[i] += 1000;
+    world.frame(0, batch);
+    expect(inside).toBe(100);
+    expect(batch.glow.count).toBe(60);
+  });
 });
 

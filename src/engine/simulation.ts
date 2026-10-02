@@ -59,6 +59,8 @@ export interface MorphTarget {
   holdTime: number;
   /** Emitter the group's new dots come from and retired dots return to. */
   emitter?: string;
+  /** Named clip region (see `defineClip`) the group's dots are drawn inside. */
+  clip?: string;
   /** Dots the art does not need: sent into the emitter, or left drifting. */
   surplus?: 'retire' | 'release';
   /** After the hold: return the dots to the emitter, let them drift, or throw them outward. */
@@ -79,6 +81,8 @@ export interface FieldOptions {
   fadeIn?: number;
   /** Corner wells still pull but are not drawn. */
   hiddenWells?: boolean;
+  /** Named clip region the field is drawn inside. */
+  clip?: string;
 }
 
 type Phase = 'fading' | 'forming' | 'holding' | 'dissolving';
@@ -90,6 +94,7 @@ interface Group {
   timer: number;
   target: MorphTarget | null;
   emitter: string;
+  clip: number;
 }
 
 export interface Point {
@@ -121,6 +126,9 @@ export class World {
   shakeY = 0;
 
   private groups = new Map<string, Group>();
+  /** Clip rectangles; index 0 means unclipped. */
+  private clips: Rect[] = [{ x: 0, y: 0, width: 0, height: 0 }];
+  private clipIds = new Map<string, number>();
   private gravity = new GravityField();
   private ambientGravity = new GravityField();
   private shakeTime = 0;
@@ -137,6 +145,21 @@ export class World {
     this.groups.clear();
     this.shakeTime = 0;
     this.eraserVisible = false;
+  }
+
+  /** Creates or moves a named region; dots of groups clipped to it are drawn only inside it. */
+  defineClip(name: string, rect: Rect): void {
+    const id = this.clipIds.get(name);
+    if (id !== undefined) {
+      this.clips[id] = rect;
+    } else if (this.clips.length < 256) {
+      this.clipIds.set(name, this.clips.length);
+      this.clips.push(rect);
+    }
+  }
+
+  private clipId(name: string | undefined): number {
+    return name === undefined ? 0 : (this.clipIds.get(name) ?? 0);
   }
 
   setEmitter(name: string, x: number, y: number, visible = true): void {
@@ -199,6 +222,7 @@ export class World {
   /** A grid of drifting dots with a well in each corner of `rect`. */
   seedField(name: string, rect: Rect, count: number, wellMagnitude: number, options: FieldOptions = {}): void {
     const alpha = options.alpha ?? 1;
+    const clip = this.clipId(options.clip);
     const wrapTop = Math.floor(rect.y / this.height) * this.height;
     for (const fy of [0, 1]) {
       for (const fx of [0, 1]) {
@@ -219,6 +243,7 @@ export class World {
       p.size[i] = PARTICLE.size;
       p.spDuration[i] = PARTICLE.spiralDuration;
       p.alpha[i] = alpha;
+      p.clip[i] = clip;
       p.flags[i] |= GLOW;
       if (options.fadeIn) {
         p.setColor(i, BACKGROUND);
@@ -244,6 +269,7 @@ export class World {
       timer: Infinity,
       target: null,
       emitter: DEFAULT_EMITTER,
+      clip,
     });
   }
 
@@ -291,6 +317,7 @@ export class World {
       timer: Infinity,
       target: null,
       emitter: DEFAULT_EMITTER,
+      clip: 0,
     });
   }
 
@@ -298,11 +325,12 @@ export class World {
   morph(name: string, target: MorphTarget): void {
     let group = this.groups.get(name);
     if (!group) {
-      group = { slots: [], gens: [], phase: 'fading', timer: 0, target, emitter: DEFAULT_EMITTER };
+      group = { slots: [], gens: [], phase: 'fading', timer: 0, target, emitter: DEFAULT_EMITTER, clip: 0 };
       this.groups.set(name, group);
     }
     group.target = target;
     group.emitter = target.emitter ?? DEFAULT_EMITTER;
+    group.clip = this.clipId(target.clip);
     group.phase = 'fading';
     group.timer = 0;
     const p = this.particles;
@@ -514,6 +542,7 @@ export class World {
         // An open contour's last point links to itself, which draws no line.
         const next = k + 1 < end ? order[k + 1] : closed ? order[start] : i;
         p.setLink(i, next, LINK.fadeIn);
+        p.clip[i] = group.clip;
         p.setFix(i, x, y, target.density, false);
         p.flags[i] &= ~(GLOW | ROUND);
         if (art.round) p.flags[i] |= ROUND;
@@ -890,6 +919,13 @@ export class World {
       if (!(flags & ALIVE)) continue;
 
       if (flags & COLOR_FADING) fadeColorStep(p, i, p.fadeSpeed[i] * dt);
+      const c = p.clip[i];
+      if (c) {
+        const r = this.clips[c];
+        const x = p.x[i];
+        const y = p.y[i];
+        if (x < r.x || y < r.y || x > r.x + r.width || y > r.y + r.height) continue;
+      }
       const size = flags & ROUND ? -p.size[i] : p.size[i];
       (flags & GLOW ? batch.glow : batch.points).push(p.x[i], p.y[i], p.r[i], p.g[i], p.b[i], p.alpha[i], size);
 
