@@ -108,6 +108,8 @@ export interface Project {
   linkLabel: string;
   /** How the screenshot's dot grid is chained into lines; cycles when omitted. */
   sketch?: 'rows' | 'columns' | 'diagonal' | 'spiral' | 'dots';
+  /** Grid sampling tweaks for unusual screenshots, e.g. dark ones with thin bright details. */
+  sketchTuning?: { sample?: 'average' | 'peak'; minLuminance?: number; minBrightness?: number };
 }
 
 export interface ProjectsData {

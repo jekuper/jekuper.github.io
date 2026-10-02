@@ -11,14 +11,19 @@ const MIN_STEP = 6;
 const MAX_DOTS: Record<Layout, number> = { desktop: 7000, mobile: 2500 };
 const ORDERS: GridOrder[] = ['rows', 'columns', 'diagonal', 'spiral'];
 const SKETCH_COLOR = rgb(190, 190, 190);
+// True colors and each cell's brightest pixel: dim glows stay dim and thin bright details survive.
+// Only near-black cells are skipped, since they would be invisible on the page anyway.
+const DEFAULT_TUNING = { sample: 'peak', minLuminance: 6, minBrightness: 0 } as const;
 
 const sketches = new Map<string, Promise<LineArt>>();
 
-function sketch(url: string, width: number, height: number, step: number, order: GridOrder): Promise<LineArt> {
-  const key = `${url}|${Math.round(width)}x${Math.round(height)}|${step}|${order}`;
+type Tuning = Project['sketchTuning'];
+
+function sketch(url: string, width: number, height: number, step: number, order: GridOrder, tuning: Tuning): Promise<LineArt> {
+  const key = `${url}|${Math.round(width)}x${Math.round(height)}|${step}|${order}|${JSON.stringify(tuning ?? {})}`;
   let pending = sketches.get(key);
   if (!pending) {
-    pending = loadImage(url).then((img) => imageToGrid(img, { width, height, step, order }));
+    pending = loadImage(url).then((img) => imageToGrid(img, { width, height, step, order, ...DEFAULT_TUNING, ...tuning }));
     pending.catch(() => sketches.delete(key));
     sketches.set(key, pending);
   }
@@ -41,7 +46,7 @@ export function ProjectRow({ project, index, layout }: ProjectRowProps) {
     const rect = el.getBoundingClientRect();
     const step = Math.max(MIN_STEP, Math.sqrt((rect.width * rect.height) / MAX_DOTS[layout]));
     const order = project.sketch ?? ORDERS[index % ORDERS.length];
-    const art = await sketch(asset(project.image), rect.width, rect.height, step, order);
+    const art = await sketch(asset(project.image), rect.width, rect.height, step, order, project.sketchTuning);
     return { art, left: rect.left, top: rect.top, width: rect.width, height: rect.height, color: SKETCH_COLOR };
   });
 
