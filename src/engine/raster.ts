@@ -140,6 +140,47 @@ export interface GridOptions {
   minAlpha?: number;
   /** Channels are brightened until the strongest reaches this. */
   minBrightness?: number;
+  /**
+   * `average` blends each cell; `peak` takes its brightest pixel, which keeps
+   * thin bright details (neon lines, small lights) that averaging would lose.
+   */
+  sample?: 'average' | 'peak';
+}
+
+const PEAK_SUBSAMPLES = 4;
+
+/** One RGBA value per grid cell, the image cropped to cover the grid. */
+function sampleCells(image: CanvasImageSource & { width: number; height: number }, cols: number, rows: number, peak: boolean): Uint8ClampedArray {
+  const k = peak ? PEAK_SUBSAMPLES : 1;
+  // Drawing into a small canvas averages each cell for us.
+  const ctx = context2d(cols * k, rows * k);
+  ctx.imageSmoothingQuality = 'high';
+  const cover = Math.max((cols * k) / image.width, (rows * k) / image.height);
+  const dw = image.width * cover;
+  const dh = image.height * cover;
+  ctx.drawImage(image, (cols * k - dw) / 2, (rows * k - dh) / 2, dw, dh);
+  const src = ctx.getImageData(0, 0, cols * k, rows * k).data;
+  if (!peak) return src;
+
+  const out = new Uint8ClampedArray(cols * rows * 4);
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      let best = -1;
+      let at = 0;
+      for (let sy = 0; sy < k; sy++) {
+        for (let sx = 0; sx < k; sx++) {
+          const o = ((y * k + sy) * cols * k + x * k + sx) * 4;
+          const l = 0.299 * src[o] + 0.587 * src[o + 1] + 0.114 * src[o + 2];
+          if (l > best) {
+            best = l;
+            at = o;
+          }
+        }
+      }
+      out.set(src.subarray(at, at + 4), (y * cols + x) * 4);
+    }
+  }
+  return out;
 }
 
 /** Cell visiting order for each `GridOrder`, as [column, row] pairs. */
@@ -180,14 +221,7 @@ export function imageToGrid(image: CanvasImageSource & { width: number; height: 
   const { width, height, step } = options;
   const cols = Math.max(1, Math.floor(width / step));
   const rows = Math.max(1, Math.floor(height / step));
-  // Drawing straight into a cols x rows canvas averages each cell for us.
-  const ctx = context2d(cols, rows);
-  ctx.imageSmoothingQuality = 'high';
-  const cover = Math.max(cols / image.width, rows / image.height);
-  const dw = image.width * cover;
-  const dh = image.height * cover;
-  ctx.drawImage(image, (cols - dw) / 2, (rows - dh) / 2, dw, dh);
-  const px = ctx.getImageData(0, 0, cols, rows).data;
+  const px = sampleCells(image, cols, rows, options.sample === 'peak');
 
   const minLuminance = options.minLuminance ?? 22;
   const minAlpha = options.minAlpha ?? 128;
@@ -230,7 +264,8 @@ export function imageToGrid(image: CanvasImageSource & { width: number; height: 
       b = Math.min(255, b * boost + 1);
     }
     xs.push(offsetX + x * step, offsetY + y * step);
-    rgb.push(r, g, b);
+    // Pure black would mean "use the group color", so keep it one step above.
+    rgb.push(Math.max(r, 1), g, b);
   }
   flush();
 
