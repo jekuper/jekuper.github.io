@@ -14,8 +14,8 @@ export const ARRIVE_NONE = 0;
 export const ARRIVE_FIX = 1;
 export const ARRIVE_DESTROY = 2;
 
-const F64 = ['x', 'y', 'vx', 'vy', 'fx', 'fy', 'fixX', 'fixY', 'spStartX', 'spStartY', 'spTargetX', 'spTargetY'] as const;
-const F32 = ['damping', 'size', 'alpha', 'r', 'g', 'b', 'tr', 'tg', 'tb', 'fadeSpeed', 'fixK', 'spTime', 'spDuration', 'spRadius', 'linkAlpha', 'linkAccel'] as const;
+const F64 = ['x', 'y', 'vx', 'vy', 'fx', 'fy', 'fixX', 'fixY', 'spStartX', 'spStartY', 'spTargetX', 'spTargetY', 'spCtrlX', 'spCtrlY'] as const;
+const F32 = ['damping', 'size', 'alpha', 'r', 'g', 'b', 'tr', 'tg', 'tb', 'fadeSpeed', 'fixK', 'spTime', 'spDuration', 'spRadius', 'spDelay', 'linkAlpha', 'linkAccel'] as const;
 const I32 = ['link'] as const;
 const U32 = ['gen', 'linkGen'] as const;
 const U8 = ['flags', 'onArrive'] as const;
@@ -53,6 +53,9 @@ export class ParticleStore {
   declare spStartY: Float64Array;
   declare spTargetX: Float64Array;
   declare spTargetY: Float64Array;
+  /** Curve control point of the current flight, set when it starts. */
+  declare spCtrlX: Float64Array;
+  declare spCtrlY: Float64Array;
 
   declare damping: Float32Array;
   declare size: Float32Array;
@@ -67,7 +70,9 @@ export class ParticleStore {
   declare fixK: Float32Array;
   declare spTime: Float32Array;
   declare spDuration: Float32Array;
+  /** Spiral radius, or signed curve bend for arc flights. */
   declare spRadius: Float32Array;
+  declare spDelay: Float32Array;
   declare linkAlpha: Float32Array;
   declare linkAccel: Float32Array;
 
@@ -100,7 +105,7 @@ export class ParticleStore {
     this.size[i] = 0;
     this.alpha[i] = 1;
     this.r[i] = this.g[i] = this.b[i] = 0;
-    this.spTime[i] = this.spRadius[i] = 0;
+    this.spTime[i] = this.spRadius[i] = this.spDelay[i] = 0;
     this.spDuration[i] = 1;
     this.link[i] = -1;
     this.linkAlpha[i] = this.linkAccel[i] = 0;
@@ -176,11 +181,13 @@ export class ParticleStore {
     this.flags[i] &= ~LINKED;
   }
 
-  spiralTo(i: number, radius: number, x: number, y: number, duration: number, onArrive: number): void {
-    this.spRadius[i] = radius;
+  /** Starts a flight to (x, y); `bend` curves the path, `delay` holds it at its start first. */
+  flyTo(i: number, x: number, y: number, duration: number, onArrive: number, bend: number, delay = 0): void {
+    this.spRadius[i] = bend;
     this.spTargetX[i] = x;
     this.spTargetY[i] = y;
     this.spDuration[i] = duration;
+    this.spDelay[i] = delay;
     this.spTime[i] = 0;
     this.onArrive[i] = onArrive;
     this.flags[i] |= SPIRALING;

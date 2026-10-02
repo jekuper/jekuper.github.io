@@ -28,11 +28,19 @@ export interface Bomb {
 }
 
 export interface Spark {
+  cx: number;
+  cy: number;
+  angle: number;
+  reach: number;
+  spin: number;
+  age: number;
+}
+
+/** Spawn and return point for a group's dots. */
+export interface Emitter {
   x: number;
   y: number;
-  vx: number;
-  vy: number;
-  life: number;
+  visible: boolean;
 }
 
 export function createWell(x: number, y: number, magnitude: number, onTop: boolean, wrapTop: number): Well {

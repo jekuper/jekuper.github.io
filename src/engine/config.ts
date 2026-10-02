@@ -16,6 +16,26 @@ export const PARTICLE = {
   fieldColor: rgb(157, 157, 157),
 };
 
+/**
+ * How dots travel to their spot. `arc`: a curved path timed by distance, with
+ * starts staggered along the drawing order. `spiral`: the force-driven spiral.
+ */
+export const FLIGHT = {
+  style: 'arc' as 'arc' | 'spiral',
+  /** Seconds = base + distance / speed, clamped, then jittered. */
+  base: 0.45,
+  speed: 1400,
+  minDuration: 0.5,
+  maxDuration: 2.2,
+  jitter: 0.15,
+  /** Sideways curve as a fraction of the distance. */
+  minBend: 0.12,
+  maxBend: 0.4,
+  /** The whole drawing starts within this many seconds, in contour order. */
+  stagger: 0.9,
+  retireStagger: 0.35,
+};
+
 export const SPIRAL = {
   stiffness: 140,
   settleDamping: 0.5,
@@ -61,6 +81,9 @@ export const ERASER = {
 
 export const EMITTER = {
   width: 10,
+  barColor: rgb(210, 210, 210),
+  barAlpha: 0.35,
+  barWidth: 14,
   heightRatio: 0.005,
   maxHeight: 0.3,
   inset: 0.1,
@@ -82,7 +105,7 @@ export const GRAVITY = {
 };
 
 export const CURSOR = {
-  radius: 140,
+  radius: 70,
   /** Pull at the cursor, falling to zero at the radius. */
   strength: 2200,
   /** Velocity kept per step inside the radius, so stirring does not heat the field. */
@@ -95,12 +118,18 @@ export const TRAIL = {
   endColor: rgb(40, 0, 0),
 };
 
+/** Vacuum bomb: sparks rush out to the blast edge, stall, then get sucked back in. */
 export const SPARKS = {
-  count: 48,
-  speed: 520,
-  life: 0.7,
+  count: 72,
+  life: 1.2,
+  /** Share of the life spent flying out. */
+  outPortion: 0.35,
+  /** Reach as a multiple of the blast radius. */
+  minReach: 0.7,
+  maxReach: 1.4,
+  /** Total swirl in radians over the life. */
+  spin: 0.8,
   size: 3,
-  damping: 0.94,
   color: rgb(255, 150, 60),
 };
 
