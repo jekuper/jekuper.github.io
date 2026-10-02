@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react';
 import type { Layout, SectionEntry, SectionType } from '../content/types';
 import { AboutSection } from './about/AboutSection';
+import { ContactSection } from './contact/ContactSection';
 import { IntroSection } from './intro/IntroSection';
 import { ProjectsSection } from './projects/ProjectsSection';
 import { SkillsSection } from './skills/SkillsSection';
@@ -19,6 +20,7 @@ const components: { [T in SectionType]: ComponentType<SectionProps<T>> } = {
   about: AboutSection,
   stats: StatsSection,
   projects: ProjectsSection,
+  contact: ContactSection,
 };
 
 export function SectionList({ entries, layout }: { entries: SectionEntry[]; layout: Layout }) {

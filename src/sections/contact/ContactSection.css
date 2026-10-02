@@ -1,0 +1,112 @@
+.contact {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 18vh 5vw 4vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  pointer-events: none;
+}
+
+.contact-title {
+  margin: 0;
+  color: #d2d2d2;
+  font-family: var(--font-display);
+  font-size: 9vw;
+  font-weight: 400;
+  letter-spacing: 1vw;
+}
+
+.contact-text {
+  max-width: 50vw;
+  margin: 4vh 0 6vh;
+  color: #a6a6a6;
+  font-family: var(--font-mono);
+  font-size: 1.6vw;
+}
+
+.contact-email {
+  position: relative;
+  padding-bottom: 0.4em;
+  color: #d2d2d2;
+  font-family: var(--font-grotesk);
+  font-size: 2.2vw;
+  text-decoration: none;
+  pointer-events: auto;
+  transition: color 0.3s ease-in-out;
+}
+
+.contact-email:hover {
+  color: white;
+}
+
+.contact-email .skill-underline {
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+
+.contact-links {
+  display: flex;
+  gap: 2vw;
+  margin-top: 8vh;
+  pointer-events: auto;
+}
+
+.contact-links .img-container {
+  width: 5vh;
+  height: 5vh;
+}
+
+.contact-links img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: filter 0.5s ease-in-out;
+}
+
+.contact-links img:hover {
+  filter: brightness(2);
+}
+
+.contact-footer {
+  margin-top: auto;
+  color: #4a4a4a;
+  font-family: var(--font-mono);
+  font-size: 0.9vw;
+}
+
+@media screen and (max-width: 1200px) {
+  .contact-title {
+    font-size: 13vw;
+  }
+
+  .contact-text {
+    max-width: 85vw;
+    font-size: 4vw;
+  }
+
+  .contact-email {
+    font-size: 5vw;
+  }
+
+  .contact-links {
+    gap: 6vw;
+  }
+
+  .contact-links .img-container {
+    width: 11vw;
+    height: 11vw;
+  }
+
+  .contact-email .skill-underline {
+    top: auto;
+    left: 0;
+    width: 100%;
+  }
+
+  .contact-footer {
+    font-size: 3vw;
+  }
+}
