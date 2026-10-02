@@ -50,6 +50,8 @@ export function useViewMorph(
   const emitterRef = useRef(options.emitter ?? belowElement);
   emitterRef.current = options.emitter ?? belowElement;
   const hide = options.hide ?? 'dissolve';
+  /** World position of the element's corner when the group was placed; null while not formed. */
+  const anchor = useRef<Point | null>(null);
 
   const reform = useCallback(async () => {
     const el = ref.current;
@@ -70,11 +72,14 @@ export function useViewMorph(
       density: DENSITY,
       emitter: group,
     });
+    const rect = el.getBoundingClientRect();
+    anchor.current = engine.viewToWorld(rect.left, rect.top);
     setFormed(true);
   }, [engine, group, ref]);
 
   const vanish = useCallback(() => {
     request.current++;
+    anchor.current = null;
     if (!engine) return;
     if (hide === 'scatter') engine.scatter(group);
     else engine.dissolve(group);
@@ -112,8 +117,37 @@ export function useViewMorph(
     else vanish();
   }, [active, reform, vanish]);
 
+  // Over a pinned stretch of the world the element scrolls but the world does not; follow it.
+  useEffect(() => {
+    if (!engine) return;
+    let frame = 0;
+    const follow = () => {
+      frame = 0;
+      const el = ref.current;
+      if (!el || !anchor.current) return;
+      const rect = el.getBoundingClientRect();
+      const now = engine.viewToWorld(rect.left, rect.top);
+      const dx = now.x - anchor.current.x;
+      const dy = now.y - anchor.current.y;
+      if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) return;
+      engine.moveGroup(group, dx, dy);
+      const spawn = emitterRef.current(rect);
+      engine.setEmitter(group, engine.viewToWorld(spawn.x, spawn.y));
+      anchor.current = now;
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(follow);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', onScroll);
+    };
+  }, [engine, group, ref]);
+
   const scatter = useCallback(() => {
     request.current++;
+    anchor.current = null;
     engine?.scatter(group);
   }, [engine, group]);
 

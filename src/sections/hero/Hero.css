@@ -33,12 +33,12 @@
   justify-content: center;
   position: relative;
   pointer-events: none;
-  transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+  transition: opacity 0.4s ease-in-out;
 }
 
+/* No transform here: the dot name measures this box while it fades back in. */
 .hero-title.off {
   opacity: 0;
-  transform: translateY(-30px) scale(0.95);
 }
 
 .title-wrapper {
