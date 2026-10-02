@@ -1,0 +1,356 @@
+.section-about {
+  width: 100vw;
+  background-color: #d2d2d2;
+  z-index: 1;
+  position: relative;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.section-about h1 {
+  width: 100%;
+  color: #0d0c0d;
+  font-family: var(--font-mono);
+  font-size: 4vw;
+  font-style: normal;
+  font-weight: 300;
+  line-height: normal;
+  margin-top: 0.3em;
+  margin-bottom: 0.3em;
+  display: inline-block;
+  margin-left: 3vw;
+}
+
+.section-about h2:first-of-type {
+  margin-top: 12vh;
+}
+
+.section-about .purple-background {
+  height: 8.4vw;
+  width: 80vw;
+  display: flex;
+  align-items: center;
+  z-index: 3;
+  position: relative;
+  background-color: #43158c;
+}
+
+.section-about .purple-background h2 {
+  color: #d2d2d2;
+  margin: 0;
+  margin-left: 28vw;
+}
+
+.section-about h2 {
+  color: #000;
+  font-family: var(--font-grotesk);
+  font-size: 6vw;
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: 0.8vw;
+  text-transform: uppercase;
+  line-height: normal;
+  margin-top: 0.4em;
+  margin-bottom: 0.4em;
+  margin-left: 28vw;
+  display: inline-block;
+  position: relative;
+  z-index: 3;
+}
+
+/* Rows of drifting words. nth-of-type counts every div, so the purple bar is
+   div 1 and the first word row is div 2. */
+.section-about .background-words {
+  position: absolute;
+  top: 15%;
+  width: 40vw;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  z-index: 1;
+  color: #585656;
+  font-family: var(--font-grotesk);
+  font-size: 3vh;
+  font-style: italic;
+  font-weight: 300;
+  animation: marquee_about_section 30s linear infinite;
+  transform: translateX(-43vw);
+}
+
+.section-about .background-words:nth-of-type(2) {
+  top: 38%;
+  animation-delay: 2s;
+  animation-direction: reverse;
+  animation-duration: 50s;
+}
+
+.section-about .background-words:nth-of-type(3) {
+  top: 58%;
+  animation-delay: 8s;
+  animation-duration: 40s;
+}
+
+.section-about .background-words:nth-of-type(4) {
+  top: 38%;
+  animation-delay: 24s;
+  animation-direction: reverse;
+  animation-duration: 50s;
+}
+
+.section-about .background-words:nth-of-type(5) {
+  animation-delay: 16s;
+  animation-duration: 30s;
+}
+
+.section-about .background-words:nth-of-type(6) {
+  top: 58%;
+  animation-delay: 28s;
+  animation-duration: 40s;
+}
+
+@keyframes marquee_about_section {
+  from {
+    transform: translateX(100vw);
+  }
+  to {
+    transform: translateX(-43vw);
+  }
+}
+
+/* Frosted glass panes */
+
+.blur {
+  position: absolute;
+  top: 0;
+  left: 25%;
+  width: 8%;
+  height: 100%;
+  border-right: 1px solid #000;
+  border-left: 1px solid #000;
+  background: rgba(210, 210, 210, 0.1);
+  backdrop-filter: blur(4.5px);
+  z-index: 2;
+  animation: moveLeftRight1 10s infinite alternate;
+}
+
+.blur:nth-child(2 of .blur) {
+  left: 44%;
+  animation: moveLeftRight2 5s infinite alternate;
+}
+
+.blur:nth-child(3 of .blur) {
+  left: 50%;
+  animation: moveLeftRight2 10s infinite alternate-reverse;
+}
+
+.blur:nth-child(4 of .blur) {
+  left: 54%;
+  animation: moveLeftRight2 6s infinite alternate;
+}
+
+.blur:nth-child(5 of .blur) {
+  left: 76%;
+  animation: moveLeftRight2 8.5s infinite alternate-reverse;
+}
+
+.blur:nth-child(6 of .blur) {
+  left: 81%;
+  animation: moveLeftRight2 7.5s infinite alternate;
+}
+
+@keyframes moveLeftRight1 {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-2vw);
+  }
+  50% {
+    transform: translateX(-3vw);
+  }
+  75% {
+    transform: translateX(-2vw);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes moveLeftRight2 {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-1vw);
+  }
+  50% {
+    transform: translateX(-2vw);
+  }
+  75% {
+    transform: translateX(-1vw);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  .section-about {
+    height: 108vw;
+  }
+
+  .section-about h1 {
+    font-size: 6.8vw;
+    z-index: 15;
+    position: inherit;
+    text-align: right;
+    margin-left: 0;
+    margin-top: 4.7vh;
+    width: 95.3vw;
+  }
+
+  .section-about h2:first-of-type {
+    margin-top: 22.2vw;
+    margin-bottom: 7.56vw;
+  }
+
+  .section-about h2 {
+    font-size: 9.1vw;
+    margin-left: 0;
+    margin-top: 0;
+    margin-bottom: 7.56vw;
+    letter-spacing: 5.715px;
+  }
+
+  .section-about .purple-background h2 {
+    margin-left: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  .section-about .purple-background {
+    height: 13vw;
+    position: absolute;
+    bottom: 0;
+    justify-content: flex-end;
+  }
+
+  .section-about .background-words {
+    top: 29%;
+    font-size: 2.1vw;
+    width: 80vw;
+    transform: translateX(100vw);
+  }
+
+  .section-about .background-words:nth-of-type(2) {
+    top: 47%;
+  }
+
+  .section-about .background-words:nth-of-type(3) {
+    top: 64%;
+  }
+
+  .section-about .background-words:nth-of-type(4) {
+    top: 47%;
+  }
+
+  .section-about .background-words:nth-of-type(6) {
+    top: 64%;
+  }
+
+  @keyframes marquee_about_section {
+    from {
+      transform: translateX(100vw);
+    }
+    to {
+      transform: translateX(-90vw);
+    }
+  }
+
+  .blur {
+    width: 16%;
+    left: 10%;
+  }
+
+  .blur:nth-child(2 of .blur) {
+    left: 24%;
+  }
+
+  .blur:nth-child(3 of .blur) {
+    left: 43%;
+  }
+
+  .blur:nth-child(4 of .blur),
+  .blur:nth-child(5 of .blur),
+  .blur:nth-child(6 of .blur) {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 470px) {
+  .section-about {
+    height: 222vw;
+  }
+
+  .section-about h1 {
+    font-size: 8vw;
+  }
+
+  .section-about h2 {
+    font-size: 14vw;
+    margin-bottom: 13vw;
+  }
+
+  .section-about h2:first-of-type {
+    margin-top: 19.98vw;
+    margin-bottom: 13vw;
+  }
+
+  .section-about .purple-background h2 {
+    margin-left: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    text-align: right;
+    font-size: 17vw;
+  }
+
+  .section-about .purple-background {
+    height: 47vw;
+    padding-right: 5vw;
+    box-sizing: border-box;
+  }
+
+  .section-about .background-words {
+    top: 15%;
+    font-size: 3vw;
+  }
+
+  .section-about .background-words:nth-of-type(2) {
+    top: 36%;
+  }
+
+  .section-about .background-words:nth-of-type(3) {
+    top: 57%;
+  }
+
+  .section-about .background-words:nth-of-type(4) {
+    top: 36%;
+  }
+
+  .section-about .background-words:nth-of-type(6) {
+    top: 57%;
+  }
+
+  .blur {
+    width: 20%;
+    left: 7%;
+  }
+
+  .blur:nth-child(2 of .blur) {
+    left: 35%;
+  }
+
+  .blur:nth-child(3 of .blur) {
+    display: none;
+  }
+}
