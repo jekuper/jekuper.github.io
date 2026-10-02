@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 import type { EngineHelp } from '../../content/types';
 
-const GAP = ' '.repeat(7);
+const GAP = '\u00a0'.repeat(7);
 
 export function CanvasHint({ help }: { help: EngineHelp }) {
   return (
