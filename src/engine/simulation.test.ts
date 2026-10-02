@@ -50,7 +50,7 @@ describe('World', () => {
   it('spawns dots from the emitter and settles them on the art', () => {
     const world = new World();
     world.setBounds(800, 600);
-    world.locateEmitter = () => ({ x: 400, y: 590 });
+    world.setEmitter('default', 400, 590);
     world.morph('hero', target(squareArt()));
     expect(world.particles.live).toBe(4);
     run(world, 8);
@@ -70,7 +70,7 @@ describe('World', () => {
   it('retires extra dots into the emitter', () => {
     const world = new World();
     world.setBounds(800, 600);
-    world.locateEmitter = () => ({ x: 400, y: 590 });
+    world.setEmitter('default', 400, 590);
     world.seedField('hero', { x: 0, y: 0, width: 400, height: 300 }, 50, 0);
     world.morph('hero', target(squareArt()));
     run(world, 10);
@@ -110,7 +110,7 @@ describe('World', () => {
   it('keeps surplus dots drifting and releases after the hold', () => {
     const world = new World();
     world.setBounds(800, 600);
-    world.locateEmitter = () => ({ x: 400, y: 590 });
+    world.setEmitter('default', 400, 590);
     world.seedField('hero', { x: 0, y: 0, width: 400, height: 300 }, 50, 0);
     world.morph('hero', { ...target(squareArt()), holdTime: 1, surplus: 'release', afterHold: 'release' });
     run(world, 10);
@@ -129,4 +129,42 @@ describe('World', () => {
     const moving = aliveSlots(world).filter((i) => Math.hypot(p.vx[i], p.vy[i]) > 50);
     expect(moving.length).toBeGreaterThan(90);
   });
+
+  it('leaves open contours unclosed', () => {
+    const world = new World();
+    world.setBounds(800, 600);
+    const art = { ...squareArt(), closed: new Uint8Array([0]) };
+    world.morph('row', target(art));
+    run(world, 6);
+    const p = world.particles;
+    const selfLinked = aliveSlots(world).filter((i) => p.link[i] === i);
+    expect(selfLinked).toHaveLength(1);
+  });
+
+  it('cuts lines instantly on scatter', () => {
+    const world = new World();
+    world.setBounds(800, 600);
+    world.morph('hero', target(squareArt()));
+    run(world, 6);
+    world.scatter('hero');
+    const p = world.particles;
+    expect(aliveSlots(world).filter((i) => p.flags[i] & LINKED)).toHaveLength(0);
+  });
+
+  it('spawns from and retires into the group emitter', () => {
+    const world = new World();
+    world.setBounds(800, 600);
+    world.setEmitter('box', 50, 60);
+    world.morph('box', { ...target(squareArt()), emitter: 'box' });
+    const p = world.particles;
+    for (const i of aliveSlots(world)) {
+      expect(Math.abs(p.x[i] - 50)).toBeLessThan(10);
+      expect(Math.abs(p.y[i] - 60)).toBeLessThan(1);
+    }
+    run(world, 6);
+    world.dissolve('box');
+    run(world, 6);
+    expect(world.particles.live).toBe(0);
+  });
 });
+

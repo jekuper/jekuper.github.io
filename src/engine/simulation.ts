@@ -1,11 +1,12 @@
 import type { LineArt } from './art';
-import { createBomb, createWell, type Bomb, type Spark, type Well } from './bodies';
+import { createBomb, createWell, type Bomb, type Emitter, type Spark, type Well } from './bodies';
 import {
   BACKGROUND,
   BOMB,
   CURSOR,
   EMITTER,
   ERASER,
+  FLIGHT,
   LINK,
   MORPH,
   PARTICLE,
@@ -17,7 +18,7 @@ import {
   WELL,
 } from './config';
 import { GravityField } from './gravity';
-import { distanceToSegment, easeInOutCubicStepped, randomRange, randomSign, wrap, type Rgb } from './math';
+import { distanceToSegment, easeInOutCubic, easeInOutCubicStepped, randomRange, randomSign, wrap, type Rgb } from './math';
 import {
   ALIVE,
   ARRIVE_DESTROY,
@@ -52,6 +53,8 @@ export interface MorphTarget {
   density: number;
   /** Seconds to hold the image once formed; Infinity keeps it. */
   holdTime: number;
+  /** Emitter the group's new dots come from and retired dots return to. */
+  emitter?: string;
   /** Dots the art does not need: sent into the emitter, or left drifting. */
   surplus?: 'retire' | 'release';
   /** After the hold: return the dots to the emitter, let them drift, or throw them outward. */
@@ -73,6 +76,7 @@ interface Group {
   phase: Phase;
   timer: number;
   target: MorphTarget | null;
+  emitter: string;
 }
 
 export interface Point {
@@ -80,12 +84,15 @@ export interface Point {
   y: number;
 }
 
+export const DEFAULT_EMITTER = 'default';
+
 /** All simulation state, in world device pixels. Knows nothing about the DOM. */
 export class World {
   readonly particles = new ParticleStore();
   readonly wells: Well[] = [];
   readonly bombs: Bomb[] = [];
   readonly sparks: Spark[] = [];
+  readonly emitters = new Map<string, Emitter>();
   /** Viewport size. */
   width = 1;
   height = 1;
@@ -99,8 +106,6 @@ export class World {
   eraserVisible = false;
   shakeX = 0;
   shakeY = 0;
-  /** Supplies the emitter position on demand; particles spawn and retire there. */
-  locateEmitter: () => Point = () => ({ x: this.camX + this.width / 2, y: this.camY + this.height / 2 });
 
   private groups = new Map<string, Group>();
   private gravity = new GravityField();
@@ -111,14 +116,21 @@ export class World {
     this.height = height;
   }
 
+  /** Removes everything except emitters, which are placed by the page. */
   clear(): void {
     this.particles.clear();
-    this.wells.length = 0;
-    this.bombs.length = 0;
-    this.sparks.length = 0;
+    this.clearBodies();
     this.groups.clear();
     this.shakeTime = 0;
     this.eraserVisible = false;
+  }
+
+  setEmitter(name: string, x: number, y: number, visible = true): void {
+    this.emitters.set(name, { x, y, visible });
+  }
+
+  removeEmitter(name: string): void {
+    this.emitters.delete(name);
   }
 
   /** Destroys a group's dots at once. */
@@ -191,6 +203,7 @@ export class World {
       phase: 'holding',
       timer: Infinity,
       target: null,
+      emitter: DEFAULT_EMITTER,
     });
   }
 
@@ -198,10 +211,11 @@ export class World {
   morph(name: string, target: MorphTarget): void {
     let group = this.groups.get(name);
     if (!group) {
-      group = { slots: [], gens: [], phase: 'fading', timer: 0, target };
+      group = { slots: [], gens: [], phase: 'fading', timer: 0, target, emitter: DEFAULT_EMITTER };
       this.groups.set(name, group);
     }
     group.target = target;
+    group.emitter = target.emitter ?? DEFAULT_EMITTER;
     group.phase = 'fading';
     group.timer = 0;
     const p = this.particles;
@@ -225,16 +239,17 @@ export class World {
     });
   }
 
-  /** Releases the group and throws its dots away from its center. */
+  /** Cuts the group's lines at once and throws its dots away from its center. */
   scatter(name: string, speed = SCATTER_SPEED): void {
     const group = this.groups.get(name);
     if (!group) return;
-    this.release(name);
     const p = this.particles;
     let cx = 0;
     let cy = 0;
     let n = 0;
     this.forEachMember(group, (i) => {
+      p.clearLink(i);
+      p.clearFix(i);
       cx += p.x[i];
       cy += p.y[i];
       n++;
@@ -294,7 +309,7 @@ export class World {
 
   fixedStep(dt: number): void {
     this.stepGroups(dt);
-    this.stepSpirals(dt);
+    this.stepFlights(dt);
     this.stepPhysics(dt);
     this.detonate();
   }
@@ -311,18 +326,24 @@ export class World {
       }
     }
     this.updateShake(dt);
-    this.updateSparks(dt);
+    for (const s of this.sparks) s.age += dt;
+    removeWhere(this.sparks, (s) => s.age >= SPARKS.life);
 
     batch.reset();
     if (this.eraserVisible) {
       const c = ERASER.color;
       batch.point(this.cursorX, this.cursorY, c.r, c.g, c.b, ERASER.radius);
     }
+    this.drawEmitters(batch);
     this.drawWells(batch, false);
     this.drawParticles(dt, batch);
     this.drawWells(batch, true);
     this.drawBombs(batch);
     this.drawSparks(batch);
+  }
+
+  private emitterPoint(name: string): Point {
+    return this.emitters.get(name) ?? { x: this.camX + this.width / 2, y: this.camY + this.height / 2 };
   }
 
   private stepGroups(dt: number): void {
@@ -344,21 +365,23 @@ export class World {
           }
           break;
         }
-        case 'holding':
+        case 'holding': {
           group.timer -= dt;
           if (group.timer > 0) break;
-          if (group.target?.afterHold === 'release' || group.target?.afterHold === 'scatter') {
-            if (group.target.afterHold === 'scatter') this.scatter(name);
+          const after = group.target?.afterHold ?? 'dissolve';
+          if (after === 'dissolve') {
+            this.dissolve(name);
+          } else {
+            if (after === 'scatter') this.scatter(name);
             else this.release(name);
             group.timer = Infinity;
-          } else {
-            this.dissolve(name);
           }
           break;
+        }
         case 'dissolving':
           group.timer -= dt;
           if (group.timer <= 0) {
-            this.forEachMember(group, (i) => this.retire(i));
+            this.forEachMember(group, (i) => this.retire(i, group.emitter, Math.random() * FLIGHT.retireStagger));
             this.groups.delete(name);
           }
           break;
@@ -384,37 +407,42 @@ export class World {
     while (members.length > art.pointCount) {
       const i = members.pop()!;
       if (target.surplus === 'release') kept.push(i);
-      else this.retire(i);
+      else this.retire(i, group.emitter, Math.random() * FLIGHT.retireStagger);
     }
 
     const order: number[] = [];
-    for (let k = members.length; k < art.pointCount; k++) order.push(this.spawnAtEmitter(target.color));
+    for (let k = members.length; k < art.pointCount; k++) order.push(this.spawnAtEmitter(target.color, group.emitter));
     for (const i of members) order.push(i);
 
+    const total = Math.max(1, art.pointCount);
     for (let c = 0; c < art.contourCount; c++) {
       const start = art.starts[c];
       const end = art.starts[c + 1];
+      const closed = !art.closed || art.closed[c] === 1;
       for (let k = start; k < end; k++) {
         const i = order[k];
         const x = art.x[k] * target.scaleX + target.originX;
         const y = art.y[k] * target.scaleY + target.originY;
-        const duration = Math.round(SPIRAL.minDuration + Math.random() * SPIRAL.durationRange);
 
-        p.setLink(i, order[k + 1 < end ? k + 1 : start], LINK.fadeIn);
+        // An open contour's last point links to itself, which draws no line.
+        const next = k + 1 < end ? order[k + 1] : closed ? order[start] : i;
+        p.setLink(i, next, LINK.fadeIn);
         p.setFix(i, x, y, target.density, false);
         p.flags[i] &= ~GLOW;
         p.alpha[i] = 1;
         if (target.density < 0) p.flags[i] &= ~GRAVITATABLE;
         else p.flags[i] |= GRAVITATABLE;
 
+        const duration = this.flightDuration(i, x, y);
         const r = art.rgb[k * 3];
         const g = art.rgb[k * 3 + 1];
         const b = art.rgb[k * 3 + 2];
-        if (r || g || b) p.fadeColor(i, { r, g, b }, SPIRAL.artColorFade);
+        if (r || g || b) p.fadeColor(i, { r, g, b }, FLIGHT.style === 'arc' ? duration : SPIRAL.artColorFade);
         else p.fadeColor(i, target.color, duration);
 
-        const radius = randomSign() * (SPIRAL.minRadius + Math.random() * SPIRAL.radiusRange);
-        p.spiralTo(i, radius, x, y, duration, ARRIVE_FIX);
+        // Starts follow the drawing order, so the art draws itself.
+        const delay = FLIGHT.style === 'arc' ? (k / total) * FLIGHT.stagger : 0;
+        p.flyTo(i, x, y, duration, ARRIVE_FIX, this.flightBend(), delay);
       }
     }
 
@@ -424,8 +452,21 @@ export class World {
     group.phase = 'forming';
   }
 
-  private spawnAtEmitter(color: Rgb): number {
-    const e = this.locateEmitter();
+  private flightDuration(i: number, x: number, y: number): number {
+    if (FLIGHT.style === 'spiral') return Math.round(SPIRAL.minDuration + Math.random() * SPIRAL.durationRange);
+    const p = this.particles;
+    const dist = Math.hypot(x - p.x[i], y - p.y[i]);
+    const base = Math.min(FLIGHT.maxDuration, Math.max(FLIGHT.minDuration, FLIGHT.base + dist / FLIGHT.speed));
+    return base * randomRange(1 - FLIGHT.jitter, 1 + FLIGHT.jitter);
+  }
+
+  private flightBend(): number {
+    if (FLIGHT.style === 'spiral') return randomSign() * (SPIRAL.minRadius + Math.random() * SPIRAL.radiusRange);
+    return randomSign() * randomRange(FLIGHT.minBend, FLIGHT.maxBend);
+  }
+
+  private spawnAtEmitter(color: Rgb, emitter: string): number {
+    const e = this.emitterPoint(emitter);
     const w = EMITTER.width;
     const h = Math.min(this.height * EMITTER.heightRatio, EMITTER.maxHeight);
     const p = this.particles;
@@ -440,14 +481,18 @@ export class World {
     return i;
   }
 
-  /** Spirals a dot into the emitter, then frees it. */
-  private retire(i: number): void {
-    const e = this.locateEmitter();
+  /** Flies a dot into the emitter, then frees it. */
+  private retire(i: number, emitter: string, delay = 0): void {
+    const e = this.emitterPoint(emitter);
     const p = this.particles;
     p.clearLink(i);
     p.clearFix(i);
     const x = randomRange(e.x - EMITTER.width / 2, e.x + EMITTER.width / 2);
-    p.spiralTo(i, p.spRadius[i], x, e.y, p.spDuration[i], ARRIVE_DESTROY);
+    if (FLIGHT.style === 'spiral') {
+      p.flyTo(i, x, e.y, p.spDuration[i], ARRIVE_DESTROY, p.spRadius[i]);
+    } else {
+      p.flyTo(i, x, e.y, this.flightDuration(i, x, e.y), ARRIVE_DESTROY, this.flightBend(), delay);
+    }
   }
 
   private forEachMember(group: Group, fn: (slot: number) => void): void {
@@ -457,41 +502,79 @@ export class World {
     }
   }
 
-  private stepSpirals(dt: number): void {
+  private arrive(i: number): void {
     const p = this.particles;
-    const snap = SPIRAL.snapDistance;
+    p.x[i] = p.spTargetX[i];
+    p.y[i] = p.spTargetY[i];
+    p.vx[i] = p.vy[i] = p.fx[i] = p.fy[i] = 0;
+    p.flags[i] &= ~SPIRALING;
+    if (p.onArrive[i] === ARRIVE_FIX && p.flags[i] & HAS_FIX) p.flags[i] |= FIX_ACTIVE;
+    else if (p.onArrive[i] === ARRIVE_DESTROY) p.destroy(i);
+  }
+
+  private stepFlights(dt: number): void {
+    const p = this.particles;
+    const arc = FLIGHT.style === 'arc';
     for (let i = 0; i < p.end; i++) {
       if ((p.flags[i] & (ALIVE | SPIRALING)) !== (ALIVE | SPIRALING)) continue;
+      if (arc && p.spDelay[i] > 0) {
+        p.spDelay[i] -= dt;
+        continue;
+      }
       if (p.spTime[i] === 0) {
         p.spStartX[i] = p.x[i];
         p.spStartY[i] = p.y[i];
+        if (arc) {
+          // Control point off the midpoint, perpendicular to the path.
+          const dx = p.spTargetX[i] - p.x[i];
+          const dy = p.spTargetY[i] - p.y[i];
+          const bend = p.spRadius[i];
+          p.spCtrlX[i] = p.x[i] + dx / 2 - dy * bend;
+          p.spCtrlY[i] = p.y[i] + dy / 2 + dx * bend;
+        }
       }
       p.spTime[i] += dt;
-      const duration = p.spDuration[i];
-      const e = easeInOutCubicStepped(Math.min(p.spTime[i] / duration, 1));
-      const angle = e * duration;
-      const reach = p.spRadius[i] * angle;
-      let tx = p.spStartX[i] + reach * Math.cos(angle);
-      let ty = p.spStartY[i] + reach * Math.sin(angle);
-      tx += e * (p.spTargetX[i] - tx);
-      ty += e * (p.spTargetY[i] - ty);
-
-      if (e >= 1) {
-        p.vx[i] *= SPIRAL.settleDamping;
-        p.vy[i] *= SPIRAL.settleDamping;
-      }
-      p.fx[i] += (tx - p.x[i]) * SPIRAL.stiffness;
-      p.fy[i] += (ty - p.y[i]) * SPIRAL.stiffness;
-
-      if (Math.abs(p.x[i] - p.spTargetX[i]) < snap && Math.abs(p.y[i] - p.spTargetY[i]) < snap) {
-        p.x[i] = p.spTargetX[i];
-        p.y[i] = p.spTargetY[i];
-        p.vx[i] = p.vy[i] = p.fx[i] = p.fy[i] = 0;
-        p.flags[i] &= ~SPIRALING;
-        if (p.onArrive[i] === ARRIVE_FIX && p.flags[i] & HAS_FIX) p.flags[i] |= FIX_ACTIVE;
-        else if (p.onArrive[i] === ARRIVE_DESTROY) p.destroy(i);
-      }
+      if (arc) this.stepArc(i, dt);
+      else this.stepSpiral(i);
     }
+  }
+
+  /** Quadratic curve with eased timing. Position is set directly; physics skips flying dots. */
+  private stepArc(i: number, dt: number): void {
+    const p = this.particles;
+    const t = Math.min(p.spTime[i] / p.spDuration[i], 1);
+    const e = easeInOutCubic(t);
+    const u = 1 - e;
+    const x = u * u * p.spStartX[i] + 2 * u * e * p.spCtrlX[i] + e * e * p.spTargetX[i];
+    const y = u * u * p.spStartY[i] + 2 * u * e * p.spCtrlY[i] + e * e * p.spTargetY[i];
+    p.vx[i] = (x - p.x[i]) / dt;
+    p.vy[i] = (y - p.y[i]) / dt;
+    p.x[i] = x;
+    p.y[i] = y;
+    if (t >= 1) this.arrive(i);
+  }
+
+  /** Force-driven spiral that widens with time, then homes in. */
+  private stepSpiral(i: number): void {
+    const p = this.particles;
+    const duration = p.spDuration[i];
+    const e = easeInOutCubicStepped(Math.min(p.spTime[i] / duration, 1));
+    const angle = e * duration;
+    const reach = p.spRadius[i] * angle;
+    let tx = p.spStartX[i] + reach * Math.cos(angle);
+    let ty = p.spStartY[i] + reach * Math.sin(angle);
+    tx += e * (p.spTargetX[i] - tx);
+    ty += e * (p.spTargetY[i] - ty);
+
+    if (e >= 1) {
+      p.vx[i] *= SPIRAL.settleDamping;
+      p.vy[i] *= SPIRAL.settleDamping;
+    }
+    p.fx[i] += (tx - p.x[i]) * SPIRAL.stiffness;
+    p.fy[i] += (ty - p.y[i]) * SPIRAL.stiffness;
+
+    const snap = SPIRAL.snapDistance;
+    if (Math.abs(p.x[i] - p.spTargetX[i]) < snap && Math.abs(p.y[i] - p.spTargetY[i]) < snap) this.arrive(i);
   }
 
   private stepPhysics(dt: number): void {
@@ -499,6 +582,7 @@ export class World {
     gravity.build(this.wells);
     const hasGravity = !gravity.empty;
     const p = this.particles;
+    const flightOwnsPosition = FLIGHT.style === 'arc';
 
     const pull = this.cursorActive;
     const cx = this.cursorX;
@@ -509,6 +593,7 @@ export class World {
     for (let i = 0; i < p.end; i++) {
       const flags = p.flags[i];
       if (!(flags & ALIVE)) continue;
+      if (flightOwnsPosition && flags & SPIRALING) continue;
       let fx = p.fx[i];
       let fy = p.fy[i];
       let damping = p.damping[i];
@@ -588,6 +673,7 @@ export class World {
         [p.vx[i], p.vy[i]] = blast(p.x[i], p.y[i]);
         p.clearFix(i);
         p.clearLink(i);
+        p.flags[i] &= ~SPIRALING;
       };
       for (let i = 0; i < p.end; i++) {
         if (!(p.flags[i] & ALIVE)) continue;
@@ -612,9 +698,14 @@ export class World {
         if ((body.x - bomb.x) ** 2 + (body.y - bomb.y) ** 2 <= r2) [body.vx, body.vy] = blast(body.x, body.y);
       }
       for (let k = 0; k < SPARKS.count; k++) {
-        const angle = Math.random() * Math.PI * 2;
-        const speed = SPARKS.speed * randomRange(0.2, 1);
-        this.sparks.push({ x: bomb.x, y: bomb.y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, life: SPARKS.life });
+        this.sparks.push({
+          cx: bomb.x,
+          cy: bomb.y,
+          angle: Math.random() * Math.PI * 2,
+          reach: radius * randomRange(SPARKS.minReach, SPARKS.maxReach),
+          spin: randomSign() * SPARKS.spin * randomRange(0.5, 1),
+          age: 0,
+        });
       }
       this.shakeTime = SHAKE.duration;
     }
@@ -631,15 +722,12 @@ export class World {
     }
   }
 
-  private updateSparks(dt: number): void {
-    for (const s of this.sparks) {
-      s.life -= dt;
-      s.vx *= SPARKS.damping;
-      s.vy *= SPARKS.damping;
-      s.x += s.vx * dt;
-      s.y += s.vy * dt;
+  private drawEmitters(batch: DrawBatch): void {
+    const c = EMITTER.barColor;
+    const half = EMITTER.barWidth / 2;
+    for (const e of this.emitters.values()) {
+      if (e.visible) batch.line(e.x - half, e.y, e.x + half, e.y, c.r, c.g, c.b, c.r, c.g, c.b, EMITTER.barAlpha);
     }
-    removeWhere(this.sparks, (s) => s.life <= 0);
   }
 
   private drawWells(batch: DrawBatch, onTop: boolean): void {
@@ -674,11 +762,23 @@ export class World {
     }
   }
 
+  /** Out to the reach with ease-out, stall, then sucked back in and fading near the center. */
   private drawSparks(batch: DrawBatch): void {
     const c = SPARKS.color;
     for (const s of this.sparks) {
-      const t = s.life / SPARKS.life;
-      batch.glow.push(s.x, s.y, c.r, c.g * t, c.b * t, t, SPARKS.size);
+      const t = s.age / SPARKS.life;
+      let r: number;
+      let alpha = 1;
+      if (t < SPARKS.outPortion) {
+        const k = t / SPARKS.outPortion;
+        r = s.reach * (1 - (1 - k) ** 3);
+      } else {
+        const k = (t - SPARKS.outPortion) / (1 - SPARKS.outPortion);
+        r = s.reach * (1 - k * k * k);
+        alpha = r / s.reach;
+      }
+      const angle = s.angle + s.spin * t;
+      batch.glow.push(s.cx + Math.cos(angle) * r, s.cy + Math.sin(angle) * r, c.r, c.g, c.b, alpha, SPARKS.size);
     }
   }
 

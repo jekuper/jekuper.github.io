@@ -15,6 +15,8 @@ export interface MorphRequest {
   color: Rgb;
   density: number;
   holdTime?: number;
+  /** Named emitter (see `setEmitter`) the dots come from and return to. */
+  emitter?: string;
   surplus?: 'retire' | 'release';
   afterHold?: 'dissolve' | 'release' | 'scatter';
 }
@@ -30,7 +32,6 @@ export class Engine {
   private renderer: Renderer;
   private batch = new DrawBatch();
   private controls: MouseControls | null = null;
-  private emitterAnchor: () => Point | null = () => null;
   private camera: () => Point = () => ({ x: 0, y: 0 });
   private visibility: IntersectionObserver;
   private onScreen = true;
@@ -41,7 +42,6 @@ export class Engine {
 
   constructor(private canvas: HTMLCanvasElement) {
     this.renderer = new Renderer(canvas);
-    this.world.locateEmitter = () => this.locateEmitter();
     canvas.addEventListener('webglcontextlost', this.onContextLost);
     canvas.addEventListener('webglcontextrestored', this.onContextRestored);
     document.addEventListener('visibilitychange', this.updateRunning);
@@ -85,9 +85,13 @@ export class Engine {
     }
   }
 
-  /** Where new dots come from and retired dots go, in viewport CSS pixels. */
-  setEmitterAnchor(anchor: () => Point | null): void {
-    this.emitterAnchor = anchor;
+  /** Places a named spawn and return point for dots, in world CSS pixels. */
+  setEmitter(name: string, at: Point, visible = true): void {
+    this.world.setEmitter(name, at.x * this.dpr, at.y * this.dpr, visible);
+  }
+
+  removeEmitter(name: string): void {
+    this.world.removeEmitter(name);
   }
 
   /** Called every frame for the viewport's world position in CSS pixels. */
@@ -136,6 +140,7 @@ export class Engine {
       color: request.color,
       density: request.density,
       holdTime: request.holdTime ?? Infinity,
+      emitter: request.emitter,
       surplus: request.surplus,
       afterHold: request.afterHold,
     });
@@ -195,13 +200,6 @@ export class Engine {
     w.frame(dt, this.batch);
     this.renderer.draw(this.batch, { x: w.camX, y: w.camY, shakeX: w.shakeX, shakeY: w.shakeY });
   };
-
-  private locateEmitter(): Point {
-    const w = this.world;
-    const p = this.emitterAnchor();
-    if (!p) return { x: w.camX + w.width / 2, y: w.camY + w.height / 2 };
-    return { x: p.x * this.dpr + w.camX, y: p.y * this.dpr + w.camY };
-  }
 
   private onContextLost = (e: Event) => e.preventDefault();
 
