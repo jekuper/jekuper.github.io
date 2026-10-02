@@ -1,5 +1,5 @@
 import { links } from './identity';
-import type { AboutData, ContactData, IntroData, JourneyData, ProjectsData, SkillsData, StatsData } from './types';
+import type { AboutData, AchievementsData, ContactData, IntroData, JourneyData, ProjectsData, SkillsData } from './types';
 
 export const intro: IntroData = {
   title: 'Did you Know?',
@@ -63,12 +63,36 @@ export const journey: JourneyData = {
   ],
 };
 
-export const stats: StatsData = {
-  stats: [
-    { value: '6', label: 'Games' },
-    { value: '15', label: 'Projects' },
-    { value: '4', label: 'Years of Exp.' },
-    { value: '2%', label: 'Top Leetcode' },
+export const achievements: AchievementsData = {
+  title: 'Achievements',
+  profiles: [
+    {
+      platform: 'LeetCode',
+      href: 'https://leetcode.com/u/[handle]',
+      value: '[Rating]',
+      valueLabel: 'contest rating',
+      detail: 'Top 2%',
+    },
+    {
+      platform: 'Codeforces',
+      href: 'https://codeforces.com/profile/[handle]',
+      value: '[Rating]',
+      valueLabel: 'max rating',
+      detail: '[Placeholder: rank, e.g. Expert]',
+    },
+    {
+      platform: '[Placeholder: CTFtime, HackerRank...]',
+      href: '[Placeholder: profile link]',
+      value: '[Value]',
+      valueLabel: '[Placeholder: what the number is]',
+      detail: '[Placeholder: rank or team]',
+    },
+  ],
+  awardsTitle: 'Awards',
+  awards: [
+    { year: '[Year]', title: '[Placeholder: CTF or contest name]', result: '[Placeholder: placement]' },
+    { year: '[Year]', title: '[Placeholder: hackathon or olympiad]', result: '[Placeholder: placement]' },
+    { year: '[Year]', title: '[Placeholder: another award]', result: '[Placeholder: placement]' },
   ],
 };
 

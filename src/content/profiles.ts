@@ -1,5 +1,5 @@
 import { engineHelp, identity, links } from './identity';
-import { about, contact, intro, journey, projects, skills, stats } from './sections';
+import { about, achievements, contact, intro, journey, projects, skills } from './sections';
 import type { Profile } from './types';
 
 // Role-specific pages are added here and mapped to routes.
@@ -16,7 +16,7 @@ export const profiles: Record<string, Profile> = {
     sections: [
       { type: 'about', data: about },
       { type: 'journey', data: journey },
-      { type: 'stats', data: stats },
+      { type: 'achievements', data: achievements },
       { type: 'projects', data: projects },
       { type: 'contact', data: contact },
     ],

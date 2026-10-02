@@ -30,7 +30,7 @@ Append `?dots=50000` to the URL to stress test the engine with a bigger field.
 ```
 src/engine     particle engine (no React): store, gravity, simulation, renderer, input
 src/react      engine context for components
-src/content    all text, links, skills, stats and projects, grouped into profiles
+src/content    all text, links, skills, achievements and projects, grouped into profiles
 src/sections   page sections, each one adapts to the desktop or mobile layout
 src/components shared UI
 tools/lineart  Python pipeline that turns drawings into line-art binaries

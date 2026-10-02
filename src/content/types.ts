@@ -74,13 +74,27 @@ export interface JourneyData {
   milestones: Milestone[];
 }
 
-export interface Stat {
+export interface CodingProfile {
+  platform: string;
+  href: string;
+  /** Headline number, drawn in dots. */
   value: string;
-  label: string;
+  valueLabel: string;
+  /** Rank, title or percentile. */
+  detail: string;
 }
 
-export interface StatsData {
-  stats: Stat[];
+export interface Award {
+  year: string;
+  title: string;
+  result: string;
+}
+
+export interface AchievementsData {
+  title: string;
+  profiles: CodingProfile[];
+  awardsTitle: string;
+  awards: Award[];
 }
 
 export interface Project {
@@ -121,7 +135,7 @@ export type SectionEntry =
   | Entry<'skills', SkillsData>
   | Entry<'about', AboutData>
   | Entry<'journey', JourneyData>
-  | Entry<'stats', StatsData>
+  | Entry<'achievements', AchievementsData>
   | Entry<'projects', ProjectsData>
   | Entry<'contact', ContactData>;
 

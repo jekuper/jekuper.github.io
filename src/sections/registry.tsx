@@ -1,12 +1,12 @@
 import type { ComponentType } from 'react';
 import type { Layout, SectionEntry, SectionType } from '../content/types';
 import { AboutSection } from './about/AboutSection';
+import { AchievementsSection } from './achievements/AchievementsSection';
 import { ContactSection } from './contact/ContactSection';
 import { IntroSection } from './intro/IntroSection';
 import { JourneySection } from './journey/JourneySection';
 import { ProjectsSection } from './projects/ProjectsSection';
 import { SkillsSection } from './skills/SkillsSection';
-import { StatsSection } from './stats/StatsSection';
 
 type DataOf<T extends SectionType> = Extract<SectionEntry, { type: T }>['data'];
 
@@ -20,7 +20,7 @@ const components: { [T in SectionType]: ComponentType<SectionProps<T>> } = {
   skills: SkillsSection,
   about: AboutSection,
   journey: JourneySection,
-  stats: StatsSection,
+  achievements: AchievementsSection,
   projects: ProjectsSection,
   contact: ContactSection,
 };

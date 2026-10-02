@@ -1,0 +1,159 @@
+.achievements {
+  padding: 14vh 8vw 12vh;
+  pointer-events: none;
+}
+
+.achievements .section-title {
+  margin-bottom: 8vh;
+}
+
+.profiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2.5vw;
+}
+
+.profile-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6vh;
+  padding: 4vh 2vw;
+  border: 1px solid #2a2a2a;
+  text-align: center;
+  text-decoration: none;
+  pointer-events: auto;
+  transition:
+    border-color 0.3s ease-in-out,
+    background-color 0.3s ease-in-out;
+}
+
+.profile-card:hover {
+  border-color: #5a4a8a;
+  background-color: rgba(150, 110, 255, 0.04);
+}
+
+.profile-platform {
+  color: #d2d2d2;
+  font-family: var(--font-grotesk);
+  font-size: 1.3vw;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.profile-value {
+  margin-top: 1.5vh;
+  color: #d2d2d2;
+  font-family: var(--font-display);
+  font-size: 4.6vw;
+  line-height: 1.1;
+}
+
+.profile-value-label {
+  color: #7a7a7a;
+  font-family: var(--font-mono);
+  font-size: 0.95vw;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.profile-detail {
+  margin-top: 1.2vh;
+  color: #9670ff;
+  font-family: var(--font-mono);
+  font-size: 1.15vw;
+}
+
+.awards-title {
+  margin: 10vh 0 3vh;
+  color: #a6a6a6;
+  font-family: var(--font-mono);
+  font-size: 2vw;
+  font-weight: 300;
+}
+
+.awards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.awards li {
+  display: grid;
+  grid-template-columns: 8vw 1fr auto;
+  align-items: baseline;
+  gap: 2vw;
+  padding: 2.2vh 0;
+  border-bottom: 1px solid #222;
+  pointer-events: auto;
+}
+
+.award-year {
+  color: #9670ff;
+  font-family: var(--font-mono);
+  font-size: 1.15vw;
+}
+
+.award-title {
+  color: #d2d2d2;
+  font-family: var(--font-grotesk);
+  font-size: 1.35vw;
+}
+
+.award-result {
+  color: #a6a6a6;
+  font-family: var(--font-mono);
+  font-size: 1.15vw;
+  text-align: right;
+}
+
+@media screen and (max-width: 1200px) {
+  .achievements .section-title {
+    font-size: 8vw;
+    text-align: left;
+  }
+
+  .profiles {
+    grid-template-columns: 1fr;
+    gap: 4vh;
+  }
+
+  .profile-card {
+    padding: 4vh 6vw;
+  }
+
+  .profile-platform {
+    font-size: 4.4vw;
+  }
+
+  .profile-value {
+    font-size: 15vw;
+  }
+
+  .profile-value-label {
+    font-size: 3vw;
+  }
+
+  .profile-detail {
+    font-size: 3.8vw;
+  }
+
+  .awards-title {
+    font-size: 6vw;
+  }
+
+  .awards li {
+    grid-template-columns: 1fr;
+    gap: 0.6vh;
+  }
+
+  .award-year,
+  .award-result {
+    font-size: 3.6vw;
+    text-align: left;
+  }
+
+  .award-title {
+    font-size: 4.4vw;
+  }
+}
