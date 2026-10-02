@@ -55,6 +55,7 @@ export function ContactSection({ data }: { data: ContactData }) {
         spacing={3}
         fill={7}
         fitWidth
+        showEmitter={false}
         elementProps={{
           role: 'button',
           tabIndex: 0,
