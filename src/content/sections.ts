@@ -37,8 +37,8 @@ export const about: AboutData = {
   portraitAlt: 'Joe Sharipov',
   education: {
     school: 'Pace University',
-    degree: '[Placeholder: degree and major]',
-    years: '[Placeholder: start year - graduation year]',
+    degree: 'B.S. in Computer Science, Minor in Mathematics',
+    years: '2024 - 2027',
     gpa: '3.89',
     gpaScale: '4.0',
     logo: 'images/about/pace-logo.webp',
