@@ -6,13 +6,14 @@ import { SocialLinks } from '../../components/SocialLinks';
 import type { ContactData, ContactTopic } from '../../content/types';
 import './ContactSection.css';
 
-const COPIED_MS = 1600;
 const TOPIC_MS = 4000;
 // Lets the visitor see the heading turn into the topic before the mail app opens.
 const MAIL_DELAY_MS = 2200;
 
 export function ContactSection({ data }: { data: ContactData }) {
   const [hovered, setHovered] = useState(false);
+  // Stays until the pointer leaves, so the confirmation does not flicker back to the email.
+  const [copied, setCopied] = useState(false);
   // A temporary word that wins over the hover state, e.g. "COPIED".
   const [flash, setFlash] = useState<string | null>(null);
   const flashTimer = useRef(0);
@@ -33,7 +34,7 @@ export function ContactSection({ data }: { data: ContactData }) {
   };
 
   const copy = () => {
-    void navigator.clipboard?.writeText(data.email).then(() => show(data.copiedLabel, COPIED_MS));
+    void navigator.clipboard?.writeText(data.email).then(() => setCopied(true));
   };
 
   const pick = (topic: ContactTopic) => {
@@ -44,7 +45,8 @@ export function ContactSection({ data }: { data: ContactData }) {
     }, MAIL_DELAY_MS);
   };
 
-  const heading = flash ?? (hovered ? data.email : data.heading);
+  const hoverWord = copied ? data.copiedLabel : data.email;
+  const heading = flash ?? (hovered ? hoverWord : data.heading);
 
   return (
     <footer className="contact">
@@ -53,7 +55,7 @@ export function ContactSection({ data }: { data: ContactData }) {
         className="contact-title"
         text={heading}
         spacing={3}
-        fill={7}
+        fill={8}
         fitWidth
         showEmitter={false}
         elementProps={{
@@ -61,7 +63,10 @@ export function ContactSection({ data }: { data: ContactData }) {
           tabIndex: 0,
           title: data.email,
           onMouseEnter: () => setHovered(true),
-          onMouseLeave: () => setHovered(false),
+          onMouseLeave: () => {
+            setHovered(false);
+            setCopied(false);
+          },
           onClick: copy,
           onKeyDown: (e) => {
             if (e.key === 'Enter' || e.key === ' ') copy();
