@@ -1,298 +1,96 @@
 .skill-section {
-  min-height: 130vh;
+  min-height: 100vh;
   grid-template-columns: 100%;
+  grid-template-rows: auto auto;
+  row-gap: 9vh;
+  padding: 20vh 5vw 12vh;
 }
 
 .skill-section .section-title {
-  padding-left: 5vw;
-  text-align: unset;
+  text-align: left;
 }
 
-.skills {
+.skill-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8vh 4vw;
+}
+
+/* Markers only reserve space; the dots are drawn on the canvas. */
+.skill-node {
+  flex: none;
+  width: 10px;
+  height: 10px;
+}
+
+.skill-category-head {
   display: flex;
-  flex-direction: column;
-  padding-left: 5vw;
-  max-height: 45vh;
-  transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(-30px) scale(0.95);
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 2.6vh;
 }
 
-.skills.active {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-
-.skill {
-  width: 50%;
-  height: 100%;
-  position: relative;
-  cursor: pointer;
-  pointer-events: none;
-  opacity: 0;
-  transform: translateX(-100%);
-  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
-}
-
-.skills.active .skill {
-  pointer-events: all;
-  animation: fadeInSlide 0.5s ease-out forwards;
-}
-
-.skills.active .skill:nth-child(1) {
-  animation-delay: 0.1s;
-}
-.skills.active .skill:nth-child(2) {
-  animation-delay: 0.2s;
-}
-.skills.active .skill:nth-child(3) {
-  animation-delay: 0.3s;
-}
-.skills.active .skill:nth-child(4) {
-  animation-delay: 0.4s;
-}
-.skills.active .skill:nth-child(5) {
-  animation-delay: 0.5s;
-}
-
-@keyframes fadeInSlide {
-  from {
-    opacity: 0;
-    transform: translateX(-100%);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.skill-name {
-  color: #aeaeae;
-  font-size: 1.9vw;
-  font-style: normal;
-  font-weight: 400;
-  line-height: normal;
-  transition: color 0.2s ease-in-out, font-size 0.3s ease-in-out;
-  pointer-events: none;
+.skill-category h3 {
+  margin: 0;
+  color: #d2d2d2;
   font-family: var(--font-grotesk);
+  font-size: 1.5vw;
+  font-weight: 400;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
-.skill:hover .skill-name {
-  color: white;
-  font-size: 2.2vw;
-}
-
-/* Open category */
-
-.skill-details {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
-  z-index: 11;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(-30px) scale(0.95);
-}
-
-.skill-details.active {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-
-.background-stripe {
-  background: rgba(33, 35, 51, 0.03);
-  box-shadow: 6px 0 9px black;
-  backdrop-filter: blur(0);
-  position: absolute;
-  width: 22vw;
-  height: 100%;
-  left: 16vw;
-  z-index: 15;
-  pointer-events: none;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
-
-.skill-details.active .background-stripe {
-  backdrop-filter: blur(17.5px);
-  pointer-events: all;
-}
-
-.background-stripe ul {
+.skill-category ul {
   list-style: none;
   margin: 0;
-  margin-right: 2vw;
   padding: 0;
 }
 
-.background-stripe li {
+.skill-category li {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0.7vh 0;
   color: #a6a6a6;
   font-family: var(--font-mono);
-  font-size: 1.8vw;
-  text-align: right;
-  margin-bottom: 2vh;
+  font-size: 1.25vw;
+  pointer-events: auto;
+  transition: color 0.2s ease-in-out;
 }
 
-.background-stripe li:last-child {
-  margin-bottom: 0;
-}
-
-.background-square {
-  position: absolute;
-  width: 7.5vw;
-  height: 7.5vw;
-  left: 12.5vw;
-  top: 45%;
-  background-color: #a6a6a6;
-  z-index: -1;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease-in-out 0s;
-}
-
-.skill-details.active .background-square {
-  opacity: 1;
-  transition: opacity 0.2s ease-in-out 0.2s;
-  pointer-events: all;
-}
-
-.skill-details-title {
-  position: absolute;
-  top: 25vh;
-  z-index: 15;
-  color: #a6a6a6;
-  font-family: var(--font-grotesk);
-  text-transform: uppercase;
-  font-size: 3.5vw;
-  font-weight: 400;
-  margin: 0;
-  text-align: center;
-  display: inline-block;
-  width: 38vw;
-  pointer-events: none;
-}
-
-.skill-details.active .skill-details-title {
-  pointer-events: all;
-}
-
-.skill-back-button {
-  position: absolute;
-  top: 94vh;
-  left: 18vw;
-  z-index: 100;
-  cursor: pointer;
-  height: 10vh;
-}
-
-.skill-details.active .skill-back-button {
-  pointer-events: all;
+.skill-category li:hover {
+  color: white;
 }
 
 @media screen and (max-width: 1200px) {
+  .skill-section {
+    padding: 15vh 8vw 10vh;
+    row-gap: 6vh;
+  }
+
   .skill-section .section-title {
-    text-align: right;
-    padding-left: 0;
-    padding-right: 5vw;
-    font-size: 7vw;
+    font-size: 8vw;
   }
 
-  .skills {
-    padding-left: 10vw;
+  .skill-category h3 {
+    font-size: 4vw;
   }
 
-  .skill-name {
-    font-size: 4.5vw;
-  }
-
-  .skill:hover .skill-name {
-    font-size: 4.7vw;
-  }
-
-  .skill-underline {
-    width: 60%;
-    left: -15%;
-    top: 50%;
-  }
-
-  .background-stripe {
-    width: 45vw;
-    left: 35vw;
-  }
-
-  .background-stripe li {
-    font-size: 3vw;
-  }
-
-  .skill-details-title {
-    width: 70vw;
-    font-size: 5.7vw;
-  }
-
-  .background-square {
-    width: 14.5vw;
-    height: 14.5vw;
-    left: 28vw;
-  }
-
-  .skill-back-button {
-    left: 40vw;
-    height: unset;
-    width: 4.5vw;
+  .skill-category li {
+    font-size: 3.6vw;
   }
 }
 
 @media screen and (max-width: 470px) {
-  .skill-section .section-title {
-    font-size: 8.7vw;
+  .skill-grid {
+    grid-template-columns: 1fr;
   }
 
-  .skill-name {
-    font-size: 5.8vw;
+  .skill-category h3 {
+    font-size: 5.5vw;
   }
 
-  .skill:hover .skill-name {
-    font-size: 6.2vw;
-  }
-
-  .skill-underline {
-    width: 100%;
-    left: -15%;
-    top: 40%;
-  }
-
-  .skill-details-title {
-    width: 70vw;
-    font-size: 7.7vw;
-    top: 30vh;
-  }
-
-  .background-stripe {
-    width: 55vw;
-    left: 38vw;
-  }
-
-  .background-square {
-    width: 24.2vw;
-    height: 24.2vw;
-    left: 28vw;
-  }
-
-  .background-stripe li {
-    font-size: 4.8vw;
-    margin-bottom: 5vw;
-  }
-
-  .skill-back-button {
-    left: 40vw;
-    height: unset;
-    width: 7vw;
-    top: 98vh;
+  .skill-category li {
+    font-size: 4.6vw;
   }
 }
