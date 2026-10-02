@@ -117,13 +117,14 @@ export function resampleLoop(loop: Float32Array, spacing: number): Float32Array 
 }
 
 /**
- * Builds a line art from flat x, y contours. Single-point contours are allowed
- * and draw as lone dots. Coordinates are shifted so the minimum is 0; the shift
- * is returned as `offsetX`, `offsetY`.
+ * Builds a line art from flat x, y contours, optionally with per-point colors
+ * and open contours. Single-point contours draw as lone dots. Coordinates are
+ * shifted so the minimum is 0; the shift is returned as `offsetX`, `offsetY`.
  */
 export function artFromContours(
   contours: Float32Array[],
   colors?: Uint8Array[],
+  open?: boolean[],
 ): LineArt & { offsetX: number; offsetY: number } {
   let pointCount = 0;
   let minX = Infinity;
@@ -163,6 +164,7 @@ export function artFromContours(
     rgb,
     pointCount,
     contourCount: contours.length,
+    closed: open ? Uint8Array.from(open, (o) => (o ? 0 : 1)) : undefined,
     width: maxX - minX + 1,
     height: maxY - minY + 1,
     offsetX: minX,

@@ -12,6 +12,8 @@ export interface LineArt {
   rgb: Uint8Array;
   pointCount: number;
   contourCount: number;
+  /** Per contour, 0 leaves it open (no line from last back to first). Closed when absent. */
+  closed?: Uint8Array;
   /** Bounding box size, max - min + 1 as produced by tools/lineart. */
   width: number;
   height: number;
