@@ -21,6 +21,7 @@ export class MouseControls {
     canvas.addEventListener('mousedown', this.onDown);
     window.addEventListener('mousemove', this.onMove);
     window.addEventListener('mouseup', this.onUp);
+    document.documentElement.addEventListener('mouseleave', this.onLeave);
   }
 
   dispose(): void {
@@ -28,10 +29,16 @@ export class MouseControls {
     this.canvas.removeEventListener('mousedown', this.onDown);
     window.removeEventListener('mousemove', this.onMove);
     window.removeEventListener('mouseup', this.onUp);
+    document.documentElement.removeEventListener('mouseleave', this.onLeave);
     this.world.eraserVisible = false;
+    this.world.cursorActive = false;
   }
 
   private onContextMenu = (e: MouseEvent) => e.preventDefault();
+
+  private onLeave = () => {
+    this.world.cursorActive = false;
+  };
 
   private onDown = (e: MouseEvent) => {
     if (this.pressed) return;
@@ -51,8 +58,10 @@ export class MouseControls {
   private onMove = (e: MouseEvent) => {
     this.track(e);
     if (!this.pressed) return;
-    const { cursorX, cursorY, width, height } = this.world;
-    if (cursorX < 0 || cursorX > width || cursorY < 0 || cursorY > height) {
+    const { cursorX, cursorY, camX, camY, width, height } = this.world;
+    const vx = cursorX - camX;
+    const vy = cursorY - camY;
+    if (vx < 0 || vx > width || vy < 0 || vy > height) {
       this.onUp(e);
       return;
     }
@@ -81,7 +90,10 @@ export class MouseControls {
   private track(e: MouseEvent): void {
     const rect = this.canvas.getBoundingClientRect();
     const dpr = this.canvas.width / Math.max(1, rect.width);
-    this.world.cursorX = (e.clientX - rect.left) * dpr;
-    this.world.cursorY = (e.clientY - rect.top) * dpr;
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    this.world.cursorX = x * dpr + this.world.camX;
+    this.world.cursorY = y * dpr + this.world.camY;
+    this.world.cursorActive = x >= 0 && y >= 0 && x <= rect.width && y <= rect.height;
   }
 }
