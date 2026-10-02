@@ -21,6 +21,8 @@ export interface ViewMorphOptions {
   hide?: 'dissolve' | 'scatter';
   /** IntersectionObserver margin, e.g. to form only once well inside the screen. */
   rootMargin?: string;
+  /** Named clip region the dots are drawn inside. */
+  clip?: string;
 }
 
 const RESIZE_DEBOUNCE_MS = 400;
@@ -53,6 +55,8 @@ export function useViewMorph(
   emitterRef.current = options.emitter ?? belowElement;
   const hide = options.hide ?? 'dissolve';
   const rootMargin = options.rootMargin ?? '0px';
+  const clipRef = useRef(options.clip);
+  clipRef.current = options.clip;
   /** World position of the element's corner when the group was placed; null while not formed. */
   const anchor = useRef<Point | null>(null);
 
@@ -74,6 +78,7 @@ export function useViewMorph(
       color: placed.color,
       density: DENSITY,
       emitter: group,
+      clip: clipRef.current,
     });
     const rect = el.getBoundingClientRect();
     anchor.current = engine.viewToWorld(rect.left, rect.top);

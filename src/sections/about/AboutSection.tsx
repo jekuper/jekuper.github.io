@@ -19,7 +19,7 @@ export function AboutSection({ data, layout }: { data: AboutData; layout: Layout
   useGalaxy(stage, {
     x: desktop ? 0.66 : 0.5,
     y: 0.5,
-    radius: desktop ? 0.55 : 0.45,
+    radius: 0.45,
     count: GALAXY_DOTS[layout],
     magnitude: 1600,
     alpha: 0.6,

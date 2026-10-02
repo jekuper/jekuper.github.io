@@ -11,6 +11,8 @@ const FIELD_BUDGET: Record<Layout, { ms: number; max: number }> = {
 };
 export const FIELD_FADE_IN = 1.5;
 export const HERO_EMITTER = 'hero';
+/** Clip region for everything drawn in the hero, so drifting dots do not leak into later sections. */
+export const HERO_CLIP = 'hero';
 export const FIELD_WELL_MAGNITUDE = 2000;
 export const ART_DENSITY = 200;
 export const ART_MANIFEST = 'art/lineart/manifest.json';

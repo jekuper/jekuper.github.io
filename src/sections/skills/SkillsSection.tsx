@@ -5,6 +5,7 @@ import { SplitText } from '../../components/Text';
 import type { SkillCategory, SkillsData } from '../../content/types';
 import { rgb } from '../../engine';
 import { useViewMorph } from '../../react/useViewMorph';
+import { HERO_CLIP } from '../hero/scene';
 import { buildConstellation } from './constellation';
 import './SkillsSection.css';
 
@@ -30,6 +31,7 @@ export function SkillsSection({ data }: { data: SkillsData }) {
 function SkillColumn({ category, index }: { category: SkillCategory; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
   useViewMorph(ref, async (el) => buildConstellation(el, PALETTE[index % PALETTE.length]), {
+    clip: HERO_CLIP,
     emitter: () => {
       const last = ref.current?.querySelector('li:last-child .skill-node')?.getBoundingClientRect();
       return last ? { x: last.left + last.width / 2, y: last.bottom + EMITTER_GAP } : { x: 0, y: 0 };
