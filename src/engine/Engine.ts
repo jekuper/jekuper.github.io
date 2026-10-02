@@ -53,6 +53,11 @@ export class Engine {
     return this.dpr;
   }
 
+  /** Canvas size in CSS pixels. */
+  get size(): { width: number; height: number } {
+    return { width: this.canvas.clientWidth, height: this.canvas.clientHeight };
+  }
+
   /** Matches the drawing buffer to the canvas' CSS size. Returns true if it changed. */
   resize(): boolean {
     const dpr = window.devicePixelRatio || 1;

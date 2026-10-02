@@ -120,6 +120,7 @@ export class Renderer {
   private points: Pass | null = null;
   private lines: Pass | null = null;
   private lineWidth: WebGLUniformLocation | null = null;
+  private quad: WebGLBuffer | null = null;
   private width = 1;
   private height = 1;
 
@@ -150,8 +151,8 @@ export class Renderer {
       attrib(gl, lineProgram, 'a_to', 2, stride, 2, 1);
       attrib(gl, lineProgram, 'a_colorFrom', 4, stride, 4, 1);
       attrib(gl, lineProgram, 'a_colorTo', 4, stride, 8, 1);
-      const quad = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+      this.quad = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.quad);
       gl.bufferData(gl.ARRAY_BUFFER, QUAD, gl.STATIC_DRAW);
       attrib(gl, lineProgram, 'a_corner', 2, 0, 0, 0);
     }, LINE_FLOATS);
@@ -182,8 +183,17 @@ export class Renderer {
     gl.bindVertexArray(null);
   }
 
+  /** Frees GPU objects but keeps the context, so the canvas can be reused. */
   dispose(): void {
-    this.gl.getExtension('WEBGL_lose_context')?.loseContext();
+    const gl = this.gl;
+    for (const pass of [this.points, this.lines]) {
+      if (!pass) continue;
+      gl.deleteProgram(pass.program);
+      gl.deleteVertexArray(pass.vao);
+      gl.deleteBuffer(pass.buffer);
+    }
+    gl.deleteBuffer(this.quad);
+    this.points = this.lines = null;
   }
 
   private bind(pass: Pass, data: Float32Array, floats: number, offsetX: number, offsetY: number): void {
