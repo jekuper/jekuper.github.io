@@ -148,6 +148,29 @@ export class World {
     this.sparks.length = 0;
   }
 
+  /** Translates the whole group, dots in flight included, without disturbing their motion. */
+  moveGroup(name: string, dx: number, dy: number): void {
+    const group = this.groups.get(name);
+    if (!group) return;
+    const p = this.particles;
+    if (group.target) {
+      group.target.originX += dx;
+      group.target.originY += dy;
+    }
+    this.forEachMember(group, (i) => {
+      p.x[i] += dx;
+      p.y[i] += dy;
+      p.fixX[i] += dx;
+      p.fixY[i] += dy;
+      p.spStartX[i] += dx;
+      p.spStartY[i] += dy;
+      p.spCtrlX[i] += dx;
+      p.spCtrlY[i] += dy;
+      p.spTargetX[i] += dx;
+      p.spTargetY[i] += dy;
+    });
+  }
+
   hasGroup(name: string): boolean {
     return this.groups.has(name);
   }

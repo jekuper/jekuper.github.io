@@ -146,6 +146,11 @@ export class Engine {
     });
   }
 
+  /** Translates a group by (dx, dy) CSS pixels. */
+  moveGroup(group: string, dx: number, dy: number): void {
+    this.world.moveGroup(group, dx * this.dpr, dy * this.dpr);
+  }
+
   release(group: string): void {
     this.world.release(group);
   }

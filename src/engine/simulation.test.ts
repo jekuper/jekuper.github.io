@@ -166,5 +166,17 @@ describe('World', () => {
     run(world, 6);
     expect(world.particles.live).toBe(0);
   });
+
+  it('moves a formed group rigidly', () => {
+    const world = new World();
+    world.setBounds(800, 600);
+    world.morph('box', target(squareArt()));
+    run(world, 6);
+    world.moveGroup('box', 0, -150);
+    run(world, 0.5);
+    const p = world.particles;
+    const ys = aliveSlots(world).map((i) => Math.round(p.y[i])).sort((a, b) => a - b);
+    expect(ys).toEqual([-50, -50, -40, -40]);
+  });
 });
 
