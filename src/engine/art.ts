@@ -14,6 +14,10 @@ export interface LineArt {
   contourCount: number;
   /** Per contour, 0 leaves it open (no line from last back to first). Closed when absent. */
   closed?: Uint8Array;
+  /** Per point dot size in art units; the default dot size when absent. */
+  sizes?: Float32Array;
+  /** Draw dots as discs instead of squares. */
+  round?: boolean;
   /** Bounding box size, max - min + 1 as produced by tools/lineart. */
   width: number;
   height: number;

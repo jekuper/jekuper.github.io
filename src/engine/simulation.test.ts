@@ -178,5 +178,24 @@ describe('World', () => {
     const ys = aliveSlots(world).map((i) => Math.round(p.y[i])).sort((a, b) => a - b);
     expect(ys).toEqual([-50, -50, -40, -40]);
   });
+
+  it('keeps a galaxy on stable orbits, out of reach of the cursor and user wells', () => {
+    const world = new World();
+    world.setBounds(1600, 900);
+    world.seedGalaxy('g', 800, 450, 300, 400, 1500, { color: { r: 200, g: 200, b: 200 } });
+    world.cursorX = 800;
+    world.cursorY = 450;
+    world.cursorActive = true;
+    world.spawnWellAtCursor(false);
+    run(world, 10);
+    const p = world.particles;
+    for (const i of aliveSlots(world)) {
+      const r = Math.hypot(p.x[i] - 800, p.y[i] - 450);
+      expect(r).toBeGreaterThan(300 * 0.08 * 0.8);
+      expect(r).toBeLessThan(300 * 1.2);
+    }
+    world.eraseAtCursor();
+    expect(world.particles.live).toBe(400);
+  });
 });
 

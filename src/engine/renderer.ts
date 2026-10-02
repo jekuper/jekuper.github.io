@@ -81,6 +81,7 @@ export interface View {
   shakeY: number;
 }
 
+// A negative size marks a round dot; squares are the default look.
 const POINT_VS = `#version 300 es
 in vec2 a_pos;
 in vec4 a_color;
@@ -89,11 +90,23 @@ uniform vec2 u_resolution;
 uniform vec2 u_camera;
 uniform vec2 u_offset;
 out vec4 v_color;
+out float v_round;
 void main() {
   vec2 clip = (a_pos - u_camera) / u_resolution * 2.0 - 1.0;
   gl_Position = vec4(clip.x + u_offset.x, -clip.y + u_offset.y, 0.0, 1.0);
-  gl_PointSize = a_size;
+  gl_PointSize = abs(a_size);
+  v_round = a_size < 0.0 ? 1.0 : 0.0;
   v_color = vec4(a_color.rgb / 255.0, a_color.a);
+}`;
+
+const POINT_FS = `#version 300 es
+precision mediump float;
+in vec4 v_color;
+in float v_round;
+out vec4 outColor;
+void main() {
+  if (v_round > 0.5 && length(gl_PointCoord - 0.5) > 0.5) discard;
+  outColor = v_color;
 }`;
 
 // Each segment is an instanced quad; a_corner.x runs along it, a_corner.y across.
@@ -163,7 +176,7 @@ export class Renderer {
     gl.enable(gl.BLEND);
     gl.clearColor(BACKGROUND.r / 255, BACKGROUND.g / 255, BACKGROUND.b / 255, 1);
 
-    const pointProgram = link(gl, POINT_VS, COLOR_FS);
+    const pointProgram = link(gl, POINT_VS, POINT_FS);
     const pointLayout = (stride: number) => {
       attrib(gl, pointProgram, 'a_pos', 2, stride, 0, 0);
       attrib(gl, pointProgram, 'a_color', 4, stride, 2, 0);

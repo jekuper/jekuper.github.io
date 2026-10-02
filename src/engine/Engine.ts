@@ -3,7 +3,7 @@ import { FIXED_DT, MAX_FRAME_DT } from './config';
 import { MouseControls } from './input';
 import type { Rgb } from './math';
 import { DrawBatch, Renderer } from './renderer';
-import { World, type FieldOptions, type Point, type Rect } from './simulation';
+import { World, type FieldOptions, type GalaxyOptions, type Point, type Rect } from './simulation';
 
 /** Placement of a line art, in world CSS pixels. */
 export interface MorphRequest {
@@ -126,6 +126,13 @@ export class Engine {
     const d = this.dpr;
     const deviceRect = { x: rect.x * d, y: rect.y * d, width: rect.width * d, height: rect.height * d };
     this.world.seedField(group, deviceRect, count, wellMagnitude, options);
+  }
+
+  /** A rotating spiral of dots that ignores the cursor, user wells and bombs. World CSS pixels. */
+  seedGalaxy(group: string, center: Point, radius: number, count: number, magnitude: number, options: GalaxyOptions): void {
+    const d = this.dpr;
+    // Orbit speed is sqrt(magnitude), so the magnitude scales with the square of the pixel ratio.
+    this.world.seedGalaxy(group, center.x * d, center.y * d, radius * d, count, magnitude * d * d, options);
   }
 
   morph(group: string, request: MorphRequest): void {

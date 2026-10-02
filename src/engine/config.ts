@@ -136,3 +136,15 @@ export const SPARKS = {
 };
 
 export const SCATTER_SPEED = 350;
+
+/** Ambient spiral galaxy: dots on circular orbits around one hidden well. */
+export const GALAXY = {
+  arms: 3,
+  /** Radians the arms wrap from center to edge. */
+  twist: 3.2,
+  /** Angular jitter around an arm, radians. */
+  spread: 0.45,
+  /** Inner edge as a fraction of the radius, so nothing orbits on top of the well. */
+  innerRadius: 0.08,
+  size: 2,
+};

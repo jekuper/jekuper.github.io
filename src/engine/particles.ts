@@ -9,6 +9,12 @@ export const LINKED = 32;
 export const COLOR_FADING = 64;
 /** Drawn additively with `alpha`, so dense clusters glow. */
 export const GLOW = 128;
+/** Drawn as a disc instead of a square. */
+export const ROUND = 256;
+
+/** Layer 0 is the interactive world; other layers only feel their own wells. */
+export const MAIN_LAYER = 0;
+export const AMBIENT_LAYER = 1;
 
 export const ARRIVE_NONE = 0;
 export const ARRIVE_FIX = 1;
@@ -18,9 +24,10 @@ const F64 = ['x', 'y', 'vx', 'vy', 'fx', 'fy', 'fixX', 'fixY', 'spStartX', 'spSt
 const F32 = ['damping', 'size', 'alpha', 'r', 'g', 'b', 'tr', 'tg', 'tb', 'fadeSpeed', 'fixK', 'spTime', 'spDuration', 'spRadius', 'spDelay', 'linkAlpha', 'linkAccel'] as const;
 const I32 = ['link'] as const;
 const U32 = ['gen', 'linkGen'] as const;
-const U8 = ['flags', 'onArrive'] as const;
+const U16 = ['flags'] as const;
+const U8 = ['onArrive', 'layer'] as const;
 
-type TypedArray = Float64Array | Float32Array | Int32Array | Uint32Array | Uint8Array;
+type TypedArray = Float64Array | Float32Array | Int32Array | Uint32Array | Uint16Array | Uint8Array;
 type ArrayCtor = { new (length: number): TypedArray };
 
 const LAYOUT: [readonly string[], ArrayCtor][] = [
@@ -28,6 +35,7 @@ const LAYOUT: [readonly string[], ArrayCtor][] = [
   [F32, Float32Array],
   [I32, Int32Array],
   [U32, Uint32Array],
+  [U16, Uint16Array],
   [U8, Uint8Array],
 ];
 
@@ -79,8 +87,9 @@ export class ParticleStore {
   declare link: Int32Array;
   declare gen: Uint32Array;
   declare linkGen: Uint32Array;
-  declare flags: Uint8Array;
+  declare flags: Uint16Array;
   declare onArrive: Uint8Array;
+  declare layer: Uint8Array;
 
   private free = new Int32Array(0);
   private freeCount = 0;
@@ -110,6 +119,7 @@ export class ParticleStore {
     this.link[i] = -1;
     this.linkAlpha[i] = this.linkAccel[i] = 0;
     this.onArrive[i] = ARRIVE_NONE;
+    this.layer[i] = MAIN_LAYER;
     this.flags[i] = ALIVE | GRAVITATABLE;
     return i;
   }

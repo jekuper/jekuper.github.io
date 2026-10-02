@@ -12,6 +12,8 @@ export interface Well {
   hidden: boolean;
   /** Group whose field placed it; removed together with that group. */
   group: string | null;
+  /** Only particles on the same layer feel it. */
+  layer: number;
 }
 
 export interface Bomb {
@@ -47,7 +49,7 @@ export interface Emitter {
 }
 
 export function createWell(x: number, y: number, magnitude: number, onTop: boolean, wrapTop: number): Well {
-  return { x, y, vx: 0, vy: 0, magnitude, onTop, wrapTop, hidden: false, group: null };
+  return { x, y, vx: 0, vy: 0, magnitude, onTop, wrapTop, hidden: false, group: null, layer: 0 };
 }
 
 export function createBomb(x: number, y: number): Bomb {

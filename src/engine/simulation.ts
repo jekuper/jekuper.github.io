@@ -7,6 +7,7 @@ import {
   EMITTER,
   ERASER,
   FLIGHT,
+  GALAXY,
   LINK,
   MORPH,
   PARTICLE,
@@ -21,6 +22,7 @@ import { GravityField } from './gravity';
 import { distanceToSegment, easeInOutCubic, easeInOutCubicStepped, randomRange, randomSign, wrap, type Rgb } from './math';
 import {
   ALIVE,
+  AMBIENT_LAYER,
   ARRIVE_DESTROY,
   ARRIVE_FIX,
   COLOR_FADING,
@@ -29,7 +31,9 @@ import {
   GRAVITATABLE,
   HAS_FIX,
   LINKED,
+  MAIN_LAYER,
   ParticleStore,
+  ROUND,
   SPIRALING,
 } from './particles';
 import type { DrawBatch } from './renderer';
@@ -59,6 +63,13 @@ export interface MorphTarget {
   surplus?: 'retire' | 'release';
   /** After the hold: return the dots to the emitter, let them drift, or throw them outward. */
   afterHold?: 'dissolve' | 'release' | 'scatter';
+}
+
+export interface GalaxyOptions {
+  /** Below 1 the dots are drawn additively, so dense arms glow. */
+  alpha?: number;
+  fadeIn?: number;
+  color: Rgb;
 }
 
 export interface FieldOptions {
@@ -111,6 +122,7 @@ export class World {
 
   private groups = new Map<string, Group>();
   private gravity = new GravityField();
+  private ambientGravity = new GravityField();
   private shakeTime = 0;
 
   setBounds(width: number, height: number): void {
@@ -235,6 +247,53 @@ export class World {
     });
   }
 
+  /**
+   * A spiral galaxy on the ambient layer: the cursor, user wells and bombs do
+   * not touch it. With this engine's 1/r pull a circular orbit has the same
+   * speed at every radius, so inner dots lap outer ones and the arms wind slowly.
+   */
+  seedGalaxy(name: string, cx: number, cy: number, radius: number, count: number, magnitude: number, options: GalaxyOptions): void {
+    this.removeGroup(name);
+    const well = this.addWell(cx, cy, magnitude, false, Math.floor(cy / this.height) * this.height);
+    well.hidden = true;
+    well.group = name;
+    well.layer = AMBIENT_LAYER;
+
+    const p = this.particles;
+    const speed = Math.sqrt(Math.abs(magnitude));
+    const slots: number[] = [];
+    for (let k = 0; k < count; k++) {
+      const r = radius * (GALAXY.innerRadius + (1 - GALAXY.innerRadius) * Math.sqrt(Math.random()));
+      const arm = ((k % GALAXY.arms) / GALAXY.arms) * Math.PI * 2;
+      const angle = arm + (r / radius) * GALAXY.twist + randomRange(-1, 1) * GALAXY.spread;
+      const cos = Math.cos(angle);
+      const sin = Math.sin(angle);
+      const i = p.spawn(cx + cos * r, cy + sin * r);
+      p.vx[i] = -sin * speed;
+      p.vy[i] = cos * speed;
+      p.layer[i] = AMBIENT_LAYER;
+      p.damping[i] = 1;
+      p.size[i] = GALAXY.size;
+      p.alpha[i] = options.alpha ?? 1;
+      p.flags[i] |= GLOW;
+      if (options.fadeIn) {
+        p.setColor(i, BACKGROUND);
+        p.fadeColor(i, options.color, options.fadeIn);
+      } else {
+        p.setColor(i, options.color);
+      }
+      slots.push(i);
+    }
+    this.groups.set(name, {
+      slots,
+      gens: slots.map((i) => p.gen[i]),
+      phase: 'holding',
+      timer: Infinity,
+      target: null,
+      emitter: DEFAULT_EMITTER,
+    });
+  }
+
   /** Re-forms the group's dots into `target`, spawning or retiring dots as needed. */
   morph(name: string, target: MorphTarget): void {
     let group = this.groups.get(name);
@@ -328,10 +387,10 @@ export class World {
     const cy = this.cursorY;
     const p = this.particles;
     for (let i = 0; i < p.end; i++) {
-      if (p.flags[i] & ALIVE && (p.x[i] - cx) ** 2 + (p.y[i] - cy) ** 2 <= r2) p.destroy(i);
+      if (p.flags[i] & ALIVE && p.layer[i] === MAIN_LAYER && (p.x[i] - cx) ** 2 + (p.y[i] - cy) ** 2 <= r2) p.destroy(i);
     }
     const near = (b: { x: number; y: number }) => (b.x - cx) ** 2 + (b.y - cy) ** 2 <= r2;
-    removeWhere(this.wells, near);
+    removeWhere(this.wells, (well) => well.layer === MAIN_LAYER && near(well));
     removeWhere(this.bombs, near);
   }
 
@@ -456,7 +515,9 @@ export class World {
         const next = k + 1 < end ? order[k + 1] : closed ? order[start] : i;
         p.setLink(i, next, LINK.fadeIn);
         p.setFix(i, x, y, target.density, false);
-        p.flags[i] &= ~GLOW;
+        p.flags[i] &= ~(GLOW | ROUND);
+        if (art.round) p.flags[i] |= ROUND;
+        p.size[i] = art.sizes ? art.sizes[k] * target.scaleX : PARTICLE.size;
         p.alpha[i] = 1;
         if (target.density < 0) p.flags[i] &= ~GRAVITATABLE;
         else p.flags[i] |= GRAVITATABLE;
@@ -607,7 +668,9 @@ export class World {
 
   private stepPhysics(dt: number): void {
     const gravity = this.gravity;
-    gravity.build(this.wells);
+    gravity.build(this.wells.filter((w) => w.layer === MAIN_LAYER));
+    const ambient = this.ambientGravity;
+    ambient.build(this.wells.filter((w) => w.layer === AMBIENT_LAYER));
     const hasGravity = !gravity.empty;
     const p = this.particles;
     const flightOwnsPosition = FLIGHT.style === 'arc';
@@ -625,7 +688,11 @@ export class World {
       let fx = p.fx[i];
       let fy = p.fy[i];
       let damping = p.damping[i];
-      if (flags & GRAVITATABLE) {
+      if (p.layer[i] !== MAIN_LAYER) {
+        ambient.sample(p.x[i], p.y[i]);
+        fx += ambient.ax;
+        fy += ambient.ay;
+      } else if (flags & GRAVITATABLE) {
         if (hasGravity) {
           gravity.sample(p.x[i], p.y[i]);
           fx += gravity.ax;
@@ -704,7 +771,7 @@ export class World {
         p.flags[i] &= ~SPIRALING;
       };
       for (let i = 0; i < p.end; i++) {
-        if (!(p.flags[i] & ALIVE)) continue;
+        if (!(p.flags[i] & ALIVE) || p.layer[i] !== MAIN_LAYER) continue;
         if ((p.x[i] - bomb.x) ** 2 + (p.y[i] - bomb.y) ** 2 <= r2) {
           hit(i);
           continue;
@@ -719,7 +786,7 @@ export class World {
         }
       }
       const bodies: { x: number; y: number; vx: number; vy: number }[] = [
-        ...this.wells,
+        ...this.wells.filter((well) => well.layer === MAIN_LAYER),
         ...this.bombs.filter((other) => other.flying),
       ];
       for (const body of bodies) {
@@ -823,7 +890,8 @@ export class World {
       if (!(flags & ALIVE)) continue;
 
       if (flags & COLOR_FADING) fadeColorStep(p, i, p.fadeSpeed[i] * dt);
-      (flags & GLOW ? batch.glow : batch.points).push(p.x[i], p.y[i], p.r[i], p.g[i], p.b[i], p.alpha[i], p.size[i]);
+      const size = flags & ROUND ? -p.size[i] : p.size[i];
+      (flags & GLOW ? batch.glow : batch.points).push(p.x[i], p.y[i], p.r[i], p.g[i], p.b[i], p.alpha[i], size);
 
       if ((flags & (LINKED | SPIRALING)) !== LINKED) continue;
       const n = p.link[i];
