@@ -61,6 +61,8 @@ export interface Project {
   image: string;
   href: string;
   linkLabel: string;
+  /** How the screenshot's dot grid is chained into lines; cycles when omitted. */
+  sketch?: 'rows' | 'columns' | 'diagonal' | 'spiral' | 'dots';
 }
 
 export interface ProjectsData {

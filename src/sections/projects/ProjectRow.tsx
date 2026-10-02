@@ -2,22 +2,23 @@ import { motion } from 'framer-motion';
 import { useRef, useState } from 'react';
 import { slideIn } from '../../components/motion';
 import type { Layout, Project } from '../../content/types';
-import { imageToSketch, loadImage, rgb, type LineArt } from '../../engine';
+import { imageToGrid, loadImage, rgb, type GridOrder, type LineArt } from '../../engine';
 import { asset } from '../../lib/asset';
 import { useViewMorph } from '../../react/useViewMorph';
 
-// One dot per this many square CSS pixels, capped per layout.
-const AREA_PER_DOT = 70;
-const MAX_DOTS: Record<Layout, number> = { desktop: 4500, mobile: 1500 };
+// Grid step in CSS pixels, grown until the dot count fits the layout's cap.
+const MIN_STEP = 6;
+const MAX_DOTS: Record<Layout, number> = { desktop: 7000, mobile: 2500 };
+const ORDERS: GridOrder[] = ['rows', 'columns', 'diagonal', 'spiral'];
 const SKETCH_COLOR = rgb(190, 190, 190);
 
 const sketches = new Map<string, Promise<LineArt>>();
 
-function sketch(url: string, width: number, height: number, count: number): Promise<LineArt> {
-  const key = `${url}|${Math.round(width)}x${Math.round(height)}|${count}`;
+function sketch(url: string, width: number, height: number, step: number, order: GridOrder): Promise<LineArt> {
+  const key = `${url}|${Math.round(width)}x${Math.round(height)}|${step}|${order}`;
   let pending = sketches.get(key);
   if (!pending) {
-    pending = loadImage(url).then((img) => imageToSketch(img, { width, height, count }));
+    pending = loadImage(url).then((img) => imageToGrid(img, { width, height, step, order }));
     pending.catch(() => sketches.delete(key));
     sketches.set(key, pending);
   }
@@ -30,7 +31,7 @@ interface ProjectRowProps {
   layout: Layout;
 }
 
-/** A project with a dot sketch of its screenshot; hovering scatters the dots and shows the image. */
+/** A project with a dot grid of its screenshot; hovering scatters the dots and shows the image. */
 export function ProjectRow({ project, index, layout }: ProjectRowProps) {
   const visual = useRef<HTMLDivElement>(null);
   const [revealed, setRevealed] = useState(false);
@@ -38,8 +39,9 @@ export function ProjectRow({ project, index, layout }: ProjectRowProps) {
 
   const { scatter, reform } = useViewMorph(visual, async (el) => {
     const rect = el.getBoundingClientRect();
-    const count = Math.min(MAX_DOTS[layout], Math.round((rect.width * rect.height) / AREA_PER_DOT));
-    const art = await sketch(asset(project.image), rect.width, rect.height, count);
+    const step = Math.max(MIN_STEP, Math.sqrt((rect.width * rect.height) / MAX_DOTS[layout]));
+    const order = project.sketch ?? ORDERS[index % ORDERS.length];
+    const art = await sketch(asset(project.image), rect.width, rect.height, step, order);
     return { art, left: rect.left, top: rect.top, width: rect.width, height: rect.height, color: SKETCH_COLOR };
   });
 
