@@ -1,0 +1,118 @@
+.journey {
+  padding: 14vh 5vw 10vh;
+  pointer-events: none;
+}
+
+.journey .section-title {
+  margin-bottom: 10vh;
+}
+
+.journey-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Three columns: card, node, card. Cards alternate sides. */
+.milestone {
+  display: grid;
+  grid-template-columns: 1fr 60px 1fr;
+  align-items: center;
+  min-height: 30vh;
+}
+
+.journey-node {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: center;
+  width: 14px;
+  height: 14px;
+}
+
+.milestone-card {
+  grid-row: 1;
+  max-width: 30vw;
+  pointer-events: auto;
+}
+
+.milestone--left .milestone-card {
+  grid-column: 1;
+  justify-self: end;
+  text-align: right;
+}
+
+.milestone--right .milestone-card {
+  grid-column: 3;
+  justify-self: start;
+}
+
+.milestone-year {
+  color: #9670ff;
+  font-family: var(--font-mono);
+  font-size: 1.2vw;
+}
+
+.milestone-card h3 {
+  margin: 0.3em 0;
+  color: #d2d2d2;
+  font-family: var(--font-grotesk);
+  font-size: 1.9vw;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.milestone-place {
+  margin: 0 0 0.6em;
+  color: #7a7a7a;
+  font-family: var(--font-mono);
+  font-size: 1.1vw;
+}
+
+.milestone-text {
+  margin: 0;
+  color: #a6a6a6;
+  font-family: var(--font-mono);
+  font-size: 1.25vw;
+}
+
+@media screen and (max-width: 1200px) {
+  .journey .section-title {
+    font-size: 8vw;
+    text-align: left;
+  }
+
+  .milestone {
+    grid-template-columns: 40px 1fr;
+    min-height: 24vh;
+    column-gap: 4vw;
+  }
+
+  .journey-node {
+    grid-column: 1;
+  }
+
+  .milestone .milestone-card,
+  .milestone--left .milestone-card {
+    grid-column: 2;
+    justify-self: start;
+    text-align: left;
+    max-width: none;
+  }
+
+  .milestone-year {
+    font-size: 3.6vw;
+  }
+
+  .milestone-card h3 {
+    font-size: 5vw;
+  }
+
+  .milestone-place {
+    font-size: 3.4vw;
+  }
+
+  .milestone-text {
+    font-size: 3.8vw;
+  }
+}

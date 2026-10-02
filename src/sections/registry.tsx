@@ -3,6 +3,7 @@ import type { Layout, SectionEntry, SectionType } from '../content/types';
 import { AboutSection } from './about/AboutSection';
 import { ContactSection } from './contact/ContactSection';
 import { IntroSection } from './intro/IntroSection';
+import { JourneySection } from './journey/JourneySection';
 import { ProjectsSection } from './projects/ProjectsSection';
 import { SkillsSection } from './skills/SkillsSection';
 import { StatsSection } from './stats/StatsSection';
@@ -18,6 +19,7 @@ const components: { [T in SectionType]: ComponentType<SectionProps<T>> } = {
   intro: IntroSection,
   skills: SkillsSection,
   about: AboutSection,
+  journey: JourneySection,
   stats: StatsSection,
   projects: ProjectsSection,
   contact: ContactSection,
