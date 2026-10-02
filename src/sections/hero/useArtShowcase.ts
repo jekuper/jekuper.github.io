@@ -3,7 +3,7 @@ import { fitArt, loadLineArt } from '../../engine';
 import { useLayout } from '../../hooks/useMediaQuery';
 import { useEngine } from '../../react/engineContext';
 import { ArtDeck } from './artDeck';
-import { ART_DENSITY, HERO_GROUP, pickColor, SCENES } from './scene';
+import { ART_DENSITY, HERO_EMITTER, HERO_GROUP, pickColor, SCENES } from './scene';
 
 /** Morphs the hero dots into the next line art, or lets them go. */
 export function useArtShowcase(): { show: () => void; hide: () => void } {
@@ -31,6 +31,7 @@ export function useArtShowcase(): { show: () => void; hide: () => void } {
       height: size.height,
       color: pickColor(preset),
       density: ART_DENSITY,
+      emitter: HERO_EMITTER,
     });
     void loadLineArt(await deck.current.peek());
   }, [engine, layout]);

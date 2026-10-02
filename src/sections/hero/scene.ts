@@ -10,10 +10,7 @@ const FIELD_BUDGET: Record<Layout, { ms: number; max: number }> = {
   mobile: { ms: 2, max: 12000 },
 };
 export const FIELD_FADE_IN = 1.5;
-export const INTRO_FONT = '"Spaced", "Space Grotesk", sans-serif';
-export const INTRO_COLOR = rgb(210, 210, 210);
-export const INTRO_HOLD = 1.8;
-export const INTRO_FIELD_DELAY_MS = 6000;
+export const HERO_EMITTER = 'hero';
 export const FIELD_WELL_MAGNITUDE = 2000;
 export const ART_DENSITY = 200;
 export const ART_MANIFEST = 'art/lineart/manifest.json';
@@ -28,6 +25,8 @@ interface Box {
 
 export interface ScenePreset {
   field: Box;
+  /** Where hero dots spawn and return, fractions of the screen. */
+  emitter: { x: number; y: number };
   /** Art is centered at (x, y) and fitted into width by height. */
   art: Box;
   palette: Rgb[];
@@ -41,6 +40,7 @@ const NEUTRAL = rgb(190, 190, 190);
 export const SCENES: Record<Layout, ScenePreset> = {
   desktop: {
     field: { x: 0.5, y: 0.01, width: 0.49, height: 0.98 },
+    emitter: { x: 0.75, y: 0.96 },
     art: { x: 0.75, y: 0.5, width: 0.45, height: 0.8 },
     palette: [rgb(240, 83, 101), rgb(92, 107, 209), rgb(239, 117, 102)],
     neutral: NEUTRAL,
@@ -48,6 +48,7 @@ export const SCENES: Record<Layout, ScenePreset> = {
   },
   mobile: {
     field: { x: 0.01, y: 0.01, width: 0.98, height: 0.98 },
+    emitter: { x: 0.5, y: 0.5 },
     art: { x: 0.5, y: 0.5, width: 0.8, height: 0.8 },
     palette: [],
     neutral: NEUTRAL,
@@ -75,9 +76,3 @@ export function fieldDots(layout: Layout): number {
 export function fieldAlpha(count: number): number {
   return Math.min(1, Math.max(0.35, Math.sqrt(FIELD_DOTS / count)));
 }
-
-/** Intro text layout: center and width as fractions of the screen. */
-export const INTRO_PLACEMENT: Record<Layout, { x: number; y: number; width: number }> = {
-  desktop: { x: 0.75, y: 0.5, width: 0.4 },
-  mobile: { x: 0.5, y: 0.4, width: 0.86 },
-};

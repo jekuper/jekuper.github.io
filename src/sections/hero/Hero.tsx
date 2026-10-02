@@ -23,7 +23,7 @@ export function Hero({ profile, layout, children, ref }: HeroProps) {
   const title = useRef<HTMLDivElement>(null);
   const titleWrapper = useRef<HTMLDivElement>(null);
 
-  useHeroScene(engine, layout, profile.identity.name);
+  useHeroScene(engine, layout);
 
   // On mobile the title sits low, so the header follows its text rather than its box.
   const headerVisible = useScrolledPast(layout === 'desktop' ? title : titleWrapper, header);
