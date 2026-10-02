@@ -10,6 +10,10 @@
 }
 
 .contact-title {
+  align-self: stretch;
+  overflow: hidden;
+  cursor: pointer;
+  pointer-events: auto;
   margin: 0;
   color: #d2d2d2;
   font-family: var(--font-display);
@@ -18,9 +22,46 @@
   letter-spacing: 1vw;
 }
 
+.contact-hint {
+  margin: 2vh 0 0;
+  color: #5e5c5c;
+  font-family: var(--font-mono);
+  font-size: 1vw;
+}
+
+.contact-topics {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1vw;
+  margin-top: 5vh;
+  pointer-events: auto;
+}
+
+.contact-topic {
+  padding: 0.7em 1.4em;
+  border: 1px solid #3a3a3a;
+  border-radius: 999px;
+  background: none;
+  color: #a6a6a6;
+  font-family: var(--font-mono);
+  font-size: 1.1vw;
+  cursor: pointer;
+  transition:
+    color 0.2s ease-in-out,
+    border-color 0.2s ease-in-out,
+    background-color 0.2s ease-in-out;
+}
+
+.contact-topic:hover {
+  color: white;
+  border-color: #9670ff;
+  background-color: rgba(150, 110, 255, 0.08);
+}
+
 .contact-text {
   max-width: 50vw;
-  margin: 4vh 0 6vh;
+  margin: 5vh 0 6vh;
   color: #a6a6a6;
   font-family: var(--font-mono);
   font-size: 1.6vw;
@@ -85,6 +126,18 @@
   .contact-text {
     max-width: 85vw;
     font-size: 4vw;
+  }
+
+  .contact-hint {
+    font-size: 3vw;
+  }
+
+  .contact-topics {
+    gap: 2.5vw;
+  }
+
+  .contact-topic {
+    font-size: 3.4vw;
   }
 
   .contact-email {

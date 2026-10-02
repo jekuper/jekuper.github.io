@@ -115,8 +115,19 @@ export interface ProjectsData {
   projects: Project[];
 }
 
+export interface ContactTopic {
+  label: string;
+  /** What the heading turns into when the topic is picked. */
+  word: string;
+  subject: string;
+}
+
 export interface ContactData {
   heading: string;
+  /** Shown under the heading: how to play with it. */
+  hint: string;
+  copiedLabel: string;
+  topics: ContactTopic[];
   text: string;
   email: string;
   links: SocialLink[];
