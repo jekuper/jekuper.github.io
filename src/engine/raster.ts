@@ -111,6 +111,8 @@ export interface GridOptions {
   order: GridOrder;
   /** Cells darker than this are left out, so dark areas stay empty. */
   minLuminance?: number;
+  /** Cells more transparent than this are left out (0-255), e.g. a cut-out background. */
+  minAlpha?: number;
   /** Channels are brightened until the strongest reaches this. */
   minBrightness?: number;
 }
@@ -163,6 +165,7 @@ export function imageToGrid(image: CanvasImageSource & { width: number; height: 
   const px = ctx.getImageData(0, 0, cols, rows).data;
 
   const minLuminance = options.minLuminance ?? 22;
+  const minAlpha = options.minAlpha ?? 128;
   const minBrightness = options.minBrightness ?? 120;
   const offsetX = (width - cols * step) / 2 + step / 2;
   const offsetY = (height - rows * step) / 2 + step / 2;
@@ -189,10 +192,11 @@ export function imageToGrid(image: CanvasImageSource & { width: number; height: 
     let g = px[o + 1];
     let b = px[o + 2];
     const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+    const skip = luminance < minLuminance || px[o + 3] < minAlpha;
     const adjacent = prev !== null && Math.abs(prev[0] - x) <= 1 && Math.abs(prev[1] - y) <= 1;
-    if (luminance < minLuminance || !adjacent || options.order === 'dots') flush();
+    if (skip || !adjacent || options.order === 'dots') flush();
     prev = cell;
-    if (luminance < minLuminance) continue;
+    if (skip) continue;
     const peak = Math.max(r, g, b, 1);
     if (peak < minBrightness) {
       const boost = minBrightness / peak;

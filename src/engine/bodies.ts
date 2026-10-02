@@ -9,6 +9,9 @@ export interface Well {
   onTop: boolean;
   /** Top of the screen-sized band it wraps within, in world pixels. */
   wrapTop: number;
+  hidden: boolean;
+  /** Group whose field placed it; removed together with that group. */
+  group: string | null;
 }
 
 export interface Bomb {
@@ -44,7 +47,7 @@ export interface Emitter {
 }
 
 export function createWell(x: number, y: number, magnitude: number, onTop: boolean, wrapTop: number): Well {
-  return { x, y, vx: 0, vy: 0, magnitude, onTop, wrapTop };
+  return { x, y, vx: 0, vy: 0, magnitude, onTop, wrapTop, hidden: false, group: null };
 }
 
 export function createBomb(x: number, y: number): Bomb {

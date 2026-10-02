@@ -66,6 +66,8 @@ export interface FieldOptions {
   alpha?: number;
   /** Seconds to fade in from the background color. */
   fadeIn?: number;
+  /** Corner wells still pull but are not drawn. */
+  hiddenWells?: boolean;
 }
 
 type Phase = 'fading' | 'forming' | 'holding' | 'dissolving';
@@ -133,8 +135,9 @@ export class World {
     this.emitters.delete(name);
   }
 
-  /** Destroys a group's dots at once. */
+  /** Destroys a group's dots and its field wells at once. */
   removeGroup(name: string): void {
+    removeWhere(this.wells, (well) => well.group === name);
     const group = this.groups.get(name);
     if (!group) return;
     this.forEachMember(group, (i) => this.particles.destroy(i));
@@ -187,7 +190,9 @@ export class World {
     const wrapTop = Math.floor(rect.y / this.height) * this.height;
     for (const fy of [0, 1]) {
       for (const fx of [0, 1]) {
-        this.addWell(rect.x + fx * rect.width, rect.y + fy * rect.height, wellMagnitude, false, wrapTop);
+        const well = this.addWell(rect.x + fx * rect.width, rect.y + fy * rect.height, wellMagnitude, false, wrapTop);
+        well.hidden = options.hiddenWells ?? false;
+        well.group = name;
       }
     }
     const columns = Math.max(1, Math.floor(Math.sqrt((count * rect.width) / rect.height)));
@@ -756,7 +761,7 @@ export class World {
   private drawWells(batch: DrawBatch, onTop: boolean): void {
     const c = WELL.color;
     for (const well of this.wells) {
-      if (well.onTop === onTop) batch.point(well.x, well.y, c.r, c.g, c.b, WELL.size);
+      if (well.onTop === onTop && !well.hidden) batch.point(well.x, well.y, c.r, c.g, c.b, WELL.size);
     }
   }
 
