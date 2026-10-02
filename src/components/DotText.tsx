@@ -1,6 +1,5 @@
 import { useEffect, useRef, type ElementType, type HTMLAttributes } from 'react';
 import { rgb, textToArt, type Rgb } from '../engine';
-import { useEngine } from '../react/engineContext';
 import { useViewMorph, type ViewArt, type ViewMorphOptions } from '../react/useViewMorph';
 
 interface DotTextProps extends ViewMorphOptions {
@@ -14,15 +13,10 @@ interface DotTextProps extends ViewMorphOptions {
   color?: Rgb;
   /** Shrink the dot text when it is wider than the element (e.g. a long email). */
   fitWidth?: boolean;
-  /** Called when a bomb knocks most of the dots out of formation. */
-  onDamage?: () => void;
   /** Extra props for the element, such as handlers. */
   elementProps?: HTMLAttributes<HTMLElement>;
 }
 
-// One bomb usually knocks out only a few percent of the dots, so any real hit counts.
-const DAMAGE_THRESHOLD = 0.97;
-const DAMAGE_POLL_MS = 250;
 
 const DEFAULT_COLOR = rgb(210, 210, 210);
 
@@ -35,28 +29,15 @@ export function DotText({
   fill = 0,
   color = DEFAULT_COLOR,
   fitWidth = false,
-  onDamage,
   elementProps,
   ...options
 }: DotTextProps) {
-  const engine = useEngine();
   const ref = useRef<HTMLElement>(null);
-  const { group, formed, reform } = useViewMorph(ref, async (el) => measure(el, text, spacing, fill, color, fitWidth), options);
+  const { formed, reform } = useViewMorph(ref, async (el) => measure(el, text, spacing, fill, color, fitWidth), options);
 
   const reformRef = useRef(reform);
   reformRef.current = reform;
   useEffect(() => reformRef.current(), [text]);
-
-  const onDamageRef = useRef(onDamage);
-  onDamageRef.current = onDamage;
-  const watchDamage = onDamage !== undefined;
-  useEffect(() => {
-    if (!engine || !watchDamage) return;
-    const timer = window.setInterval(() => {
-      if (engine.integrity(group) < DAMAGE_THRESHOLD) onDamageRef.current?.();
-    }, DAMAGE_POLL_MS);
-    return () => window.clearInterval(timer);
-  }, [engine, group, watchDamage]);
 
   return (
     <Tag ref={ref} className={`dot-text ${formed ? 'is-drawn' : ''} ${className}`} {...elementProps}>

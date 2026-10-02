@@ -59,35 +59,6 @@
   background-color: rgba(150, 110, 255, 0.08);
 }
 
-.contact-text {
-  max-width: 50vw;
-  margin: 5vh 0 6vh;
-  color: #a6a6a6;
-  font-family: var(--font-mono);
-  font-size: 1.6vw;
-}
-
-.contact-email {
-  position: relative;
-  padding-bottom: 0.4em;
-  color: #d2d2d2;
-  font-family: var(--font-grotesk);
-  font-size: 2.2vw;
-  text-decoration: none;
-  pointer-events: auto;
-  transition: color 0.3s ease-in-out;
-}
-
-.contact-email:hover {
-  color: white;
-}
-
-.contact-email .skill-underline {
-  bottom: 0;
-  left: 0;
-  width: 100%;
-}
-
 .contact-links {
   display: flex;
   gap: 2vw;
@@ -123,11 +94,6 @@
     font-size: 13vw;
   }
 
-  .contact-text {
-    max-width: 85vw;
-    font-size: 4vw;
-  }
-
   .contact-hint {
     font-size: 3vw;
   }
@@ -140,10 +106,6 @@
     font-size: 3.4vw;
   }
 
-  .contact-email {
-    font-size: 5vw;
-  }
-
   .contact-links {
     gap: 6vw;
   }
@@ -151,12 +113,6 @@
   .contact-links .img-container {
     width: 11vw;
     height: 11vw;
-  }
-
-  .contact-email .skill-underline {
-    top: auto;
-    left: 0;
-    width: 100%;
   }
 
   .contact-footer {

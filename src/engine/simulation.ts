@@ -209,20 +209,6 @@ export class World {
     });
   }
 
-  /** Share of the group's dots still in formation (flying to or holding their spot); 1 when empty. */
-  integrity(name: string): number {
-    const group = this.groups.get(name);
-    if (!group) return 1;
-    const p = this.particles;
-    let total = 0;
-    let intact = 0;
-    this.forEachMember(group, (i) => {
-      total++;
-      if (p.flags[i] & (FIX_ACTIVE | SPIRALING)) intact++;
-    });
-    return total === 0 ? 1 : intact / total;
-  }
-
   hasGroup(name: string): boolean {
     return this.groups.has(name);
   }

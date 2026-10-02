@@ -160,7 +160,7 @@ export const projects: ProjectsData = {
 
 export const contact: ContactData = {
   heading: "LET'S TALK",
-  hint: 'Hover to see my email, click to copy it. Or throw a bomb at it.',
+  hint: 'Hover to see my email, click to copy it.',
   copiedLabel: 'COPIED',
   topics: [
     { label: 'Hiring', word: 'HIRING?', subject: 'Hiring' },
@@ -168,7 +168,6 @@ export const contact: ContactData = {
     { label: 'Game jam?', word: 'GAME JAM?', subject: 'Game jam' },
     { label: 'Just saying hi', word: 'HI!', subject: 'Hello' },
   ],
-  text: '[Placeholder: one or two lines on what kind of work or roles you are looking for]',
   email: 'joesharipov@gmail.com',
   links,
   footer: 'Joe Sharipov',

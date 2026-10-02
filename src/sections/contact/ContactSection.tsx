@@ -7,7 +7,6 @@ import type { ContactData, ContactTopic } from '../../content/types';
 import './ContactSection.css';
 
 const COPIED_MS = 1600;
-const BLAST_MS = 4000;
 const TOPIC_MS = 4000;
 // Lets the visitor see the heading turn into the topic before the mail app opens.
 const MAIL_DELAY_MS = 2200;
@@ -56,10 +55,6 @@ export function ContactSection({ data }: { data: ContactData }) {
         spacing={3}
         fill={7}
         fitWidth
-        // The debris of a hit re-forms as the email for a while.
-        onDamage={() => {
-          if (flash !== data.email) show(data.email, BLAST_MS);
-        }}
         elementProps={{
           role: 'button',
           tabIndex: 0,
@@ -82,13 +77,6 @@ export function ContactSection({ data }: { data: ContactData }) {
           </button>
         ))}
       </motion.div>
-      <motion.p {...riseIn(0.3)} className="contact-text">
-        {data.text}
-      </motion.p>
-      <motion.a {...riseIn(0.4)} className="contact-email" href={`mailto:${data.email}`}>
-        {data.email}
-        <span className="skill-underline" />
-      </motion.a>
       <div className="contact-links">
         <SocialLinks links={data.links} />
       </div>

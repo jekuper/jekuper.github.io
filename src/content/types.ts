@@ -128,7 +128,6 @@ export interface ContactData {
   hint: string;
   copiedLabel: string;
   topics: ContactTopic[];
-  text: string;
   email: string;
   links: SocialLink[];
   footer: string;

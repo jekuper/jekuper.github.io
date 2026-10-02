@@ -212,19 +212,5 @@ describe('World', () => {
     expect(inside).toBe(100);
     expect(batch.glow.count).toBe(60);
   });
-
-  it('reports integrity dropping when a bomb hits a group', () => {
-    const world = new World();
-    world.setBounds(800, 600);
-    world.morph('box', target(squareArt()));
-    run(world, 6);
-    expect(world.integrity('box')).toBe(1);
-    const bomb = createBomb(105, 100);
-    bomb.flying = true;
-    bomb.triggered = true;
-    world.bombs.push(bomb);
-    world.fixedStep(FIXED_DT);
-    expect(world.integrity('box')).toBeLessThan(1);
-  });
 });
 
