@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
-import { dropIn, slideIn } from '../../components/motion';
+import { DotText } from '../../components/DotText';
+import { slideIn } from '../../components/motion';
 import type { StatsData } from '../../content/types';
 import './StatsSection.css';
 
@@ -11,7 +12,7 @@ export function StatsSection({ data }: { data: StatsData }) {
       <div className="widget-wrapper">
         {data.stats.map((stat, i) => (
           <div key={stat.label} className="widget">
-            <motion.h1 {...dropIn(i * STAGGER_S)}>{stat.value}</motion.h1>
+            <DotText as="h1" text={stat.value} spacing={3} fill={6} />
             <motion.p {...slideIn(i * STAGGER_S)}>{stat.label}</motion.p>
           </div>
         ))}
