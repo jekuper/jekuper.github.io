@@ -10,7 +10,7 @@ export const profiles: Record<string, Profile> = {
     links,
     engineHelp,
     hero: [
-      { type: 'intro', data: intro, layouts: ['desktop'] },
+      { type: 'intro', data: intro },
       { type: 'skills', data: skills },
     ],
     sections: [

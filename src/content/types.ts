@@ -23,6 +23,9 @@ export interface IntroData {
   title: string;
   /** `*word*` is highlighted, a blank line is a paragraph break. */
   body: string;
+  rollLabel: string;
+  rollAgainLabel: string;
+  releaseLabel: string;
 }
 
 export interface SkillCategory {

@@ -5,7 +5,10 @@ export const intro: IntroData = {
   title: 'Did you Know?',
   body:
     'Website is a self-written game engine. It has *physics*, *destruction system* and *cool animations*.\n\n' +
-    '*Try clicking* on one of the skills below.',
+    '*Roll a figure* and watch the dots draw it.',
+  rollLabel: 'Roll a figure',
+  rollAgainLabel: 'Roll another',
+  releaseLabel: 'Let it go',
 };
 
 export const skills: SkillsData = {

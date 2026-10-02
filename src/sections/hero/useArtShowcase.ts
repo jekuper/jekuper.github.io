@@ -23,10 +23,12 @@ export function useArtShowcase(): { show: () => void; hide: () => void } {
     const preset = SCENES[layout];
     const { width: w, height: h } = engine.size;
     const size = fitArt(art, preset.art.width * w, preset.art.height * h);
+    // Placed in the current view; on phones the hero is not pinned, so the page may have moved.
+    const center = engine.viewToWorld(preset.art.x * w, preset.art.y * h);
     engine.morph(HERO_GROUP, {
       art,
-      centerX: preset.art.x * w,
-      centerY: preset.art.y * h,
+      centerX: center.x,
+      centerY: center.y,
       width: size.width,
       height: size.height,
       color: pickColor(preset),

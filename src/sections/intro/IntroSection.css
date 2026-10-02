@@ -12,3 +12,76 @@
 .section-right p span {
   color: #d9d9d9;
 }
+
+.intro-actions {
+  display: flex;
+  gap: 2.5vw;
+  margin-top: 4vh;
+}
+
+.intro-button {
+  position: relative;
+  padding: 0 0 0.4em;
+  border: 0;
+  background: none;
+  color: #d2d2d2;
+  font-family: var(--font-grotesk);
+  font-size: 1.5vw;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  pointer-events: all;
+  transition: color 0.3s ease-in-out;
+}
+
+.intro-button:hover {
+  color: white;
+}
+
+.intro-button--quiet {
+  color: #7a7a7a;
+}
+
+.intro-button .skill-underline {
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+
+@media screen and (max-width: 1200px) {
+  .intro-section {
+    grid-template-columns: 100%;
+    grid-template-rows: auto auto;
+    row-gap: 3vh;
+    min-height: 70vh;
+    padding: 15vh 8vw 0;
+  }
+
+  .intro-section .section-left {
+    display: none;
+  }
+
+  .intro-section .section-title {
+    grid-column: auto;
+    font-size: 8vw;
+    text-align: left;
+  }
+
+  .section-right p {
+    font-size: 4.2vw;
+  }
+
+  .intro-actions {
+    gap: 8vw;
+  }
+
+  .intro-button {
+    font-size: 4.2vw;
+  }
+
+  .intro-button .skill-underline {
+    top: auto;
+    left: 0;
+    width: 100%;
+  }
+}
