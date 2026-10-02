@@ -1,0 +1,14 @@
+.section-right {
+  padding-right: 1vw;
+}
+
+.section-right p {
+  font-family: var(--font-mono);
+  color: #616161;
+  font-size: 1.7vw;
+  pointer-events: all;
+}
+
+.section-right p span {
+  color: #d9d9d9;
+}
