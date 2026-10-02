@@ -3,6 +3,7 @@ import type { Layout } from '../../content/types';
 
 export const HERO_GROUP = 'hero';
 export const FIELD_DOTS = 4900;
+const MAX_FIELD_DOTS = 500_000;
 export const FIELD_WELL_MAGNITUDE = 2000;
 export const ART_DENSITY = 200;
 export const ART_MANIFEST = 'art/lineart/manifest.json';
@@ -47,4 +48,10 @@ export const SCENES: Record<Layout, ScenePreset> = {
 export function pickColor(preset: ScenePreset): Rgb {
   if (preset.palette.length === 0 || Math.random() < preset.neutralChance) return preset.neutral;
   return preset.palette[Math.floor(Math.random() * preset.palette.length)];
+}
+
+/** Field size, overridable with `?dots=N` for stress testing. */
+export function fieldDots(): number {
+  const requested = Number(new URLSearchParams(window.location.search).get('dots'));
+  return requested > 0 ? Math.min(Math.floor(requested), MAX_FIELD_DOTS) : FIELD_DOTS;
 }

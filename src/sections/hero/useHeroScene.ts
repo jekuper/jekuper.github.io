@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import type { Engine } from '../../engine';
 import type { Layout } from '../../content/types';
-import { FIELD_DOTS, FIELD_WELL_MAGNITUDE, HERO_GROUP, SCENES } from './scene';
+import { FIELD_WELL_MAGNITUDE, fieldDots, HERO_GROUP, SCENES } from './scene';
 
 const RESIZE_DEBOUNCE_MS = 500;
 
@@ -16,7 +16,7 @@ export function useHeroScene(engine: Engine | null, canvas: HTMLCanvasElement | 
       const w = canvas.clientWidth;
       const h = canvas.clientHeight;
       const magnitude = (Math.random() < 0.5 ? -1 : 1) * FIELD_WELL_MAGNITUDE;
-      engine.seedField(HERO_GROUP, { x: f.x * w, y: f.y * h, width: f.width * w, height: f.height * h }, FIELD_DOTS, magnitude);
+      engine.seedField(HERO_GROUP, { x: f.x * w, y: f.y * h, width: f.width * w, height: f.height * h }, fieldDots(), magnitude);
     };
     seed();
 
