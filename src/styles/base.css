@@ -133,3 +133,19 @@ body {
 .page-sections {
   width: 100vw;
 }
+
+/* Above the fixed canvas; empty areas let clicks through to it. */
+.page-sections > * {
+  position: relative;
+  z-index: 1;
+}
+
+.dot-text {
+  white-space: nowrap;
+}
+
+.dot-text.is-drawn {
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+}
