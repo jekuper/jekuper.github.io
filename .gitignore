@@ -11,8 +11,7 @@ __pycache__/
 CLAUDE.local.md
 .claude/
 
-# private or non-redistributable, provided locally (see public/fonts/README.md)
-public/resume.pdf
+# non-redistributable, provided locally (see public/fonts/README.md)
 public/fonts/*
 !public/fonts/fonts.css
 !public/fonts/README.md

@@ -34,8 +34,6 @@ export const stats: StatsData = {
     { value: '4', label: 'Years of Exp.' },
     { value: '2%', label: 'Top Leetcode' },
   ],
-  moreLabel: 'learn more',
-  moreHref: 'resume.pdf',
 };
 
 export const projects: ProjectsData = {

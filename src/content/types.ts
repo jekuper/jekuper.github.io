@@ -50,8 +50,6 @@ export interface Stat {
 
 export interface StatsData {
   stats: Stat[];
-  moreLabel: string;
-  moreHref: string;
 }
 
 export interface Project {

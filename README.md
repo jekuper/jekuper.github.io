@@ -49,8 +49,7 @@ add a profile in `src/content/profiles.ts` that reuses or replaces section data.
 To add a new kind of section, add its data type in `src/content/types.ts` and
 its component to `src/sections/registry.tsx`.
 
-## Files not in the repository
+## Fonts
 
-* `public/resume.pdf` is linked from the stats section; drop your own in.
-* Three commercial fonts are expected in `public/fonts/`. The page falls back
-  to open fonts without them. See `public/fonts/README.md`.
+Three commercial fonts are expected in `public/fonts/`. The page falls back to
+open fonts without them. See `public/fonts/README.md`.

@@ -44,34 +44,6 @@
   margin-top: 0.5em;
 }
 
-.resume-link {
-  font-family: var(--font-grotesk);
-  font-size: 2vw;
-  text-transform: uppercase;
-  font-weight: 400;
-  margin-right: 2vw;
-  margin-top: 5vh;
-  float: right;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  width: 30%;
-  cursor: pointer;
-  position: relative;
-  transform-origin: right center;
-  transition: color 0.5s ease-in-out;
-}
-
-.resume-link .skill-underline {
-  bottom: 0;
-  left: 2%;
-}
-
-.resume-link-a {
-  color: #d2d2d2;
-  text-decoration: none;
-}
-
 @media screen and (max-width: 1200px) {
   .stats {
     height: unset;
@@ -100,11 +72,6 @@
     font-size: 4.5vw;
   }
 
-  .resume-link .skill-underline {
-    bottom: 0;
-    top: unset;
-    width: 85%;
-  }
 }
 
 @media screen and (max-width: 470px) {
@@ -116,17 +83,4 @@
     font-size: 6vw;
   }
 
-  .resume-link {
-    font-size: 6vw;
-    width: 50%;
-    margin-right: 5vw;
-    margin-bottom: 3vh;
-  }
-
-  .resume-link .skill-underline {
-    bottom: unset;
-    top: 120%;
-    width: 85%;
-    margin-bottom: 3vh;
-  }
 }
