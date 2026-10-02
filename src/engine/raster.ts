@@ -1,4 +1,5 @@
 import type { LineArt } from './art';
+import type { Rgb } from './math';
 import { artFromContours, loopLength, resampleLoop, traceMask } from './trace';
 
 const ALPHA_THRESHOLD = 128;
@@ -214,4 +215,85 @@ export function imageToGrid(image: CanvasImageSource & { width: number; height: 
   colors.push(new Uint8Array([1, 1, 1]), new Uint8Array([1, 1, 1]));
   open.push(true, true);
   return artFromContours(contours, colors, open);
+}
+
+export interface HalftoneOptions {
+  /** Output size in CSS pixels; the image is cropped to cover it. */
+  width: number;
+  height: number;
+  /** Grid step in CSS pixels. */
+  step: number;
+  /** Colors for the darkest and lightest tones. */
+  dark: Rgb;
+  light: Rgb;
+  /** Dot diameter range as fractions of the step. */
+  minDot?: number;
+  maxDot?: number;
+  /** Cells more transparent than this are left out (0-255). */
+  minAlpha?: number;
+}
+
+/**
+ * Halftone: one round dot per grid cell, sized by brightness and by opacity,
+ * so cut-out edges thin out instead of ending in a hard line.
+ */
+export function imageToHalftone(image: CanvasImageSource & { width: number; height: number }, options: HalftoneOptions): LineArt {
+  const { width, height, step, dark, light } = options;
+  const cols = Math.max(1, Math.floor(width / step));
+  const rows = Math.max(1, Math.floor(height / step));
+  const ctx = context2d(cols, rows);
+  ctx.imageSmoothingQuality = 'high';
+  const cover = Math.max(cols / image.width, rows / image.height);
+  const dw = image.width * cover;
+  const dh = image.height * cover;
+  ctx.drawImage(image, (cols - dw) / 2, (rows - dh) / 2, dw, dh);
+  const px = ctx.getImageData(0, 0, cols, rows).data;
+
+  const minAlpha = options.minAlpha ?? 24;
+  const minDot = options.minDot ?? 0.18;
+  const maxDot = options.maxDot ?? 1.05;
+
+  // Stretch the visible tones to the full range so a flat photo still has contrast.
+  let lo = 255;
+  let hi = 0;
+  for (let i = 0; i < cols * rows; i++) {
+    if (px[i * 4 + 3] < minAlpha) continue;
+    const l = 0.299 * px[i * 4] + 0.587 * px[i * 4 + 1] + 0.114 * px[i * 4 + 2];
+    lo = Math.min(lo, l);
+    hi = Math.max(hi, l);
+  }
+  const range = Math.max(1, hi - lo);
+
+  const contours: Float32Array[] = [];
+  const colors: Uint8Array[] = [];
+  const sizes: number[] = [];
+  const offsetX = (width - cols * step) / 2 + step / 2;
+  const offsetY = (height - rows * step) / 2 + step / 2;
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      const o = (y * cols + x) * 4;
+      const a = px[o + 3];
+      if (a < minAlpha) continue;
+      const t = (0.299 * px[o] + 0.587 * px[o + 1] + 0.114 * px[o + 2] - lo) / range;
+      const size = step * (minDot + (maxDot - minDot) * t) * (a / 255);
+      if (size < 0.6) continue;
+      contours.push(new Float32Array([offsetX + x * step, offsetY + y * step]));
+      // Red at least 1: an all-zero color means "use the group color".
+      colors.push(
+        new Uint8Array([
+          Math.max(1, dark.r + (light.r - dark.r) * t),
+          dark.g + (light.g - dark.g) * t,
+          dark.b + (light.b - dark.b) * t,
+        ]),
+      );
+      sizes.push(size);
+    }
+  }
+
+  // Zero-size pins keep the bounds at the full box.
+  contours.push(new Float32Array([0, 0]), new Float32Array([width - 1, height - 1]));
+  colors.push(new Uint8Array([1, 1, 1]), new Uint8Array([1, 1, 1]));
+  sizes.push(0, 0);
+  const art = artFromContours(contours, colors);
+  return { ...art, sizes: Float32Array.from(sizes), round: true };
 }
