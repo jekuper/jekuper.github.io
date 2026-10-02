@@ -57,6 +57,7 @@ export interface Education {
   degree: string;
   years: string;
   gpa: string;
+  gpaScale: string;
   /** Path under public/; a monogram is shown while the file is missing. */
   logo: string;
 }

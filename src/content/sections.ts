@@ -39,8 +39,9 @@ export const about: AboutData = {
     school: 'Pace University',
     degree: '[Placeholder: degree and major]',
     years: '[Placeholder: start year - graduation year]',
-    gpa: '[GPA]',
-    logo: 'images/about/pace-logo.svg',
+    gpa: '3.89',
+    gpaScale: '4.0',
+    logo: 'images/about/pace-logo.webp',
   },
 };
 

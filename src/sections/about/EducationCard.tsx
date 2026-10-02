@@ -37,14 +37,15 @@ export function EducationCard({ education }: { education: Education }) {
           <img className="education-logo" src={asset(education.logo)} alt={education.school} onError={() => setLogoMissing(true)} />
         )}
         <div>
-          <h3>{education.school}</h3>
+          {/* The logo already spells the name; keep it for screen readers only. */}
+          <h3 className={logoMissing ? '' : 'visually-hidden'}>{education.school}</h3>
           <p className="education-degree">{education.degree}</p>
           <p className="education-years">{education.years}</p>
         </div>
       </div>
       <div className="education-gpa">
         <DotText as="span" className="education-gpa-value" text={education.gpa} spacing={2.5} fill={4} color={GPA_COLOR} />
-        <span className="education-gpa-label">GPA</span>
+        <span className="education-gpa-label">GPA / {education.gpaScale}</span>
       </div>
     </motion.div>
   );
