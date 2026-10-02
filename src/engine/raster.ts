@@ -99,73 +99,100 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
   return img.decode().then(() => img);
 }
 
-export interface SketchOptions {
+/** How grid dots are chained into lines. `dots` draws no lines. */
+export type GridOrder = 'rows' | 'columns' | 'diagonal' | 'spiral' | 'dots';
+
+export interface GridOptions {
   /** Output size in CSS pixels; the image is cropped to cover it. */
   width: number;
   height: number;
-  count: number;
-  /** Analysis resolution, longest side in pixels. */
-  resolution?: number;
+  /** Grid step in CSS pixels. */
+  step: number;
+  order: GridOrder;
+  /** Cells darker than this are left out, so dark areas stay empty. */
+  minLuminance?: number;
   /** Channels are brightened until the strongest reaches this. */
   minBrightness?: number;
 }
 
+/** Cell visiting order for each `GridOrder`, as [column, row] pairs. */
+function gridPath(cols: number, rows: number, order: GridOrder): [number, number][] {
+  const path: [number, number][] = [];
+  if (order === 'columns') {
+    for (let x = 0; x < cols; x++) for (let y = 0; y < rows; y++) path.push([x, y]);
+  } else if (order === 'diagonal') {
+    for (let d = 0; d < cols + rows - 1; d++) {
+      for (let x = Math.max(0, d - rows + 1); x <= Math.min(d, cols - 1); x++) path.push([x, d - x]);
+    }
+  } else if (order === 'spiral') {
+    let left = 0;
+    let top = 0;
+    let right = cols - 1;
+    let bottom = rows - 1;
+    while (left <= right && top <= bottom) {
+      for (let x = left; x <= right; x++) path.push([x, top]);
+      for (let y = top + 1; y <= bottom; y++) path.push([right, y]);
+      if (top < bottom) for (let x = right - 1; x >= left; x--) path.push([x, bottom]);
+      if (left < right) for (let y = bottom - 1; y > top; y--) path.push([left, y]);
+      left++;
+      top++;
+      right--;
+      bottom--;
+    }
+  } else {
+    for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) path.push([x, y]);
+  }
+  return path;
+}
+
 /**
- * Pointillist sketch of an image: dots are scattered with a preference for
- * edges and take the color of the pixel under them.
+ * Samples an image on a grid, one dot per cell in the cell's average color,
+ * and chains neighbouring dots into lines following `order`.
  */
-export function imageToSketch(image: CanvasImageSource & { width: number; height: number }, options: SketchOptions): LineArt {
-  const resolution = options.resolution ?? 320;
-  const ratio = resolution / Math.max(options.width, options.height);
-  const sw = Math.max(2, Math.round(options.width * ratio));
-  const sh = Math.max(2, Math.round(options.height * ratio));
-  const ctx = context2d(sw, sh);
-  const cover = Math.max(sw / image.width, sh / image.height);
+export function imageToGrid(image: CanvasImageSource & { width: number; height: number }, options: GridOptions): LineArt {
+  const { width, height, step } = options;
+  const cols = Math.max(1, Math.floor(width / step));
+  const rows = Math.max(1, Math.floor(height / step));
+  // Drawing straight into a cols x rows canvas averages each cell for us.
+  const ctx = context2d(cols, rows);
+  ctx.imageSmoothingQuality = 'high';
+  const cover = Math.max(cols / image.width, rows / image.height);
   const dw = image.width * cover;
   const dh = image.height * cover;
-  ctx.drawImage(image, (sw - dw) / 2, (sh - dh) / 2, dw, dh);
-  const px = ctx.getImageData(0, 0, sw, sh).data;
+  ctx.drawImage(image, (cols - dw) / 2, (rows - dh) / 2, dw, dh);
+  const px = ctx.getImageData(0, 0, cols, rows).data;
 
-  const lum = new Float32Array(sw * sh);
-  for (let i = 0; i < lum.length; i++) lum[i] = 0.299 * px[i * 4] + 0.587 * px[i * 4 + 1] + 0.114 * px[i * 4 + 2];
+  const minLuminance = options.minLuminance ?? 22;
+  const minBrightness = options.minBrightness ?? 120;
+  const offsetX = (width - cols * step) / 2 + step / 2;
+  const offsetY = (height - rows * step) / 2 + step / 2;
 
-  // Sobel magnitude as sampling weight, plus a floor so flat areas still get a few dots.
-  const weight = new Float64Array(sw * sh);
-  let max = 0;
-  for (let y = 1; y < sh - 1; y++) {
-    for (let x = 1; x < sw - 1; x++) {
-      const i = y * sw + x;
-      const gx = lum[i - sw + 1] + 2 * lum[i + 1] + lum[i + sw + 1] - lum[i - sw - 1] - 2 * lum[i - 1] - lum[i + sw - 1];
-      const gy = lum[i + sw - 1] + 2 * lum[i + sw] + lum[i + sw + 1] - lum[i - sw - 1] - 2 * lum[i - sw] - lum[i - sw + 1];
-      weight[i] = Math.hypot(gx, gy);
-      max = Math.max(max, weight[i]);
-    }
-  }
-  const floor = max * 0.04;
-  let total = 0;
-  for (let i = 0; i < weight.length; i++) {
-    total += weight[i] + floor;
-    weight[i] = total;
-  }
-
-  const minBrightness = options.minBrightness ?? 110;
   const contours: Float32Array[] = [];
   const colors: Uint8Array[] = [];
-  for (let k = 0; k < options.count; k++) {
-    const target = Math.random() * total;
-    let lo = 0;
-    let hi = weight.length - 1;
-    while (lo < hi) {
-      const mid = (lo + hi) >> 1;
-      if (weight[mid] < target) lo = mid + 1;
-      else hi = mid;
-    }
-    const x = lo % sw;
-    const y = Math.floor(lo / sw);
-    contours.push(new Float32Array([(x + Math.random()) / ratio, (y + Math.random()) / ratio]));
-    let r = px[lo * 4];
-    let g = px[lo * 4 + 1];
-    let b = px[lo * 4 + 2];
+  const open: boolean[] = [];
+  let xs: number[] = [];
+  let rgb: number[] = [];
+  const flush = () => {
+    if (xs.length === 0) return;
+    contours.push(Float32Array.from(xs));
+    colors.push(Uint8Array.from(rgb));
+    open.push(true);
+    xs = [];
+    rgb = [];
+  };
+
+  let prev: [number, number] | null = null;
+  for (const cell of gridPath(cols, rows, options.order)) {
+    const [x, y] = cell;
+    const o = (y * cols + x) * 4;
+    let r = px[o];
+    let g = px[o + 1];
+    let b = px[o + 2];
+    const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+    const adjacent = prev !== null && Math.abs(prev[0] - x) <= 1 && Math.abs(prev[1] - y) <= 1;
+    if (luminance < minLuminance || !adjacent || options.order === 'dots') flush();
+    prev = cell;
+    if (luminance < minLuminance) continue;
     const peak = Math.max(r, g, b, 1);
     if (peak < minBrightness) {
       const boost = minBrightness / peak;
@@ -173,10 +200,14 @@ export function imageToSketch(image: CanvasImageSource & { width: number; height
       g = Math.min(255, g * boost + 1);
       b = Math.min(255, b * boost + 1);
     }
-    colors.push(new Uint8Array([r, g, b]));
+    xs.push(offsetX + x * step, offsetY + y * step);
+    rgb.push(r, g, b);
   }
-  // Pin the bounds to the full box so placement does not depend on where dots landed.
-  contours.push(new Float32Array([0, 0]), new Float32Array([options.width - 1, options.height - 1]));
+  flush();
+
+  // Pin the bounds to the full box so placement does not depend on which cells were kept.
+  contours.push(new Float32Array([0, 0]), new Float32Array([width - 1, height - 1]));
   colors.push(new Uint8Array([1, 1, 1]), new Uint8Array([1, 1, 1]));
-  return artFromContours(contours, colors);
+  open.push(true, true);
+  return artFromContours(contours, colors, open);
 }
