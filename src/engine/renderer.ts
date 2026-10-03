@@ -1,4 +1,4 @@
-import { BACKGROUND, LINK } from './config';
+import { LINK } from './config';
 
 const POINT_FLOATS = 7; // x, y, r, g, b, a, size
 const LINE_FLOATS = 12; // ax, ay, bx, by, rgba at a, rgba at b
@@ -174,7 +174,8 @@ export class Renderer {
   init(): void {
     const gl = this.gl;
     gl.enable(gl.BLEND);
-    gl.clearColor(BACKGROUND.r / 255, BACKGROUND.g / 255, BACKGROUND.b / 255, 1);
+    // Transparent, so the page can show a backdrop under the dots; the canvas CSS gives the usual background.
+    gl.clearColor(0, 0, 0, 0);
 
     const pointProgram = link(gl, POINT_VS, POINT_FS);
     const pointLayout = (stride: number) => {
@@ -212,11 +213,12 @@ export class Renderer {
     if (gl.isContextLost() || !this.glow || !this.points || !this.lines) return;
 
     if (batch.glow.count > 0) {
-      gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+      // Alpha stays 0, which the browser composites as added light over whatever is below.
+      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE, gl.ZERO, gl.ONE);
       this.bind(this.glow, batch.glow.data, batch.glow.count * POINT_FLOATS, view);
       gl.drawArrays(gl.POINTS, 0, batch.glow.count);
     }
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     if (batch.points.count > 0) {
       this.bind(this.points, batch.points.data, batch.points.count * POINT_FLOATS, view);
       gl.drawArrays(gl.POINTS, 0, batch.points.count);
