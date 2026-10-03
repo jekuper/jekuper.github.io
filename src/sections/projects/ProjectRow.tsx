@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { slideIn } from '../../components/motion';
 import type { Layout, Project } from '../../content/types';
-import { imageToGrid, loadImage, rgb, type GridOrder, type LineArt } from '../../engine';
+import { imageToGrid, loadImage, rgb, type LineArt } from '../../engine';
 import { useFinePointer } from '../../hooks/useMediaQuery';
 import { track } from '../../lib/analytics';
 import { asset } from '../../lib/asset';
@@ -15,9 +15,8 @@ const MAX_DOTS: Record<Layout, number> = { desktop: 7000, mobile: 2500 };
 // On touch screens the image shows by itself once the card has sat mid-screen this long.
 const REVEAL_DELAY_MS = 1800;
 const CENTER_BAND = '-30% 0px -30% 0px';
-// Loose dots are drawn as round tiles this fraction of the grid step, so the picture keeps its brightness.
+// Dots are drawn as round tiles this fraction of the grid step, so the picture keeps its brightness.
 const MOSAIC_DOT = 0.8;
-const ORDERS: GridOrder[] = ['rows', 'columns', 'diagonal', 'spiral'];
 const SKETCH_COLOR = rgb(190, 190, 190);
 // True colors and each cell's brightest pixel: dim glows stay dim and thin bright details survive.
 // Only near-black cells are skipped, since they would be invisible on the page anyway.
@@ -27,11 +26,11 @@ const sketches = new Map<string, Promise<LineArt>>();
 
 type Tuning = Project['sketchTuning'];
 
-function sketch(url: string, width: number, height: number, step: number, order: GridOrder, tuning: Tuning): Promise<LineArt> {
-  const key = `${url}|${Math.round(width)}x${Math.round(height)}|${step}|${order}|${JSON.stringify(tuning ?? {})}`;
+function sketch(url: string, width: number, height: number, step: number, tuning: Tuning): Promise<LineArt> {
+  const key = `${url}|${Math.round(width)}x${Math.round(height)}|${step}|${JSON.stringify(tuning ?? {})}`;
   let pending = sketches.get(key);
   if (!pending) {
-    pending = loadImage(url).then((img) => imageToGrid(img, { width, height, step, order, ...DEFAULT_TUNING, ...tuning }));
+    pending = loadImage(url).then((img) => imageToGrid(img, { width, height, step, order: 'dots', ...DEFAULT_TUNING, ...tuning }));
     pending.catch(() => sketches.delete(key));
     sketches.set(key, pending);
   }
@@ -59,10 +58,9 @@ export function ProjectRow({ project, index, layout }: ProjectRowProps) {
     const rect = el.getBoundingClientRect();
     const maxDots = MAX_DOTS[layout] * deviceScale(layout);
     const step = Math.max(MIN_STEP, Math.sqrt((rect.width * rect.height) / maxDots));
-    // Linked rows turn into stripes at phone size; loose dots read as a picture.
-    const order = layout === 'mobile' ? 'dots' : (project.sketch ?? ORDERS[index % ORDERS.length]);
-    const grid = await sketch(asset(project.image), rect.width, rect.height, step, order, project.sketchTuning);
-    const art = order === 'dots' ? { ...grid, sizes: new Float32Array(grid.pointCount).fill(step * MOSAIC_DOT), round: true } : grid;
+    // Loose dots, not linked lines: they read as a picture at any size.
+    const grid = await sketch(asset(project.image), rect.width, rect.height, step, project.sketchTuning);
+    const art = { ...grid, sizes: new Float32Array(grid.pointCount).fill(step * MOSAIC_DOT), round: true };
     return { art, left: rect.left, top: rect.top, width: rect.width, height: rect.height, color: SKETCH_COLOR };
   });
 
@@ -119,20 +117,28 @@ export function ProjectRow({ project, index, layout }: ProjectRowProps) {
         <img className={revealed ? 'is-visible' : ''} src={asset(project.image)} alt={project.title} loading="lazy" />
       </div>
       <motion.div {...slideIn(0.1)} className="project-info">
-        <span className="project-index">{String(index + 1).padStart(2, '0')}</span>
+        <span className="project-index">
+          {String(index + 1).padStart(2, '0')}
+          <span className="project-year">{project.year}</span>
+        </span>
         <h3>{project.title}</h3>
         <p className="project-description">{project.description}</p>
         <p className="project-details">{project.details}</p>
-        <a
-          className="project-link"
-          href={project.href}
-          target="_blank"
-          rel="noreferrer"
-          onClick={() => track('project-link', { project: project.title })}
-        >
-          {project.linkLabel}
-          <span className="skill-underline" />
-        </a>
+        <div className="project-links">
+          {project.links.map((link) => (
+            <a
+              key={link.href}
+              className="project-link"
+              href={link.href}
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => track('project-link', { project: project.title, link: link.label })}
+            >
+              {link.label}
+              <span className="skill-underline" />
+            </a>
+          ))}
+        </div>
       </motion.div>
     </article>
   );

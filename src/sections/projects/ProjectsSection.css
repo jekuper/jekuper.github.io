@@ -73,6 +73,16 @@
   font-size: 1.2vw;
 }
 
+.project-year {
+  margin-left: 1em;
+}
+
+.project-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6em 2em;
+}
+
 .project-info h3 {
   margin: 0.4em 0;
   color: #d2d2d2;

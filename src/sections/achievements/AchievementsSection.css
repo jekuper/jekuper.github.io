@@ -100,6 +100,16 @@
   font-size: 1.35vw;
 }
 
+a.award-title {
+  text-decoration: underline;
+  text-decoration-color: #5e5c5c;
+  text-underline-offset: 0.25em;
+}
+
+a.award-title:hover {
+  color: white;
+}
+
 .award-result {
   color: #a6a6a6;
   font-family: var(--font-mono);

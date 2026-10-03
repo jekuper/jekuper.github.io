@@ -78,6 +78,7 @@ export interface JourneyData {
 
 export interface CodingProfile {
   platform: string;
+  /** A URL, or a path under public/ such as a certificate PDF. */
   href: string;
   /** Headline number, drawn in dots. */
   value: string;
@@ -90,6 +91,8 @@ export interface Award {
   year: string;
   title: string;
   result: string;
+  /** Path under public/, e.g. a PDF; the title links to it when set. */
+  certificate?: string;
 }
 
 export interface AchievementsData {
@@ -99,17 +102,20 @@ export interface AchievementsData {
   awards: Award[];
 }
 
+export interface ProjectLink {
+  href: string;
+  label: string;
+}
+
 export interface Project {
   title: string;
+  year: string;
   description: string;
   /** Longer text shown next to the project: role, stack, highlights. */
   details: string;
   /** Path under public/. */
   image: string;
-  href: string;
-  linkLabel: string;
-  /** How the screenshot's dot grid is chained into lines; cycles when omitted. */
-  sketch?: 'rows' | 'columns' | 'diagonal' | 'spiral' | 'dots';
+  links: ProjectLink[];
   /** Grid sampling tweaks for unusual screenshots, e.g. dark ones with thin bright details. */
   sketchTuning?: { sample?: 'average' | 'peak'; minLuminance?: number; minBrightness?: number };
 }

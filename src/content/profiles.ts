@@ -6,7 +6,7 @@ import type { Profile } from './types';
 export const profiles: Record<string, Profile> = {
   gamedev: {
     id: 'gamedev',
-    identity,
+    identity: { ...identity, title: 'Game Developer' },
     links,
     engineHelp,
     nav: [
