@@ -11,6 +11,8 @@ export const COLOR_FADING = 64;
 export const GLOW = 128;
 /** Drawn as a disc instead of a square. */
 export const ROUND = 256;
+/** Flight eases out (starts at full speed) instead of easing in and out. */
+export const QUICK = 512;
 
 /** Layer 0 is the interactive world; other layers only feel their own wells. */
 export const MAIN_LAYER = 0;

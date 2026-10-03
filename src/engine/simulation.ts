@@ -8,6 +8,7 @@ import {
   ERASER,
   FLIGHT,
   GALAXY,
+  QUICK_FLIGHT,
   LINK,
   MORPH,
   PARTICLE,
@@ -19,7 +20,7 @@ import {
   WELL,
 } from './config';
 import { GravityField } from './gravity';
-import { distanceToSegment, easeInOutCubic, easeInOutCubicStepped, randomRange, randomSign, wrap, type Rgb } from './math';
+import { distanceToSegment, easeInOutCubic, easeOutCubic, easeInOutCubicStepped, randomRange, randomSign, wrap, type Rgb } from './math';
 import {
   ALIVE,
   AMBIENT_LAYER,
@@ -33,6 +34,7 @@ import {
   LINKED,
   MAIN_LAYER,
   ParticleStore,
+  QUICK,
   ROUND,
   SPIRALING,
 } from './particles';
@@ -63,6 +65,8 @@ export interface MorphTarget {
   clip?: string;
   /** Dots the art does not need: sent into the emitter, or left drifting. */
   surplus?: 'retire' | 'release';
+  /** No fade-out wait, lines cut at once, short flights that start immediately. For swaps, not first draws. */
+  quick?: boolean;
   /** After the hold: return the dots to the emitter, let them drift, or throw them outward. */
   afterHold?: 'dissolve' | 'release' | 'scatter';
 }
@@ -334,12 +338,14 @@ export class World {
     group.phase = 'fading';
     group.timer = 0;
     const p = this.particles;
-    this.forEachMember(group, (i) => {
-      if (p.flags[i] & LINKED && p.linkAccel[i] > 0) {
-        p.setLinkAccel(i, LINK.fadeOut);
-        group.timer = MORPH.fadeOutTime;
-      }
-    });
+    if (!target.quick) {
+      this.forEachMember(group, (i) => {
+        if (p.flags[i] & LINKED && p.linkAccel[i] > 0) {
+          p.setLinkAccel(i, LINK.fadeOut);
+          group.timer = MORPH.fadeOutTime;
+        }
+      });
+    }
     if (group.timer === 0) this.assign(group);
   }
 
@@ -541,7 +547,7 @@ export class World {
 
         // An open contour's last point links to itself, which draws no line.
         const next = k + 1 < end ? order[k + 1] : closed ? order[start] : i;
-        p.setLink(i, next, LINK.fadeIn);
+        p.setLink(i, next, target.quick ? LINK.quickFadeIn : LINK.fadeIn);
         p.clip[i] = group.clip;
         p.setFix(i, x, y, target.density, false);
         p.flags[i] &= ~(GLOW | ROUND);
@@ -551,7 +557,10 @@ export class World {
         if (target.density < 0) p.flags[i] &= ~GRAVITATABLE;
         else p.flags[i] |= GRAVITATABLE;
 
-        const duration = this.flightDuration(i, x, y);
+        const quick = target.quick === true && FLIGHT.style === 'arc';
+        const duration = quick ? this.quickDuration(i, x, y) : this.flightDuration(i, x, y);
+        if (quick) p.flags[i] |= QUICK;
+        else p.flags[i] &= ~QUICK;
         const r = art.rgb[k * 3];
         const g = art.rgb[k * 3 + 1];
         const b = art.rgb[k * 3 + 2];
@@ -559,7 +568,8 @@ export class World {
         else p.fadeColor(i, target.color, duration);
 
         // Starts follow the drawing order, so the art draws itself.
-        const delay = FLIGHT.style === 'arc' ? (k / total) * FLIGHT.stagger : 0;
+        const stagger = quick ? QUICK_FLIGHT.stagger : FLIGHT.stagger;
+        const delay = FLIGHT.style === 'arc' ? (k / total) * stagger : 0;
         p.flyTo(i, x, y, duration, ARRIVE_FIX, this.flightBend(), delay);
       }
     }
@@ -576,6 +586,13 @@ export class World {
     const dist = Math.hypot(x - p.x[i], y - p.y[i]);
     const base = Math.min(FLIGHT.maxDuration, Math.max(FLIGHT.minDuration, FLIGHT.base + dist / FLIGHT.speed));
     return base * randomRange(1 - FLIGHT.jitter, 1 + FLIGHT.jitter);
+  }
+
+  private quickDuration(i: number, x: number, y: number): number {
+    const p = this.particles;
+    const dist = Math.hypot(x - p.x[i], y - p.y[i]);
+    const q = QUICK_FLIGHT;
+    return Math.min(q.maxDuration, Math.max(q.minDuration, q.base + dist / q.speed));
   }
 
   private flightBend(): number {
@@ -661,7 +678,7 @@ export class World {
   private stepArc(i: number, dt: number): void {
     const p = this.particles;
     const t = Math.min(p.spTime[i] / p.spDuration[i], 1);
-    const e = easeInOutCubic(t);
+    const e = p.flags[i] & QUICK ? easeOutCubic(t) : easeInOutCubic(t);
     const u = 1 - e;
     const x = u * u * p.spStartX[i] + 2 * u * e * p.spCtrlX[i] + e * e * p.spTargetX[i];
     const y = u * u * p.spStartY[i] + 2 * u * e * p.spCtrlY[i] + e * e * p.spTargetY[i];

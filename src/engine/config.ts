@@ -36,6 +36,15 @@ export const FLIGHT = {
   retireStagger: 0.35,
 };
 
+/** Re-targeting an already formed shape (e.g. text swapped on hover): short flights that start at once. */
+export const QUICK_FLIGHT = {
+  base: 0.2,
+  speed: 2600,
+  minDuration: 0.25,
+  maxDuration: 0.8,
+  stagger: 0.12,
+};
+
 export const SPIRAL = {
   stiffness: 140,
   settleDamping: 0.5,
@@ -50,6 +59,7 @@ export const SPIRAL = {
 export const LINK = {
   width: 3,
   fadeIn: 2,
+  quickFadeIn: 6,
   fadeOut: -2,
 };
 

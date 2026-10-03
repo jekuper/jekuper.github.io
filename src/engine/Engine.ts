@@ -20,6 +20,8 @@ export interface MorphRequest {
   /** Named clip region (see `defineClip`) the dots are drawn inside. */
   clip?: string;
   surplus?: 'retire' | 'release';
+  /** Swap an already formed shape at once (see MorphTarget.quick). */
+  quick?: boolean;
   afterHold?: 'dissolve' | 'release' | 'scatter';
 }
 
@@ -158,6 +160,7 @@ export class Engine {
       emitter: request.emitter,
       clip: request.clip,
       surplus: request.surplus,
+      quick: request.quick,
       afterHold: request.afterHold,
     });
   }
