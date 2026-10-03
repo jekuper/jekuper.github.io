@@ -17,14 +17,16 @@ export interface ViewMorphOptions {
   emitter?: (rect: DOMRect) => Point;
   /** Extra condition besides being on screen. */
   active?: boolean;
-  /** What happens when the group goes away: back into the emitter, or thrown outward. */
-  hide?: 'dissolve' | 'scatter';
+  /** What happens when the group goes away: back into the emitter (slowly or at once), or thrown outward. */
+  hide?: 'dissolve' | 'recall' | 'scatter';
   /** IntersectionObserver margin, e.g. to form only once well inside the screen. */
   rootMargin?: string;
   /** Named clip region the dots are drawn inside. */
   clip?: string;
   /** Draw the emitter bar; off for small elements where it would sit on nearby text. */
   showEmitter?: boolean;
+  /** Form with the short, immediate transition, e.g. for a menu that must appear at once. */
+  quick?: boolean;
 }
 
 const RESIZE_DEBOUNCE_MS = 400;
@@ -59,6 +61,8 @@ export function useViewMorph(
   const rootMargin = options.rootMargin ?? '0px';
   const clipRef = useRef(options.clip);
   clipRef.current = options.clip;
+  const quickRef = useRef(options.quick ?? false);
+  quickRef.current = options.quick ?? false;
   const showEmitterRef = useRef(options.showEmitter ?? true);
   showEmitterRef.current = options.showEmitter ?? true;
   /** World position of the element's corner when the group was placed; null while not formed. */
@@ -83,7 +87,7 @@ export function useViewMorph(
       density: DENSITY,
       emitter: group,
       clip: clipRef.current,
-      quick,
+      quick: quick || quickRef.current,
     });
     const rect = el.getBoundingClientRect();
     anchor.current = engine.viewToWorld(rect.left, rect.top);
@@ -95,6 +99,7 @@ export function useViewMorph(
     anchor.current = null;
     if (!engine) return;
     if (hide === 'scatter') engine.scatter(group);
+    else if (hide === 'recall') engine.recall(group);
     else engine.dissolve(group);
   }, [engine, group, hide]);
 
