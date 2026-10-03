@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'rea
 import type { Layout } from '../content/types';
 import { Engine } from '../engine';
 import { REDUCED_MOTION_QUERY, useFinePointer, useReducedMotion } from '../hooks/useMediaQuery';
+import { track } from '../lib/analytics';
 import { EngineContext } from './engineContext';
 import { StatsOverlay, statsEnabled } from './StatsOverlay';
 import './EngineStage.css';
@@ -46,6 +47,7 @@ export function EngineStage({ layout, pin, children }: EngineStageProps) {
     }
     // Set before any scene is seeded; children seed in effects that run before ours.
     instance.setReducedMotion(window.matchMedia(REDUCED_MOTION_QUERY).matches);
+    instance.onAction((action) => track(`engine-${action}`));
     instance.setCamera(() => ({ x: 0, y: Math.max(0, window.scrollY - pinEnd.current) }));
     if (overscan > 1) instance.setCanvasOrigin(canvasPlacer(canvas, overscan, () => pinEnd.current, () => pageHeight.current));
     setEngine(instance);

@@ -4,6 +4,7 @@ import { slideIn } from '../../components/motion';
 import type { Layout, Project } from '../../content/types';
 import { imageToGrid, loadImage, rgb, type GridOrder, type LineArt } from '../../engine';
 import { useFinePointer } from '../../hooks/useMediaQuery';
+import { track } from '../../lib/analytics';
 import { asset } from '../../lib/asset';
 import { useViewMorph } from '../../react/useViewMorph';
 import { deviceScale } from '../hero/scene';
@@ -68,8 +69,12 @@ export function ProjectRow({ project, index, layout }: ProjectRowProps) {
   const reveal = (show: boolean) => {
     if (show === revealed) return;
     setRevealed(show);
-    if (show) scatter();
-    else reform();
+    if (show) {
+      track('project-reveal', { project: project.title });
+      scatter();
+    } else {
+      reform();
+    }
   };
 
   const scatterRef = useRef(scatter);
@@ -118,7 +123,13 @@ export function ProjectRow({ project, index, layout }: ProjectRowProps) {
         <h3>{project.title}</h3>
         <p className="project-description">{project.description}</p>
         <p className="project-details">{project.details}</p>
-        <a className="project-link" href={project.href} target="_blank" rel="noreferrer">
+        <a
+          className="project-link"
+          href={project.href}
+          target="_blank"
+          rel="noreferrer"
+          onClick={() => track('project-link', { project: project.title })}
+        >
           {project.linkLabel}
           <span className="skill-underline" />
         </a>

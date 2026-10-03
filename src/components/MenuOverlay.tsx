@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import type { Identity, NavItem, SectionType, SocialLink } from '../content/types';
 import { rgb } from '../engine';
 import { useReducedMotion } from '../hooks/useMediaQuery';
+import { track } from '../lib/analytics';
 import { sectionAnchor } from '../lib/anchors';
 import { useEngine } from '../react/engineContext';
 import { DotText } from './DotText';
@@ -88,10 +89,12 @@ export function MenuOverlay({ identity, links, nav }: MenuOverlayProps) {
   const toggle = () => {
     setChosen(null);
     setHovered(null);
-    setOpen((value) => !value);
+    if (!open) track('menu-open');
+    setOpen(!open);
   };
 
   const go = (target: SectionType) => {
+    track('menu-jump', { section: target });
     setChosen(target);
     pendingScroll.current = target;
     setOpen(false);

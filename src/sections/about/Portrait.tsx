@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import type { Layout } from '../../content/types';
 import { imageToHalftone, loadImage, rgb } from '../../engine';
 import { useFinePointer } from '../../hooks/useMediaQuery';
+import { track } from '../../lib/analytics';
 import { asset } from '../../lib/asset';
 import { useViewMorph } from '../../react/useViewMorph';
 
@@ -25,8 +26,12 @@ export function Portrait({ src, alt, layout }: { src: string; alt: string; layou
   const reveal = (show: boolean) => {
     if (show === revealed) return;
     setRevealed(show);
-    if (show) scatter();
-    else reform();
+    if (show) {
+      track('portrait-reveal');
+      scatter();
+    } else {
+      reform();
+    }
   };
 
   return (

@@ -4,6 +4,7 @@ import { riseIn, wipeIn } from '../../components/motion';
 import { RichText } from '../../components/Text';
 import type { IntroData, Layout } from '../../content/types';
 import { useFinePointer } from '../../hooks/useMediaQuery';
+import { track } from '../../lib/analytics';
 import { useArtShowcase } from '../hero/useArtShowcase';
 import './IntroSection.css';
 
@@ -13,10 +14,12 @@ export function IntroSection({ data, layout }: { data: IntroData; layout: Layout
   const finePointer = useFinePointer();
 
   const roll = () => {
+    track('figure-roll');
     art.show();
     setShowing(true);
   };
   const release = () => {
+    track('figure-release');
     art.hide();
     setShowing(false);
   };

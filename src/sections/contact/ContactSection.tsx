@@ -5,6 +5,7 @@ import { riseIn } from '../../components/motion';
 import { SocialLinks } from '../../components/SocialLinks';
 import type { ContactData, ContactTopic } from '../../content/types';
 import { useFinePointer } from '../../hooks/useMediaQuery';
+import { track } from '../../lib/analytics';
 import './ContactSection.css';
 
 const TOPIC_MS = 4000;
@@ -36,10 +37,12 @@ export function ContactSection({ data }: { data: ContactData }) {
   };
 
   const copy = () => {
+    track('email-copy');
     void navigator.clipboard?.writeText(data.email).then(() => setCopied(true));
   };
 
   const pick = (topic: ContactTopic) => {
+    track('contact-topic', { topic: topic.subject });
     show(topic.word, TOPIC_MS);
     window.clearTimeout(mailTimer.current);
     mailTimer.current = window.setTimeout(() => {

@@ -68,6 +68,12 @@ answer is remembered and applied on later visits; add `?reset-consent` to the UR
 forget it. The snippet and project id are in `index.html`, the toast text in `metrics` in
 `src/content/identity.ts`.
 
+Clarity replays the page but cannot see the canvas, so interactions are also sent as named
+events to filter recordings by: `engine-black-hole`, `engine-anti-black-hole`,
+`engine-bomb`, `engine-eraser`, `figure-roll`, `figure-release`, `portrait-reveal`,
+`project-reveal` and `project-link` (tag `project`), `menu-open`, `menu-jump` (tag
+`section`), `email-copy`, `contact-topic` (tag `topic`) and `social-link` (tag `link`).
+
 ## Fonts
 
 Three commercial fonts are expected in `public/fonts/`. The page falls back to
