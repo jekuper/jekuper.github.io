@@ -20,13 +20,10 @@ export function Header({ identity, links, nav, layout, visible, ref }: HeaderPro
         <h1 className="h1-title">{identity.name}</h1>
         <h2 className="occupation-title">{identity.title}</h2>
       </div>
-      {layout === 'desktop' ? (
-        <div className="header-right">
-          <SocialLinks links={links} />
-        </div>
-      ) : (
+      <div className="header-right">
+        {layout === 'desktop' && <SocialLinks links={links} />}
         <MenuOverlay identity={identity} links={links} nav={nav} />
-      )}
+      </div>
     </div>
   );
 }

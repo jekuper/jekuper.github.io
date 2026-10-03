@@ -163,7 +163,7 @@
   height: 100dvh;
   z-index: 998;
   box-sizing: border-box;
-  padding: 22vw 8vw 6vw;
+  padding: 14vh 8vw 5vh;
   display: flex;
   flex-direction: column;
   visibility: hidden;
@@ -194,12 +194,17 @@
   background: none;
   color: #ece8f8;
   font-family: var(--font-grotesk);
-  font-size: min(10vw, 8vh);
+  font-size: min(5vw, 8vh);
   font-weight: 400;
   letter-spacing: 0.12em;
   line-height: 1.15;
   text-align: left;
   cursor: pointer;
+}
+
+/* No transition: the dots measure the new spot at once and fly there themselves. */
+.menu-item.is-hovered {
+  transform: translateX(0.5em);
 }
 
 .menu-footer {
@@ -224,20 +229,17 @@
   margin: 0;
   color: #b9a9e0;
   font-family: var(--font-mono);
-  font-size: 2.1vw;
+  font-size: 1vw;
   line-height: 1.4;
 }
 
+/* The desktop header already shows the links. */
 .menu-socials {
-  display: flex;
-  gap: 3vw;
+  display: none;
 }
 
-.menu-socials .img-container {
-  width: 8vw;
-  height: 8vw;
-  max-width: 7vh;
-  max-height: 7vh;
+.header-right .menu-button {
+  margin-left: 1.2vw;
 }
 
 .menu-socials img {
@@ -268,6 +270,34 @@
     width: 10%;
     height: 100%;
     justify-content: center;
+  }
+
+  .header-right .menu-button {
+    margin-left: 0;
+  }
+
+  .menu-layer {
+    padding: 22vw 8vw 6vw;
+  }
+
+  .menu-item {
+    font-size: min(10vw, 8vh);
+  }
+
+  .menu-address {
+    font-size: 2.1vw;
+  }
+
+  .menu-socials {
+    display: flex;
+    gap: 3vw;
+  }
+
+  .menu-socials .img-container {
+    width: 8vw;
+    height: 8vw;
+    max-width: 7vh;
+    max-height: 7vh;
   }
 }
 

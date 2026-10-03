@@ -11,6 +11,7 @@ const MENU_CLIP = 'menu';
 // Lets the picked name visibly blow apart before the page scrolls away from it.
 const SCROLL_DELAY_MS = 350;
 const ITEM_COLOR = rgb(236, 232, 248);
+const HOVER_COLOR = rgb(255, 150, 120);
 
 // Icon dots in a 28 by 28 box: two bars when closed, a cross when open.
 const ICON_DOTS = 12;
@@ -35,6 +36,7 @@ export function MenuOverlay({ identity, links, nav }: MenuOverlayProps) {
   const engine = useEngine();
   const [open, setOpen] = useState(false);
   const [chosen, setChosen] = useState<SectionType | null>(null);
+  const [hovered, setHovered] = useState<SectionType | null>(null);
   const button = useRef<HTMLButtonElement>(null);
   const pendingScroll = useRef<SectionType | null>(null);
 
@@ -82,6 +84,7 @@ export function MenuOverlay({ identity, links, nav }: MenuOverlayProps) {
 
   const toggle = () => {
     setChosen(null);
+    setHovered(null);
     setOpen((value) => !value);
   };
 
@@ -99,7 +102,7 @@ export function MenuOverlay({ identity, links, nav }: MenuOverlayProps) {
   const icon = open ? cross : bars;
 
   return (
-    <div className="header-right">
+    <>
       <button
         ref={button}
         className={`menu-button ${open ? 'is-open' : ''}`}
@@ -116,23 +119,35 @@ export function MenuOverlay({ identity, links, nav }: MenuOverlayProps) {
       </button>
       {createPortal(<div className={`menu-panel ${open ? 'on' : ''}`} />, document.body)}
       {createPortal(
-        <nav className={`menu-layer ${open ? 'on' : ''}`} aria-hidden={!open}>
+        <nav
+          className={`menu-layer ${open ? 'on' : ''}`}
+          aria-hidden={!open}
+          onClick={(e) => {
+            // Clicking anywhere but a name or a link closes it.
+            if (!(e.target as HTMLElement).closest('.menu-item, a')) setOpen(false);
+          }}
+        >
           <ul className="menu-list">
             {nav.map((item) => (
               <li key={item.target}>
                 <DotText
                   as="button"
-                  className="menu-item"
+                  className={`menu-item ${hovered === item.target ? 'is-hovered' : ''}`}
                   text={item.label}
                   spacing={2.5}
-                  color={ITEM_COLOR}
+                  color={hovered === item.target ? HOVER_COLOR : ITEM_COLOR}
                   active={open}
                   quick
                   hide={chosen === item.target ? 'scatter' : 'recall'}
                   clip={MENU_CLIP}
                   emitter={fromButton}
                   showEmitter={false}
-                  elementProps={{ tabIndex: open ? 0 : -1, onClick: () => go(item.target) }}
+                  elementProps={{
+                    tabIndex: open ? 0 : -1,
+                    onClick: () => go(item.target),
+                    onMouseEnter: () => setHovered(item.target),
+                    onMouseLeave: () => setHovered(null),
+                  }}
                 />
               </li>
             ))}
@@ -153,6 +168,6 @@ export function MenuOverlay({ identity, links, nav }: MenuOverlayProps) {
         </nav>,
         document.body,
       )}
-    </div>
+    </>
   );
 }
