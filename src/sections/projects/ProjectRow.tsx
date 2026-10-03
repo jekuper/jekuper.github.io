@@ -1,14 +1,21 @@
 import { motion } from 'framer-motion';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { slideIn } from '../../components/motion';
 import type { Layout, Project } from '../../content/types';
 import { imageToGrid, loadImage, rgb, type GridOrder, type LineArt } from '../../engine';
+import { useFinePointer } from '../../hooks/useMediaQuery';
 import { asset } from '../../lib/asset';
 import { useViewMorph } from '../../react/useViewMorph';
+import { deviceScale } from '../hero/scene';
 
-// Grid step in CSS pixels, grown until the dot count fits the layout's cap.
+// Grid step in CSS pixels, grown until the dot count fits the layout's cap (scaled to the device).
 const MIN_STEP = 6;
 const MAX_DOTS: Record<Layout, number> = { desktop: 7000, mobile: 2500 };
+// On touch screens the image shows by itself once the card has sat mid-screen this long.
+const REVEAL_DELAY_MS = 1800;
+const CENTER_BAND = '-30% 0px -30% 0px';
+// Loose dots are drawn as round tiles this fraction of the grid step, so the picture keeps its brightness.
+const MOSAIC_DOT = 0.8;
 const ORDERS: GridOrder[] = ['rows', 'columns', 'diagonal', 'spiral'];
 const SKETCH_COLOR = rgb(190, 190, 190);
 // True colors and each cell's brightest pixel: dim glows stay dim and thin bright details survive.
@@ -36,26 +43,66 @@ interface ProjectRowProps {
   layout: Layout;
 }
 
-/** A project with a dot grid of its screenshot; hovering scatters the dots and shows the image. */
+/**
+ * A project with a dot grid of its screenshot. With a mouse, hovering scatters the
+ * dots and shows the image; on touch screens that happens when the card sits mid-screen.
+ */
 export function ProjectRow({ project, index, layout }: ProjectRowProps) {
   const visual = useRef<HTMLDivElement>(null);
   const [revealed, setRevealed] = useState(false);
-  const touch = layout === 'mobile';
+  const revealedRef = useRef(revealed);
+  revealedRef.current = revealed;
+  const touch = !useFinePointer();
 
-  const { scatter, reform } = useViewMorph(visual, async (el) => {
+  const { scatter, dissolve, reform } = useViewMorph(visual, async (el) => {
     const rect = el.getBoundingClientRect();
-    const step = Math.max(MIN_STEP, Math.sqrt((rect.width * rect.height) / MAX_DOTS[layout]));
-    const order = project.sketch ?? ORDERS[index % ORDERS.length];
-    const art = await sketch(asset(project.image), rect.width, rect.height, step, order, project.sketchTuning);
+    const maxDots = MAX_DOTS[layout] * deviceScale(layout);
+    const step = Math.max(MIN_STEP, Math.sqrt((rect.width * rect.height) / maxDots));
+    // Linked rows turn into stripes at phone size; loose dots read as a picture.
+    const order = layout === 'mobile' ? 'dots' : (project.sketch ?? ORDERS[index % ORDERS.length]);
+    const grid = await sketch(asset(project.image), rect.width, rect.height, step, order, project.sketchTuning);
+    const art = order === 'dots' ? { ...grid, sizes: new Float32Array(grid.pointCount).fill(step * MOSAIC_DOT), round: true } : grid;
     return { art, left: rect.left, top: rect.top, width: rect.width, height: rect.height, color: SKETCH_COLOR };
   });
 
   const reveal = (show: boolean) => {
     if (show === revealed) return;
     setRevealed(show);
-    if (show) scatter();
+    if (show && touch) dissolve();
+    else if (show) scatter();
     else reform();
   };
+
+  // Thrown dots would land on the text below a phone-width card, so they fly home instead.
+  const dissolveRef = useRef(dissolve);
+  dissolveRef.current = dissolve;
+  useEffect(() => {
+    const el = visual.current;
+    if (!touch || !el) return;
+    let timer = 0;
+    const center = new IntersectionObserver(
+      ([entry]) => {
+        window.clearTimeout(timer);
+        if (!entry.isIntersecting || revealedRef.current) return;
+        timer = window.setTimeout(() => {
+          setRevealed(true);
+          dissolveRef.current();
+        }, REVEAL_DELAY_MS);
+      },
+      { rootMargin: CENTER_BAND },
+    );
+    // Off screen the dots go back to the emitter, so the next visit starts from the sketch again.
+    const screen = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) setRevealed(false);
+    });
+    center.observe(el);
+    screen.observe(el);
+    return () => {
+      window.clearTimeout(timer);
+      center.disconnect();
+      screen.disconnect();
+    };
+  }, [touch]);
 
   return (
     <article className={`project ${index % 2 ? 'project--flip' : ''}`}>

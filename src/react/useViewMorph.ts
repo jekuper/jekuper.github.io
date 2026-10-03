@@ -42,7 +42,7 @@ export function useViewMorph(
   ref: RefObject<HTMLElement | null>,
   build: (el: HTMLElement) => Promise<ViewArt | null>,
   options: ViewMorphOptions = {},
-): { group: string; formed: boolean; scatter: () => void; reform: (quick?: boolean) => void } {
+): { group: string; formed: boolean; scatter: () => void; dissolve: () => void; reform: (quick?: boolean) => void } {
   const engine = useEngine();
   const group = `view-${useId()}`;
   const [formed, setFormed] = useState(false);
@@ -164,5 +164,11 @@ export function useViewMorph(
     engine?.scatter(group);
   }, [engine, group]);
 
-  return { group, formed, scatter, reform: (quick) => void reform(quick).catch((err) => console.error(err)) };
+  const dissolve = useCallback(() => {
+    request.current++;
+    anchor.current = null;
+    engine?.dissolve(group);
+  }, [engine, group]);
+
+  return { group, formed, scatter, dissolve, reform: (quick) => void reform(quick).catch((err) => console.error(err)) };
 }
