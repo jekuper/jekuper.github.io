@@ -18,14 +18,16 @@ Controls on desktop:
 ```
 npm install
 npm run dev        # http://localhost:5173
-npm run build      # static site in dist/, served under /portfolio/
+npm run build      # static site in docs/, for GitHub Pages
 npm test           # engine unit tests
 npm run lint
 ```
 
 Each profile is a page at `/<profile id>/` (the game dev one is `/gamedev/`); the root
 redirects there. The build puts a copy of the page in each profile folder, so it works on
-static hosts like GitHub Pages. Set `BASE_PATH` (default `/portfolio/`) to deploy elsewhere.
+static hosts like GitHub Pages. The build goes to `docs/` and is committed: Pages serves it
+with Settings > Pages > Deploy from a branch, folder `/docs`, at https://jekuper.github.io/.
+Set `BASE_PATH` (default `/`) to serve from a subpath instead.
 
 Append `?dots=50000` to the URL to stress test the engine with a bigger field, and
 `?stats` to show frame rate, CPU time per frame and the live dot count.
