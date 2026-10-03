@@ -105,57 +105,145 @@
   cursor: pointer;
 }
 
-.hamburger-overlay {
-  width: 100vw;
-  height: 100vh;
-  position: absolute;
+.menu-button circle {
+  fill: #8a8a8a;
+  transition:
+    transform 0.45s cubic-bezier(0.6, 0, 0.2, 1),
+    fill 0.3s ease-in-out;
+}
+
+.menu-button.is-open circle {
+  fill: #ece8f8;
+}
+
+/* Under the canvas (which is transparent), so the menu dots draw on top of it. */
+.menu-panel {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: #43158c;
+  clip-path: circle(0 at var(--menu-x, 100%) var(--menu-y, 0));
+  transition: clip-path 0.55s cubic-bezier(0.7, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.menu-panel.on {
+  clip-path: circle(150vmax at var(--menu-x, 100%) var(--menu-y, 0));
+}
+
+.hero-content,
+.hero-backdrop,
+.page-sections {
+  transition: opacity 0.3s ease-in-out;
+}
+
+.menu-open body {
+  overflow: hidden;
+}
+
+.menu-open .hero-content,
+.menu-open .hero-backdrop,
+.menu-open .page-sections {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.menu-open .header-holder {
+  background-color: transparent;
+  box-shadow: none;
+}
+
+/* dvh keeps the footer above mobile browser toolbars. */
+.menu-layer {
+  position: fixed;
   top: 0;
   left: 0;
-  background: #43158c;
-  transform: translateY(100%);
-  transition: transform 0.5s ease-out;
-  pointer-events: none;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 998;
+  box-sizing: border-box;
+  padding: 22vw 8vw 6vw;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  visibility: hidden;
+  pointer-events: none;
+  transition: visibility 0s 0.4s;
+}
+
+.menu-layer.on {
+  visibility: visible;
+  pointer-events: auto;
+  transition: none;
+}
+
+.menu-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   justify-content: center;
+  gap: 2.4vh;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.hamburger-overlay .img-container {
-  width: 11vw;
-  height: 11vw;
-  max-width: 10vh;
-  max-height: 10vh;
-}
-
-.hamburger-overlay a {
-  margin-bottom: 6.2vw;
-  margin-right: 0;
-}
-
-.hamburger-overlay.on {
-  transform: translateY(0);
-  pointer-events: all;
-}
-
-.hamburger-close {
-  position: absolute;
-  right: 3vw;
-  top: 3vw;
-  width: 4.8vw;
+.menu-item {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #ece8f8;
+  font-family: var(--font-grotesk);
+  font-size: min(10vw, 8vh);
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  line-height: 1.15;
+  text-align: left;
   cursor: pointer;
 }
 
-.hamburger-address {
-  position: absolute;
-  left: 5.5vw;
-  bottom: 5.5vw;
+.menu-footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 4vw;
+  opacity: 0;
+  transform: translateY(1em);
+  transition:
+    opacity 0.3s ease-in-out,
+    transform 0.3s ease-in-out;
+}
+
+.menu-layer.on .menu-footer {
+  opacity: 1;
+  transform: none;
+  transition-delay: 0.35s;
+}
+
+.menu-address {
   margin: 0;
-  color: #939292;
+  color: #b9a9e0;
   font-family: var(--font-mono);
   font-size: 2.1vw;
-  font-weight: 400;
-  line-height: normal;
+  line-height: 1.4;
+}
+
+.menu-socials {
+  display: flex;
+  gap: 3vw;
+}
+
+.menu-socials .img-container {
+  width: 8vw;
+  height: 8vw;
+  max-width: 7vh;
+  max-height: 7vh;
+}
+
+.menu-socials img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 @media screen and (max-width: 1200px) {
@@ -197,18 +285,12 @@
     display: none;
   }
 
-  .hamburger-address {
-    font-size: 3.6vw;
+  .menu-address {
+    font-size: 3.4vw;
   }
 
-  .hamburger-overlay .img-container {
-    width: 19vw;
-    height: 19vw;
-  }
-
-  .hamburger-close {
-    right: 5.4vw;
-    top: 5.8vw;
-    width: 7.2vw;
+  .menu-socials .img-container {
+    width: 10vw;
+    height: 10vw;
   }
 }

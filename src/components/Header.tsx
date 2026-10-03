@@ -1,5 +1,5 @@
 import type { Ref } from 'react';
-import type { Identity, Layout, SocialLink } from '../content/types';
+import type { Identity, Layout, NavItem, SocialLink } from '../content/types';
 import { MenuOverlay } from './MenuOverlay';
 import { SocialLinks } from './SocialLinks';
 import './Header.css';
@@ -7,12 +7,13 @@ import './Header.css';
 interface HeaderProps {
   identity: Identity;
   links: SocialLink[];
+  nav: NavItem[];
   layout: Layout;
   visible: boolean;
   ref?: Ref<HTMLDivElement>;
 }
 
-export function Header({ identity, links, layout, visible, ref }: HeaderProps) {
+export function Header({ identity, links, nav, layout, visible, ref }: HeaderProps) {
   return (
     <div ref={ref} className={`header-holder ${visible ? 'is-visible' : 'is-hidden'}`}>
       <div className="header-left">
@@ -24,7 +25,7 @@ export function Header({ identity, links, layout, visible, ref }: HeaderProps) {
           <SocialLinks links={links} />
         </div>
       ) : (
-        <MenuOverlay identity={identity} links={links} />
+        <MenuOverlay identity={identity} links={links} nav={nav} />
       )}
     </div>
   );

@@ -47,7 +47,7 @@ export function Hero({ profile, layout, children, ref }: HeroProps) {
           <CanvasHint help={profile.engineHelp} />
         </div>
       )}
-      <Header ref={header} identity={profile.identity} links={profile.links} layout={layout} visible={headerVisible} />
+      <Header ref={header} identity={profile.identity} links={profile.links} nav={profile.nav} layout={layout} visible={headerVisible} />
       <div className="hero-content">
         <HeroTitle ref={title} wrapperRef={titleWrapper} identity={profile.identity} layout={layout} hidden={headerVisible} />
         {children}
