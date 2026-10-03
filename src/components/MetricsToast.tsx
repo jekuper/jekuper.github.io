@@ -12,15 +12,16 @@ const PHONE_SCROLL_FRACTION = 1;
 
 /** Asks once, in a corner, whether usage metrics may use cookies; the answer is passed to Clarity. */
 export function MetricsToast({ data }: { data: MetricsData }) {
-  const [asking, setAsking] = useState(false);
+  const [phase, setPhase] = useState<'waiting' | 'asking' | 'answered'>(() => (storedConsent() ? 'answered' : 'waiting'));
 
+  // Listens only while waiting, so nothing can bring the toast back once it was shown.
   useEffect(() => {
-    if (storedConsent()) return;
+    if (phase !== 'waiting') return;
     let waited = false;
     const phone = window.matchMedia(MOBILE_QUERY).matches;
     const scrolledEnough = () => !phone || window.scrollY > window.innerHeight * PHONE_SCROLL_FRACTION;
     const check = () => {
-      if (waited && scrolledEnough()) setAsking(true);
+      if (waited && scrolledEnough()) setPhase('asking');
     };
     const timer = window.setTimeout(() => {
       waited = true;
@@ -31,17 +32,17 @@ export function MetricsToast({ data }: { data: MetricsData }) {
       window.clearTimeout(timer);
       window.removeEventListener('scroll', check);
     };
-  }, []);
+  }, [phase]);
 
   const answer = (consent: Consent) => {
     storeConsent(consent);
     sendConsent(consent);
-    setAsking(false);
+    setPhase('answered');
   };
 
   return (
     <AnimatePresence>
-      {asking && (
+      {phase === 'asking' && (
         <motion.aside
           className="metrics-toast"
           role="dialog"

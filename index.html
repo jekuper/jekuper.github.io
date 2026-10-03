@@ -32,7 +32,16 @@
       })(window, document, 'clarity', 'script', 'yryy1lloz0');
       (function () {
         var granted = false;
-        try { granted = localStorage.getItem('metrics-consent') === 'accepted'; } catch (e) {}
+        try {
+          // ?reset-consent forgets the answer, so the toast shows again (for testing).
+          var url = new URL(location.href);
+          if (url.searchParams.has('reset-consent')) {
+            localStorage.removeItem('metrics-consent');
+            url.searchParams.delete('reset-consent');
+            history.replaceState(null, '', url.pathname + url.search + url.hash);
+          }
+          granted = localStorage.getItem('metrics-consent') === 'accepted';
+        } catch (e) {}
         clarity('consentv2', { ad_Storage: 'denied', analytics_Storage: granted ? 'granted' : 'denied' });
       })();
     </script>
