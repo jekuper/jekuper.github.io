@@ -3,6 +3,7 @@ import type { Layout } from '../content/types';
 import { Engine } from '../engine';
 import { useFinePointer } from '../hooks/useMediaQuery';
 import { EngineContext } from './engineContext';
+import { StatsOverlay, statsEnabled } from './StatsOverlay';
 import './EngineStage.css';
 
 interface EngineStageProps {
@@ -57,6 +58,7 @@ export function EngineStage({ layout, pin, children }: EngineStageProps) {
     <EngineContext.Provider value={engine}>
       <canvas ref={setCanvas} className="engine-canvas" />
       {children}
+      {statsEnabled() && <StatsOverlay />}
     </EngineContext.Provider>
   );
 }

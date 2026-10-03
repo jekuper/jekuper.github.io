@@ -7,3 +7,16 @@
   background: var(--color-bg);
   z-index: 0;
 }
+
+.stats-overlay {
+  position: fixed;
+  left: 8px;
+  bottom: 8px;
+  z-index: 2000;
+  margin: 0;
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #9fef9f;
+  font: 12px/1.35 ui-monospace, Consolas, monospace;
+  pointer-events: none;
+}

@@ -23,7 +23,8 @@ npm test           # engine unit tests
 npm run lint
 ```
 
-Append `?dots=50000` to the URL to stress test the engine with a bigger field.
+Append `?dots=50000` to the URL to stress test the engine with a bigger field, and
+`?stats` to show frame rate, CPU time per frame and the live dot count.
 
 `npm run preview:image` (with the dev server running) re-captures `public/og-image.png`,
 the image shown in link previews. It uses an installed Edge or Chrome.
