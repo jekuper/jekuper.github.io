@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
+import { DOT_ICONS } from '../../components/dotIcons';
 import { DotText } from '../../components/DotText';
 import { riseIn } from '../../components/motion';
 import { SocialLinks } from '../../components/SocialLinks';
@@ -9,30 +10,38 @@ import { track } from '../../lib/analytics';
 import './ContactSection.css';
 
 const TOPIC_MS = 4000;
-// Lets the visitor see the heading turn into the topic before the mail app opens.
+// The topic's drawing and word, then the dots fold into an envelope, then the mail app opens.
+const FOLD_MS = 1200;
 const MAIL_DELAY_MS = 2200;
+
+interface Flash {
+  text: string;
+  icon?: string;
+}
 
 export function ContactSection({ data }: { data: ContactData }) {
   const finePointer = useFinePointer();
   const [hovered, setHovered] = useState(false);
   // Stays until the pointer leaves, so the confirmation does not flicker back to the email.
   const [copied, setCopied] = useState(false);
-  // A temporary word that wins over the hover state, e.g. "COPIED".
-  const [flash, setFlash] = useState<string | null>(null);
+  // A temporary shape that wins over the hover state, e.g. a picked topic.
+  const [flash, setFlash] = useState<Flash | null>(null);
   const flashTimer = useRef(0);
+  const foldTimer = useRef(0);
   const mailTimer = useRef(0);
 
   useEffect(
     () => () => {
       window.clearTimeout(flashTimer.current);
+      window.clearTimeout(foldTimer.current);
       window.clearTimeout(mailTimer.current);
     },
     [],
   );
 
-  const show = (word: string, ms: number) => {
+  const show = (shape: Flash, ms: number) => {
     window.clearTimeout(flashTimer.current);
-    setFlash(word);
+    setFlash(shape);
     flashTimer.current = window.setTimeout(() => setFlash(null), ms);
   };
 
@@ -43,7 +52,9 @@ export function ContactSection({ data }: { data: ContactData }) {
 
   const pick = (topic: ContactTopic) => {
     track('contact-topic', { topic: topic.subject });
-    show(topic.word, TOPIC_MS);
+    show({ text: topic.word, icon: DOT_ICONS[topic.icon] }, TOPIC_MS);
+    window.clearTimeout(foldTimer.current);
+    foldTimer.current = window.setTimeout(() => setFlash({ text: '', icon: DOT_ICONS.envelope }), FOLD_MS);
     window.clearTimeout(mailTimer.current);
     mailTimer.current = window.setTimeout(() => {
       window.location.href = `mailto:${data.email}?subject=${encodeURIComponent(topic.subject)}`;
@@ -51,14 +62,15 @@ export function ContactSection({ data }: { data: ContactData }) {
   };
 
   const hoverWord = copied ? data.copiedLabel : data.email;
-  const heading = flash ?? (hovered ? hoverWord : data.heading);
+  const heading = flash ?? { text: hovered ? hoverWord : data.heading };
 
   return (
     <footer className="contact">
       <DotText
         as="h2"
         className="contact-title"
-        text={heading}
+        text={heading.text}
+        icon={heading.icon}
         spacing={3}
         fill={8}
         fitWidth

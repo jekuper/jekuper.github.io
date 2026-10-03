@@ -125,10 +125,14 @@ export interface ProjectsData {
   projects: Project[];
 }
 
+/** Small drawings DotText can form, defined in components/dotIcons. */
+export type DotIcon = 'briefcase' | 'blocks' | 'gamepad' | 'smile' | 'envelope';
+
 export interface ContactTopic {
   label: string;
-  /** What the heading turns into when the topic is picked. */
+  /** What the heading turns into when the topic is picked, drawn after `icon`. */
   word: string;
+  icon: DotIcon;
   subject: string;
 }
 

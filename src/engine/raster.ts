@@ -17,7 +17,15 @@ export interface TextArtOptions {
   maxPoints?: number;
   /** Rasterization oversampling for smoother outlines. */
   oversample?: number;
+  /** SVG path data in a 24 x 24 box, stroked before the text; alone it fills the line height. */
+  icon?: string;
 }
+
+const ICON_BOX = 24;
+const ICON_STROKE = 2;
+// Icon height relative to the capital letters, and the gap after it relative to its size.
+const ICON_SCALE = 1.6;
+const ICON_GAP = 0.35;
 
 export interface TextArt {
   art: LineArt;
@@ -47,16 +55,33 @@ export function textToArt(text: string, options: TextArtOptions): TextArt {
   const ascent = m.fontBoundingBoxAscent;
   const descent = m.fontBoundingBoxDescent;
   const pad = Math.ceil((ascent + descent) * 0.1);
-  const width = m.width + pad * 2;
+  const capHeight = probe.measureText('H').actualBoundingBoxAscent;
+  // Beside text the icon is centered on the capitals; alone it spans the line.
+  const iconSize = !options.icon ? 0 : text ? capHeight * ICON_SCALE : ascent + descent;
+  const iconTop = text ? ascent - capHeight / 2 - iconSize / 2 : 0;
+  const iconAdvance = iconSize && text ? iconSize * (1 + ICON_GAP) : iconSize;
+  const advance = iconAdvance + m.width;
+  const width = advance + pad * 2;
   const height = ascent + descent + pad * 2;
 
   const ctx = context2d(width * scale, height * scale);
   ctx.scale(scale, scale);
+  if (options.icon) {
+    ctx.save();
+    ctx.translate(pad, pad + iconTop);
+    ctx.scale(iconSize / ICON_BOX, iconSize / ICON_BOX);
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = ICON_STROKE;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.stroke(new Path2D(options.icon));
+    ctx.restore();
+  }
   ctx.font = options.font;
   if (options.letterSpacing) ctx.letterSpacing = options.letterSpacing;
   ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = '#fff';
-  ctx.fillText(text, pad, pad + ascent);
+  ctx.fillText(text, pad + iconAdvance, pad + ascent);
 
   const w = ctx.canvas.width;
   const h = ctx.canvas.height;
@@ -112,7 +137,7 @@ export function textToArt(text: string, options: TextArtOptions): TextArt {
     art,
     offsetX: art.offsetX - pad,
     offsetY: art.offsetY - pad - ascent,
-    advance: m.width,
+    advance,
     ascent,
     descent,
   };
