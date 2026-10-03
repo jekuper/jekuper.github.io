@@ -42,7 +42,7 @@ export function useViewMorph(
   ref: RefObject<HTMLElement | null>,
   build: (el: HTMLElement) => Promise<ViewArt | null>,
   options: ViewMorphOptions = {},
-): { group: string; formed: boolean; scatter: () => void; reform: () => void } {
+): { group: string; formed: boolean; scatter: () => void; reform: (quick?: boolean) => void } {
   const engine = useEngine();
   const group = `view-${useId()}`;
   const [formed, setFormed] = useState(false);
@@ -64,7 +64,7 @@ export function useViewMorph(
   /** World position of the element's corner when the group was placed; null while not formed. */
   const anchor = useRef<Point | null>(null);
 
-  const reform = useCallback(async () => {
+  const reform = useCallback(async (quick = false) => {
     const el = ref.current;
     if (!engine || !el || !onScreen.current || !activeRef.current) return;
     const id = ++request.current;
@@ -83,6 +83,7 @@ export function useViewMorph(
       density: DENSITY,
       emitter: group,
       clip: clipRef.current,
+      quick,
     });
     const rect = el.getBoundingClientRect();
     anchor.current = engine.viewToWorld(rect.left, rect.top);
@@ -163,5 +164,5 @@ export function useViewMorph(
     engine?.scatter(group);
   }, [engine, group]);
 
-  return { group, formed, scatter, reform: () => void reform().catch((err) => console.error(err)) };
+  return { group, formed, scatter, reform: (quick) => void reform(quick).catch((err) => console.error(err)) };
 }

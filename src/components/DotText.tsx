@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ElementType, type HTMLAttributes } from 'react';
-import { rgb, textToArt, type Rgb } from '../engine';
+import { rgb, textToArt, type Rgb, type TextArt } from '../engine';
 import { useViewMorph, type ViewArt, type ViewMorphOptions } from '../react/useViewMorph';
 
 interface DotTextProps extends ViewMorphOptions {
@@ -37,13 +37,36 @@ export function DotText({
 
   const reformRef = useRef(reform);
   reformRef.current = reform;
-  useEffect(() => reformRef.current(), [text]);
+  // A text swap re-targets dots that are already formed, so it uses the quick transition.
+  const firstText = useRef(true);
+  useEffect(() => {
+    if (firstText.current) {
+      firstText.current = false;
+      return;
+    }
+    reformRef.current(true);
+  }, [text]);
 
   return (
     <Tag ref={ref} className={`dot-text ${formed ? 'is-drawn' : ''} ${className}`} {...elementProps}>
       {text}
     </Tag>
   );
+}
+
+// Rasterizing and tracing text takes a few milliseconds; swapping back and forth on hover reuses it.
+const shapes = new Map<string, TextArt>();
+const MAX_CACHED_SHAPES = 64;
+
+function cachedTextArt(text: string, font: { font: string; letterSpacing: string }, spacing: number, fill: number): TextArt {
+  const key = `${font.font}|${font.letterSpacing}|${spacing}|${fill}|${text}`;
+  let shape = shapes.get(key);
+  if (!shape) {
+    if (shapes.size >= MAX_CACHED_SHAPES) shapes.delete(shapes.keys().next().value!);
+    shape = textToArt(text, { ...font, spacing, fill });
+    shapes.set(key, shape);
+  }
+  return shape;
 }
 
 async function measure(el: HTMLElement, text: string, spacing: number, fill: number, color: Rgb, fitWidth: boolean): Promise<ViewArt> {
@@ -59,10 +82,10 @@ async function measure(el: HTMLElement, text: string, spacing: number, fill: num
   });
   let font = fontFor(1);
   await document.fonts.load(font.font, text);
-  let shape = textToArt(text, { ...font, spacing, fill });
+  let shape = cachedTextArt(text, font, spacing, fill);
   if (fitWidth && shape.advance > contentWidth) {
     font = fontFor((contentWidth / shape.advance) * 0.96);
-    shape = textToArt(text, { ...font, spacing, fill });
+    shape = cachedTextArt(text, font, spacing, fill);
   }
 
   // Place the pen where the browser lays out the text: aligned in the content box, baseline centered in the line.
