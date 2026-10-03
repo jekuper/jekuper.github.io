@@ -54,7 +54,7 @@ export function ProjectRow({ project, index, layout }: ProjectRowProps) {
   revealedRef.current = revealed;
   const touch = !useFinePointer();
 
-  const { scatter, dissolve, reform } = useViewMorph(visual, async (el) => {
+  const { scatter, reform } = useViewMorph(visual, async (el) => {
     const rect = el.getBoundingClientRect();
     const maxDots = MAX_DOTS[layout] * deviceScale(layout);
     const step = Math.max(MIN_STEP, Math.sqrt((rect.width * rect.height) / maxDots));
@@ -68,14 +68,12 @@ export function ProjectRow({ project, index, layout }: ProjectRowProps) {
   const reveal = (show: boolean) => {
     if (show === revealed) return;
     setRevealed(show);
-    if (show && touch) dissolve();
-    else if (show) scatter();
+    if (show) scatter();
     else reform();
   };
 
-  // Thrown dots would land on the text below a phone-width card, so they fly home instead.
-  const dissolveRef = useRef(dissolve);
-  dissolveRef.current = dissolve;
+  const scatterRef = useRef(scatter);
+  scatterRef.current = scatter;
   useEffect(() => {
     const el = visual.current;
     if (!touch || !el) return;
@@ -86,7 +84,7 @@ export function ProjectRow({ project, index, layout }: ProjectRowProps) {
         if (!entry.isIntersecting || revealedRef.current) return;
         timer = window.setTimeout(() => {
           setRevealed(true);
-          dissolveRef.current();
+          scatterRef.current();
         }, REVEAL_DELAY_MS);
       },
       { rootMargin: CENTER_BAND },
