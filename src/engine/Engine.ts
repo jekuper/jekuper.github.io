@@ -40,6 +40,15 @@ export interface MorphRequest {
   afterHold?: 'dissolve' | 'release' | 'scatter';
 }
 
+export interface EngineOptions {
+  /**
+   * Canvas height as a multiple of the viewport height. Above 1 the page can
+   * scroll the canvas itself (see `setCanvasOrigin`), which keeps the dots in
+   * step with the page while the browser scrolls ahead of the next frame.
+   */
+  overscan?: number;
+}
+
 /**
  * Public face of the engine. Owns the canvas, the loop and the world.
  *
@@ -52,6 +61,8 @@ export class Engine {
   private batch = new DrawBatch();
   private controls: MouseControls | null = null;
   private camera: () => Point = () => ({ x: 0, y: 0 });
+  private canvasOrigin: (() => number) | null = null;
+  private overscan: number;
   private visibility: IntersectionObserver;
   private onScreen = true;
   private frameId = 0;
@@ -60,7 +71,11 @@ export class Engine {
   private dpr = 1;
   private averages: EngineStats = { fps: 0, simulationMs: 0, frameMs: 0, drawMs: 0, dots: 0, lines: 0 };
 
-  constructor(private canvas: HTMLCanvasElement) {
+  constructor(
+    private canvas: HTMLCanvasElement,
+    options: EngineOptions = {},
+  ) {
+    this.overscan = Math.max(1, options.overscan ?? 1);
     this.renderer = new Renderer(canvas);
     canvas.addEventListener('webglcontextlost', this.onContextLost);
     canvas.addEventListener('webglcontextrestored', this.onContextRestored);
@@ -84,7 +99,7 @@ export class Engine {
 
   /** Viewport size in CSS pixels. */
   get size(): { width: number; height: number } {
-    return { width: this.canvas.clientWidth, height: this.canvas.clientHeight };
+    return { width: this.canvas.clientWidth, height: this.canvas.clientHeight / this.overscan };
   }
 
   /** Matches the drawing buffer to the canvas' CSS size. Returns true if it changed. */
@@ -96,7 +111,7 @@ export class Engine {
     this.dpr = dpr;
     this.canvas.width = width;
     this.canvas.height = height;
-    this.world.setBounds(width, height);
+    this.world.setBounds(width, Math.round(height / this.overscan));
     this.renderer.resize(width, height);
     return true;
   }
@@ -138,6 +153,15 @@ export class Engine {
   setCamera(camera: () => Point): void {
     this.camera = camera;
     this.syncCamera();
+  }
+
+  /**
+   * Called once per frame, before drawing, for the world y (CSS pixels) shown at
+   * the canvas' top edge; the callback may move the canvas there. Without it the
+   * canvas is the viewport.
+   */
+  setCanvasOrigin(origin: (() => number) | null): void {
+    this.canvasOrigin = origin;
   }
 
   /** Converts a viewport position (e.g. from getBoundingClientRect) to world CSS pixels. */
@@ -265,7 +289,8 @@ export class Engine {
     const w = this.world;
     w.frame(dt, this.batch);
     const t2 = performance.now();
-    this.renderer.draw(this.batch, { x: w.camX, y: w.camY, shakeX: w.shakeX, shakeY: w.shakeY });
+    const originY = this.canvasOrigin ? this.canvasOrigin() * this.dpr : w.camY;
+    this.renderer.draw(this.batch, { x: w.camX, y: originY, shakeX: w.shakeX, shakeY: w.shakeY });
     const t3 = performance.now();
     this.record(elapsed, t1 - t0, t2 - t1, t3 - t2);
   };

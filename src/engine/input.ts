@@ -87,13 +87,13 @@ export class MouseControls {
     }
   };
 
+  // Viewport coordinates: the canvas may be taller than the viewport and offset from it.
   private track(e: MouseEvent): void {
-    const rect = this.canvas.getBoundingClientRect();
-    const dpr = this.canvas.width / Math.max(1, rect.width);
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const dpr = this.canvas.width / Math.max(1, this.canvas.clientWidth);
+    const x = e.clientX;
+    const y = e.clientY;
     this.world.cursorX = x * dpr + this.world.camX;
     this.world.cursorY = y * dpr + this.world.camY;
-    this.world.cursorActive = x >= 0 && y >= 0 && x <= rect.width && y <= rect.height;
+    this.world.cursorActive = x >= 0 && y >= 0 && x <= window.innerWidth && y <= window.innerHeight;
   }
 }
