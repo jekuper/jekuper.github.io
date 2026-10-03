@@ -18,10 +18,14 @@ Controls on desktop:
 ```
 npm install
 npm run dev        # http://localhost:5173
-npm run build      # static site in dist/
+npm run build      # static site in dist/, served under /portfolio/
 npm test           # engine unit tests
 npm run lint
 ```
+
+Each profile is a page at `/<profile id>/` (the game dev one is `/gamedev/`); the root
+redirects there. The build puts a copy of the page in each profile folder, so it works on
+static hosts like GitHub Pages. Set `BASE_PATH` (default `/portfolio/`) to deploy elsewhere.
 
 Append `?dots=50000` to the URL to stress test the engine with a bigger field, and
 `?stats` to show frame rate, CPU time per frame and the live dot count.
@@ -49,7 +53,8 @@ tunable constants live in `src/engine/config.ts`.
 Everything shown on the page comes from `src/content`. A `Profile` lists the
 sections drawn over the canvas (`hero`) and the sections below it (`sections`),
 each as a typed `{ type, data }` entry. To add a page for a different role,
-add a profile in `src/content/profiles.ts` that reuses or replaces section data.
+add a profile in `src/content/profiles.ts` that reuses or replaces section data;
+its key becomes its URL path.
 To add a new kind of section, add its data type in `src/content/types.ts` and
 its component to `src/sections/registry.tsx`.
 

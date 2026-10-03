@@ -2,10 +2,10 @@ import { engineHelp, identity, links } from './identity';
 import { about, achievements, contact, intro, journey, projects, skills } from './sections';
 import type { Profile } from './types';
 
-// Role-specific pages are added here and mapped to routes.
+// Each profile is a page at /<id>/; role-specific pages are added here.
 export const profiles: Record<string, Profile> = {
-  default: {
-    id: 'default',
+  gamedev: {
+    id: 'gamedev',
     identity,
     links,
     engineHelp,
@@ -31,4 +31,5 @@ export const profiles: Record<string, Profile> = {
   },
 };
 
-export const defaultProfile = profiles.default;
+/** Where the site root redirects. */
+export const DEFAULT_PROFILE = 'gamedev';

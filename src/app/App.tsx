@@ -1,13 +1,15 @@
 import { useRef } from 'react';
-import { defaultProfile } from '../content/profiles';
 import { useLayout } from '../hooks/useMediaQuery';
 import { EngineStage } from '../react/EngineStage';
 import { Hero } from '../sections/hero/Hero';
 import { SectionList } from '../sections/registry';
+import { resolveProfile } from './route';
+
+// Read once: switching profiles is a full page load.
+const profile = resolveProfile();
 
 export default function App() {
   const layout = useLayout();
-  const profile = defaultProfile;
   const hero = useRef<HTMLDivElement>(null);
   return (
     <EngineStage layout={layout} pin={hero}>
