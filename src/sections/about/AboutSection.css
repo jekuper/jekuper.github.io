@@ -64,8 +64,12 @@
   z-index: 3;
 }
 
-/* Rows of drifting words. nth-of-type counts every div, so the stage is div 1
-   and the first word row is div 2. */
+/* Rows of drifting words over the stage only; percentages are of the stage height. */
+.section-about .about-words {
+  position: absolute;
+  inset: 0;
+}
+
 .section-about .background-words {
   position: absolute;
   top: 15%;
@@ -83,32 +87,32 @@
   transform: translateX(-43vw);
 }
 
-.section-about .background-words:nth-of-type(2) {
+.section-about .background-words:nth-child(1) {
   top: 38%;
   animation-delay: 2s;
   animation-direction: reverse;
   animation-duration: 50s;
 }
 
-.section-about .background-words:nth-of-type(3) {
+.section-about .background-words:nth-child(2) {
   top: 58%;
   animation-delay: 8s;
   animation-duration: 40s;
 }
 
-.section-about .background-words:nth-of-type(4) {
+.section-about .background-words:nth-child(3) {
   top: 38%;
   animation-delay: 24s;
   animation-direction: reverse;
   animation-duration: 50s;
 }
 
-.section-about .background-words:nth-of-type(5) {
+.section-about .background-words:nth-child(4) {
   animation-delay: 16s;
   animation-duration: 30s;
 }
 
-.section-about .background-words:nth-of-type(6) {
+.section-about .background-words:nth-child(5) {
   top: 58%;
   animation-delay: 28s;
   animation-duration: 40s;
@@ -243,19 +247,19 @@
     transform: translateX(100vw);
   }
 
-  .section-about .background-words:nth-of-type(2) {
+  .section-about .background-words:nth-child(1) {
     top: 47%;
   }
 
-  .section-about .background-words:nth-of-type(3) {
+  .section-about .background-words:nth-child(2) {
     top: 64%;
   }
 
-  .section-about .background-words:nth-of-type(4) {
+  .section-about .background-words:nth-child(3) {
     top: 47%;
   }
 
-  .section-about .background-words:nth-of-type(6) {
+  .section-about .background-words:nth-child(5) {
     top: 64%;
   }
 
@@ -323,19 +327,19 @@
     font-size: 3vw;
   }
 
-  .section-about .background-words:nth-of-type(2) {
+  .section-about .background-words:nth-child(1) {
     top: 36%;
   }
 
-  .section-about .background-words:nth-of-type(3) {
+  .section-about .background-words:nth-child(2) {
     top: 57%;
   }
 
-  .section-about .background-words:nth-of-type(4) {
+  .section-about .background-words:nth-child(3) {
     top: 36%;
   }
 
-  .section-about .background-words:nth-of-type(6) {
+  .section-about .background-words:nth-child(5) {
     top: 57%;
   }
 
@@ -360,9 +364,9 @@
     transform: none;
   }
 
-  .section-about .background-words:nth-of-type(4),
-  .section-about .background-words:nth-of-type(6),
-  .section-about .background-words:nth-of-type(7) {
+  .section-about .background-words:nth-child(3),
+  .section-about .background-words:nth-child(5),
+  .section-about .background-words:nth-child(6) {
     display: none;
   }
 

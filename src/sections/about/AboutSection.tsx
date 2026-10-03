@@ -27,8 +27,7 @@ export function AboutSection({ data, layout }: { data: AboutData; layout: Layout
     color: GALAXY_COLOR,
   });
 
-  // Child order matters: the word rows are styled with div:nth-of-type, counting the stage as the first div.
-  // The glass panes live in the stage so they cover the slogan, not the portrait.
+  // The word rows and glass panes live in the stage so they cover the slogan, not the portrait.
   return (
     <div className="section-about">
       <div ref={stage} className="about-stage">
@@ -64,14 +63,16 @@ export function AboutSection({ data, layout }: { data: AboutData; layout: Layout
             className="blur"
           />
         ))}
-      </div>
-      {data.traits.map((trait, row) => (
-        <div key={row} className="background-words">
-          {Array.from({ length: WORD_REPEATS }, (_, i) => (
-            <p key={i}>{trait}</p>
+        <div className="about-words" aria-hidden="true">
+          {data.traits.map((trait, row) => (
+            <div key={row} className="background-words">
+              {Array.from({ length: WORD_REPEATS }, (_, i) => (
+                <p key={i}>{trait}</p>
+              ))}
+            </div>
           ))}
         </div>
-      ))}
+      </div>
       <div className="about-profile">
         <Portrait src={data.portrait} alt={data.portraitAlt} layout={layout} />
         <div className="about-text">
