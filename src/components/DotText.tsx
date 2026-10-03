@@ -37,7 +37,9 @@ export function DotText({
 
   const reformRef = useRef(reform);
   reformRef.current = reform;
-  // A text swap re-targets dots that are already formed, so it uses the quick transition.
+  // A text, fill or color change re-targets dots that are already formed, so it uses the quick
+  // transition. Pass a constant color, or every render re-forms.
+
   const firstText = useRef(true);
   useEffect(() => {
     if (firstText.current) {
@@ -45,7 +47,7 @@ export function DotText({
       return;
     }
     reformRef.current(true);
-  }, [text]);
+  }, [text, fill, color, className]);
 
   return (
     <Tag ref={ref} className={`dot-text ${formed ? 'is-drawn' : ''} ${className}`} {...elementProps}>
