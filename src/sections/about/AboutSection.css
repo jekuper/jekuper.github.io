@@ -219,7 +219,7 @@
 
   .section-about h2 {
     font-size: 9.1vw;
-    margin-left: 0;
+    margin-left: 5vw;
     margin-top: 0;
     margin-bottom: 7.56vw;
     letter-spacing: 5.715px;
@@ -295,8 +295,8 @@
   }
 
   .section-about h2 {
-    font-size: 14vw;
-    margin-bottom: 13vw;
+    font-size: 12vw;
+    margin-bottom: 11vw;
   }
 
   .section-about h2:first-of-type {

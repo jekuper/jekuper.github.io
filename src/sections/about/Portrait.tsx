@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import type { Layout } from '../../content/types';
 import { imageToHalftone, loadImage, rgb } from '../../engine';
+import { useFinePointer } from '../../hooks/useMediaQuery';
 import { asset } from '../../lib/asset';
 import { useViewMorph } from '../../react/useViewMorph';
 
@@ -12,7 +13,7 @@ const LIGHT = rgb(232, 230, 240);
 export function Portrait({ src, alt, layout }: { src: string; alt: string; layout: Layout }) {
   const box = useRef<HTMLDivElement>(null);
   const [revealed, setRevealed] = useState(false);
-  const touch = layout === 'mobile';
+  const touch = !useFinePointer();
 
   const { scatter, reform } = useViewMorph(box, async (el) => {
     const rect = el.getBoundingClientRect();
