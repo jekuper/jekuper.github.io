@@ -1,5 +1,5 @@
 import { copyFile, mkdir } from 'node:fs/promises';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { defineConfig, type Plugin } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import { profiles } from './src/content/profiles';
@@ -12,16 +12,20 @@ const OUT_DIR = 'docs';
  * its own copy of the page, and 404.html catches anything else.
  */
 function profilePages(): Plugin {
+  let outDir = OUT_DIR;
   return {
     name: 'profile-pages',
     apply: 'build',
+    configResolved(config) {
+      outDir = resolve(config.root, config.build.outDir);
+    },
     async closeBundle() {
-      const index = join(OUT_DIR, 'index.html');
+      const index = join(outDir, 'index.html');
       for (const id of Object.keys(profiles)) {
-        await mkdir(join(OUT_DIR, id), { recursive: true });
-        await copyFile(index, join(OUT_DIR, id, 'index.html'));
+        await mkdir(join(outDir, id), { recursive: true });
+        await copyFile(index, join(outDir, id, 'index.html'));
       }
-      await copyFile(index, join(OUT_DIR, '404.html'));
+      await copyFile(index, join(outDir, '404.html'));
     },
   };
 }
