@@ -160,3 +160,8 @@ body {
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/* Clears the fixed header when the menu scrolls to a section. */
+.section-anchor {
+  scroll-margin-top: 18vw;
+}

@@ -1,5 +1,6 @@
-import type { ComponentType } from 'react';
+import { Fragment, type ComponentType } from 'react';
 import type { Layout, SectionEntry, SectionType } from '../content/types';
+import { sectionAnchor } from '../lib/anchors';
 import { AboutSection } from './about/AboutSection';
 import { AchievementsSection } from './achievements/AchievementsSection';
 import { ContactSection } from './contact/ContactSection';
@@ -30,6 +31,11 @@ export function SectionList({ entries, layout }: { entries: SectionEntry[]; layo
     .filter((entry) => !entry.layouts || entry.layouts.includes(layout))
     .map((entry, i) => {
       const Component = components[entry.type] as ComponentType<SectionProps<SectionType>>;
-      return <Component key={`${entry.type}-${i}`} data={entry.data} layout={layout} />;
+      return (
+        <Fragment key={`${entry.type}-${i}`}>
+          <div id={sectionAnchor(entry.type)} className="section-anchor" />
+          <Component data={entry.data} layout={layout} />
+        </Fragment>
+      );
     });
 }

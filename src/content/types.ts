@@ -161,11 +161,18 @@ export interface EngineHelp {
 }
 
 /** One page of the site, e.g. a role-specific portfolio. */
+/** A menu entry that scrolls to the first section of its type. */
+export interface NavItem {
+  label: string;
+  target: SectionType;
+}
+
 export interface Profile {
   id: string;
   identity: Identity;
   links: SocialLink[];
   engineHelp: EngineHelp;
+  nav: NavItem[];
   /** Sections drawn over the particle canvas. */
   hero: SectionEntry[];
   /** Sections below the canvas. */

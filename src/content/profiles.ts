@@ -9,6 +9,14 @@ export const profiles: Record<string, Profile> = {
     identity,
     links,
     engineHelp,
+    nav: [
+      { label: 'SKILLS', target: 'skills' },
+      { label: 'ABOUT', target: 'about' },
+      { label: 'JOURNEY', target: 'journey' },
+      { label: 'ACHIEVEMENTS', target: 'achievements' },
+      { label: 'PROJECTS', target: 'projects' },
+      { label: 'CONTACT', target: 'contact' },
+    ],
     hero: [
       { type: 'intro', data: intro },
       { type: 'skills', data: skills },
