@@ -18,7 +18,7 @@ export function useLayout(): Layout {
   return useMediaQuery(MOBILE_QUERY) ? 'mobile' : 'desktop';
 }
 
-/** True for mouse-like input; the engine is only interactive then. */
+/** True for a mouse or trackpad; the engine is only interactive then. Width does not matter. */
 export function useFinePointer(): boolean {
-  return useMediaQuery('(pointer: fine)');
+  return useMediaQuery('(hover: hover) and (pointer: fine)');
 }

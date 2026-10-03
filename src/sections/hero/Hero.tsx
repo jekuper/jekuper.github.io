@@ -1,11 +1,11 @@
 import { useCallback, useRef, type ReactNode, type Ref } from 'react';
 import { Header } from '../../components/Header';
 import type { Layout, Profile } from '../../content/types';
+import { useFinePointer } from '../../hooks/useMediaQuery';
 import { useScrolledPast } from '../../hooks/useScrolledPast';
 import { useEngine } from '../../react/engineContext';
 import { CanvasHint } from './CanvasHint';
 import { HeroTitle } from './HeroTitle';
-import { TouchOverlay } from './TouchOverlay';
 import { useHeroScene } from './useHeroScene';
 import './Hero.css';
 
@@ -23,6 +23,7 @@ export function Hero({ profile, layout, children, ref }: HeroProps) {
   const header = useRef<HTMLDivElement>(null);
   const title = useRef<HTMLDivElement>(null);
   const titleWrapper = useRef<HTMLDivElement>(null);
+  const finePointer = useFinePointer();
 
   // Keeps a local handle on the root while still forwarding it to the parent.
   const setRoot = useCallback(
@@ -41,7 +42,7 @@ export function Hero({ profile, layout, children, ref }: HeroProps) {
 
   return (
     <div ref={setRoot} className={`hero hero--${layout}`}>
-      {layout === 'desktop' && (
+      {layout === 'desktop' && finePointer && (
         <div className="hero-backdrop">
           <CanvasHint help={profile.engineHelp} />
         </div>
@@ -49,7 +50,6 @@ export function Hero({ profile, layout, children, ref }: HeroProps) {
       <Header ref={header} identity={profile.identity} links={profile.links} layout={layout} visible={headerVisible} />
       <div className="hero-content">
         <HeroTitle ref={title} wrapperRef={titleWrapper} identity={profile.identity} layout={layout} hidden={headerVisible} />
-        {layout === 'mobile' && <TouchOverlay help={profile.engineHelp} />}
         {children}
       </div>
     </div>

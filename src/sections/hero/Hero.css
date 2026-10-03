@@ -100,51 +100,6 @@
   }
 }
 
-/* Controls overlay (touch) */
-
-.mobile-overlay {
-  background: #0d0c0dcc;
-  width: 100vw;
-  height: 100vh;
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  text-align: center;
-}
-
-.mobile-overlay h1 {
-  position: absolute;
-  top: 3%;
-  width: 100%;
-  color: #acacac;
-  text-shadow: 0 2.902px 2.902px rgba(0, 0, 0, 0.25);
-  font-family: var(--font-grotesk);
-  font-size: 5vw;
-  font-weight: 400;
-  letter-spacing: 1px;
-  line-height: normal;
-  text-transform: uppercase;
-}
-
-.mobile-overlay p {
-  color: #acacac;
-  font-family: var(--font-mono);
-  font-size: 3.2vw;
-  font-weight: 500;
-  line-height: normal;
-  margin-bottom: 0;
-  margin-top: 3vh;
-}
-
-.mobile-overlay p:last-of-type {
-  margin-bottom: 2em;
-}
-
 @media screen and (max-width: 1200px) {
   .hero-title {
     width: 100vw;
@@ -161,15 +116,5 @@
   .title-wrapper {
     align-items: center;
     flex-direction: column;
-  }
-
-  .mobile-overlay h1 {
-    font-size: 7.7vw;
-  }
-
-  .mobile-overlay p {
-    font-size: 6.5vw;
-    margin-bottom: 0;
-    margin-top: 3vh;
   }
 }

@@ -20,6 +20,4 @@ export const engineHelp: EngineHelp = {
     { input: 'Left Mouse Hold and Move', effect: 'Bomb' },
     { input: 'Right Mouse Click', effect: 'Eraser' },
   ],
-  touchTitle: 'Game Engine',
-  touch: ['Tap - Black Hole', 'Hold and Move - Bomb', 'Tap twice - Eraser Menu'],
 };
