@@ -1,4 +1,4 @@
-export { Engine, type MorphRequest } from './Engine';
+export { Engine, type EngineStats, type MorphRequest } from './Engine';
 export { fitArt, loadLineArt, type LineArt } from './art';
 export { estimateDotBudget } from './benchmark';
 export { rgb, shuffle, type Rgb } from './math';

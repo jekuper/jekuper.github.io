@@ -5,6 +5,21 @@ import type { Rgb } from './math';
 import { DrawBatch, Renderer } from './renderer';
 import { World, type FieldOptions, type GalaxyOptions, type Point, type Rect } from './simulation';
 
+/** Rolling averages of the frame loop. Times are CPU milliseconds per frame. */
+export interface EngineStats {
+  fps: number;
+  /** Fixed-step physics, flights and morphs. */
+  simulationMs: number;
+  /** Color fades, line fades and filling the vertex buffers. */
+  frameMs: number;
+  /** Uploading buffers and issuing draw calls (GPU work itself runs later). */
+  drawMs: number;
+  dots: number;
+  lines: number;
+}
+
+const STATS_SMOOTHING = 0.05;
+
 /** Placement of a line art, in world CSS pixels. */
 export interface MorphRequest {
   art: LineArt;
@@ -43,6 +58,7 @@ export class Engine {
   private lastTime = 0;
   private accumulator = 0;
   private dpr = 1;
+  private averages: EngineStats = { fps: 0, simulationMs: 0, frameMs: 0, drawMs: 0, dots: 0, lines: 0 };
 
   constructor(private canvas: HTMLCanvasElement) {
     this.renderer = new Renderer(canvas);
@@ -56,6 +72,10 @@ export class Engine {
     this.visibility.observe(canvas);
     this.resize();
     this.updateRunning();
+  }
+
+  get stats(): EngineStats {
+    return { ...this.averages };
   }
 
   get pixelRatio(): number {
@@ -212,18 +232,35 @@ export class Engine {
 
   private tick = (now: number) => {
     this.frameId = requestAnimationFrame(this.tick);
-    const dt = Math.min(Math.max(0, now - this.lastTime) / 1000, MAX_FRAME_DT);
+    const elapsed = Math.max(0, now - this.lastTime);
+    const dt = Math.min(elapsed / 1000, MAX_FRAME_DT);
     this.lastTime = now;
     this.syncCamera();
+    const t0 = performance.now();
     this.accumulator += dt;
     while (this.accumulator >= FIXED_DT) {
       this.world.fixedStep(FIXED_DT);
       this.accumulator -= FIXED_DT;
     }
+    const t1 = performance.now();
     const w = this.world;
     w.frame(dt, this.batch);
+    const t2 = performance.now();
     this.renderer.draw(this.batch, { x: w.camX, y: w.camY, shakeX: w.shakeX, shakeY: w.shakeY });
+    const t3 = performance.now();
+    this.record(elapsed, t1 - t0, t2 - t1, t3 - t2);
   };
+
+  private record(elapsed: number, simulationMs: number, frameMs: number, drawMs: number): void {
+    const a = this.averages;
+    const k = STATS_SMOOTHING;
+    if (elapsed > 0) a.fps += (1000 / elapsed - a.fps) * k;
+    a.simulationMs += (simulationMs - a.simulationMs) * k;
+    a.frameMs += (frameMs - a.frameMs) * k;
+    a.drawMs += (drawMs - a.drawMs) * k;
+    a.dots = this.world.particles.live;
+    a.lines = this.batch.lineCount;
+  }
 
   private onContextLost = (e: Event) => e.preventDefault();
 
