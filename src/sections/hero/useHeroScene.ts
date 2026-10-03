@@ -4,6 +4,9 @@ import type { Layout } from '../../content/types';
 import { FIELD_FADE_IN, FIELD_WELL_MAGNITUDE, fieldAlpha, fieldDots, HERO_CLIP, HERO_EMITTER, HERO_GROUP, SCENES } from './scene';
 
 const RESIZE_DEBOUNCE_MS = 500;
+/** On phones the field lags behind the scroll by up to this fraction, so scrolling stirs it. */
+const SCROLL_DRIFT = 0.6;
+const MAX_DRIFT_STEP = 200;
 
 // The field fades in on first load only; re-seeds after a resize appear at once.
 let seededBefore = false;
@@ -61,7 +64,17 @@ export function useHeroScene(engine: Engine | null, layout: Layout, root: RefObj
       }, RESIZE_DEBOUNCE_MS);
     };
     window.addEventListener('resize', onResize);
+
+    // Desktop pins the camera during the hero, so only phones stir the field.
+    let lastScroll = window.scrollY;
+    const onScroll = () => {
+      const delta = Math.max(-MAX_DRIFT_STEP, Math.min(MAX_DRIFT_STEP, window.scrollY - lastScroll));
+      lastScroll = window.scrollY;
+      engine.drift(HERO_GROUP, 0, delta * SCROLL_DRIFT);
+    };
+    if (layout === 'mobile') window.addEventListener('scroll', onScroll, { passive: true });
     return () => {
+      window.removeEventListener('scroll', onScroll);
       resizeObserver.disconnect();
       window.clearTimeout(timer);
       window.removeEventListener('resize', onResize);
