@@ -1,3 +1,4 @@
+import { MotionConfig } from 'framer-motion';
 import { useRef } from 'react';
 import { useLayout } from '../hooks/useMediaQuery';
 import { EngineStage } from '../react/EngineStage';
@@ -12,14 +13,16 @@ export default function App() {
   const layout = useLayout();
   const hero = useRef<HTMLDivElement>(null);
   return (
-    <EngineStage layout={layout} pin={hero}>
-      {/* Keyed so a layout switch starts a fresh scene. */}
-      <Hero key={layout} ref={hero} profile={profile} layout={layout}>
-        <SectionList entries={profile.hero} layout={layout} />
-      </Hero>
-      <main className="page-sections">
-        <SectionList entries={profile.sections} layout={layout} />
-      </main>
-    </EngineStage>
+    <MotionConfig reducedMotion="user">
+      <EngineStage layout={layout} pin={hero}>
+        {/* Keyed so a layout switch starts a fresh scene. */}
+        <Hero key={layout} ref={hero} profile={profile} layout={layout}>
+          <SectionList entries={profile.hero} layout={layout} />
+        </Hero>
+        <main className="page-sections">
+          <SectionList entries={profile.sections} layout={layout} />
+        </main>
+      </EngineStage>
+    </MotionConfig>
   );
 }

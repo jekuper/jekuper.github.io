@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
 import type { Layout } from '../content/types';
 import { Engine } from '../engine';
-import { useFinePointer } from '../hooks/useMediaQuery';
+import { REDUCED_MOTION_QUERY, useFinePointer, useReducedMotion } from '../hooks/useMediaQuery';
 import { EngineContext } from './engineContext';
 import { StatsOverlay, statsEnabled } from './StatsOverlay';
 import './EngineStage.css';
@@ -19,6 +19,7 @@ export function EngineStage({ layout, pin, children }: EngineStageProps) {
   const [engine, setEngine] = useState<Engine | null>(null);
   const pinEnd = useRef(0);
   const finePointer = useFinePointer();
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
     if (!canvas) return;
@@ -29,6 +30,8 @@ export function EngineStage({ layout, pin, children }: EngineStageProps) {
       console.error(err);
       return;
     }
+    // Set before any scene is seeded; children seed in effects that run before ours.
+    instance.setReducedMotion(window.matchMedia(REDUCED_MOTION_QUERY).matches);
     instance.setCamera(() => ({ x: 0, y: Math.max(0, window.scrollY - pinEnd.current) }));
     setEngine(instance);
     return () => {
@@ -38,6 +41,7 @@ export function EngineStage({ layout, pin, children }: EngineStageProps) {
   }, [canvas]);
 
   useEffect(() => engine?.setInteractive(finePointer), [engine, finePointer]);
+  useEffect(() => engine?.setReducedMotion(reducedMotion), [engine, reducedMotion]);
 
   useEffect(() => {
     const measure = () => {

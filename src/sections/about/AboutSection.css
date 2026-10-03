@@ -353,6 +353,24 @@
   }
 }
 
+/* Still word rows, one per height, and still panes. */
+@media (prefers-reduced-motion: reduce) {
+  .section-about .background-words {
+    animation: none;
+    transform: none;
+  }
+
+  .section-about .background-words:nth-of-type(4),
+  .section-about .background-words:nth-of-type(6),
+  .section-about .background-words:nth-of-type(7) {
+    display: none;
+  }
+
+  .blur {
+    animation: none;
+  }
+}
+
 /* Portrait and bio */
 
 .about-profile {

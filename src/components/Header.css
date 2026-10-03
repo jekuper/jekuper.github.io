@@ -324,3 +324,9 @@
     height: 10vw;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .header-right .img-container img {
+    animation: none;
+  }
+}

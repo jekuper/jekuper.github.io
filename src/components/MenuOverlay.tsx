@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { Identity, NavItem, SectionType, SocialLink } from '../content/types';
 import { rgb } from '../engine';
+import { useReducedMotion } from '../hooks/useMediaQuery';
 import { sectionAnchor } from '../lib/anchors';
 import { useEngine } from '../react/engineContext';
 import { DotText } from './DotText';
@@ -34,6 +35,7 @@ interface MenuOverlayProps {
  */
 export function MenuOverlay({ identity, links, nav }: MenuOverlayProps) {
   const engine = useEngine();
+  const reducedMotion = useReducedMotion();
   const [open, setOpen] = useState(false);
   const [chosen, setChosen] = useState<SectionType | null>(null);
   const [hovered, setHovered] = useState<SectionType | null>(null);
@@ -58,12 +60,13 @@ export function MenuOverlay({ identity, links, nav }: MenuOverlayProps) {
     const target = pendingScroll.current;
     if (open || !target) return;
     pendingScroll.current = null;
+    const behavior = reducedMotion ? 'auto' : 'smooth';
     const timer = window.setTimeout(
-      () => document.getElementById(sectionAnchor(target))?.scrollIntoView({ behavior: 'smooth' }),
+      () => document.getElementById(sectionAnchor(target))?.scrollIntoView({ behavior }),
       SCROLL_DELAY_MS,
     );
     return () => window.clearTimeout(timer);
-  }, [open, engine]);
+  }, [open, engine, reducedMotion]);
 
   useEffect(
     () => () => {

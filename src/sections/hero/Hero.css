@@ -132,3 +132,9 @@
     font-size: 5vw;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .canvas-hint p {
+    animation: none;
+  }
+}
