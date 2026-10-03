@@ -2,6 +2,9 @@ import type { Bomb } from './bodies';
 import { BOMB } from './config';
 import type { World } from './simulation';
 
+/** What a visitor did to the world, reported for analytics. */
+export type UserAction = 'black-hole' | 'anti-black-hole' | 'bomb' | 'eraser';
+
 /**
  * Mouse controls: click for a black hole (ctrl for a repelling one), drag to
  * aim and throw a bomb, hold the right button to erase.
@@ -16,6 +19,7 @@ export class MouseControls {
   constructor(
     private canvas: HTMLCanvasElement,
     private world: World,
+    private onAction: (action: UserAction) => void = () => {},
   ) {
     canvas.addEventListener('contextmenu', this.onContextMenu);
     canvas.addEventListener('mousedown', this.onDown);
@@ -49,6 +53,7 @@ export class MouseControls {
     this.world.eraserVisible = this.erasing;
     if (this.erasing) {
       this.world.eraseAtCursor();
+      this.onAction('eraser');
     } else {
       this.startX = e.clientX;
       this.startY = e.clientY;
@@ -82,8 +87,10 @@ export class MouseControls {
       const k = BOMB.launchScale;
       this.world.launchBomb(this.bomb, (this.startX - e.clientX) * k, (this.startY - e.clientY) * k);
       this.bomb = null;
+      this.onAction('bomb');
     } else {
       this.world.spawnWellAtCursor(e.ctrlKey);
+      this.onAction(e.ctrlKey ? 'anti-black-hole' : 'black-hole');
     }
   };
 

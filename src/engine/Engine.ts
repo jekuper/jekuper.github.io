@@ -1,6 +1,6 @@
 import type { LineArt } from './art';
 import { FIXED_DT, MAX_FRAME_DT } from './config';
-import { MouseControls } from './input';
+import { MouseControls, type UserAction } from './input';
 import type { Rgb } from './math';
 import { DrawBatch, Renderer } from './renderer';
 import { World, type FieldOptions, type GalaxyOptions, type Point, type Rect } from './simulation';
@@ -60,6 +60,7 @@ export class Engine {
   private renderer: Renderer;
   private batch = new DrawBatch();
   private controls: MouseControls | null = null;
+  private actionListener: (action: UserAction) => void = () => {};
   private camera: () => Point = () => ({ x: 0, y: 0 });
   private canvasOrigin: (() => number) | null = null;
   private overscan: number;
@@ -117,11 +118,16 @@ export class Engine {
   }
 
   setInteractive(interactive: boolean): void {
-    if (interactive && !this.controls) this.controls = new MouseControls(this.canvas, this.world);
+    if (interactive && !this.controls) this.controls = new MouseControls(this.canvas, this.world, (a) => this.actionListener(a));
     if (!interactive && this.controls) {
       this.controls.dispose();
       this.controls = null;
     }
+  }
+
+  /** Called when a visitor drops a black hole, throws a bomb or erases. */
+  onAction(listener: (action: UserAction) => void): void {
+    this.actionListener = listener;
   }
 
   /** Places a named spawn and return point for dots, in world CSS pixels. */
