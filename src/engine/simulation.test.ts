@@ -213,6 +213,32 @@ describe('World', () => {
     expect(world.particles.live).toBe(400);
   });
 
+  it('recalls a formed group into its emitter at once', () => {
+    const world = new World();
+    world.setBounds(800, 600);
+    world.morph('box', target(squareArt()));
+    run(world, 6);
+    world.recall('box');
+    expect(world.hasGroup('box')).toBe(false);
+    run(world, 1);
+    expect(world.particles.live).toBe(0);
+  });
+
+  it('fades out dots outside the focused clip', () => {
+    const world = new World();
+    world.setBounds(800, 600);
+    world.defineClip('menu', { x: 0, y: 0, width: 800, height: 600 });
+    world.seedField('page', { x: 0, y: 0, width: 400, height: 300 }, 30, 0);
+    world.seedField('menu', { x: 0, y: 0, width: 400, height: 300 }, 20, 0, { clip: 'menu' });
+    const batch = new DrawBatch();
+    world.setFocus('menu');
+    for (let k = 0; k < 60; k++) world.frame(FIXED_DT, batch);
+    expect(batch.glow.count).toBe(20);
+    world.setFocus(null);
+    for (let k = 0; k < 60; k++) world.frame(FIXED_DT, batch);
+    expect(batch.glow.count).toBe(50);
+  });
+
   it('does not draw clipped dots outside their region', () => {
     const world = new World();
     world.setBounds(800, 600);

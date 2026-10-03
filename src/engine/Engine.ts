@@ -120,6 +120,11 @@ export class Engine {
     this.world.defineClip(name, { x: rect.x * d, y: rect.y * d, width: rect.width * d, height: rect.height * d });
   }
 
+  /** Fades out every dot not drawn in the named clip; null brings them back. */
+  focus(clip: string | null): void {
+    this.world.setFocus(clip);
+  }
+
   removeEmitter(name: string): void {
     this.world.removeEmitter(name);
   }
@@ -205,6 +210,10 @@ export class Engine {
 
   dissolve(group: string): void {
     this.world.dissolve(group);
+  }
+
+  recall(group: string): void {
+    this.world.recall(group);
   }
 
   dispose(): void {

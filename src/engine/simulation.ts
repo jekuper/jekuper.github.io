@@ -7,6 +7,7 @@ import {
   EMITTER,
   ERASER,
   FLIGHT,
+  FOCUS_FADE,
   GALAXY,
   QUICK_FLIGHT,
   LINK,
@@ -136,6 +137,8 @@ export class World {
   private gravity = new GravityField();
   private ambientGravity = new GravityField();
   private shakeTime = 0;
+  /** Dots outside the focused clip fade out by `level` (0 to 1); clip 0 means no focus. */
+  private focus = { clip: 0, level: 0, target: 0 };
 
   setBounds(width: number, height: number): void {
     this.width = width;
@@ -160,6 +163,16 @@ export class World {
       this.clipIds.set(name, this.clips.length);
       this.clips.push(rect);
     }
+  }
+
+  /** Fades out everything not drawn in the named clip, e.g. behind a menu; null fades it back. */
+  setFocus(name: string | null): void {
+    if (name === null) {
+      this.focus.target = 0;
+      return;
+    }
+    this.focus.clip = this.clipId(name);
+    this.focus.target = 1;
   }
 
   private clipId(name: string | undefined): number {
@@ -414,6 +427,14 @@ export class World {
     group.timer = MORPH.dissolveTime;
   }
 
+  /** Cuts the group's lines and sends its dots straight home on short flights, without the dissolve wait. */
+  recall(name: string): void {
+    const group = this.groups.get(name);
+    if (!group) return;
+    this.forEachMember(group, (i) => this.retire(i, group.emitter, Math.random() * QUICK_FLIGHT.stagger, true));
+    this.groups.delete(name);
+  }
+
   spawnWellAtCursor(repel: boolean): void {
     this.addWell(this.cursorX, this.cursorY, repel ? -WELL.clickMagnitude : WELL.clickMagnitude, true);
   }
@@ -463,6 +484,9 @@ export class World {
       }
     }
     this.updateShake(dt);
+    const focus = this.focus;
+    const fadeStep = dt / FOCUS_FADE;
+    focus.level += Math.max(-fadeStep, Math.min(fadeStep, focus.target - focus.level));
     for (const s of this.sparks) s.age += dt;
     removeWhere(this.sparks, (s) => s.age >= SPARKS.life);
 
@@ -471,12 +495,18 @@ export class World {
       const c = ERASER.color;
       batch.point(this.cursorX, this.cursorY, c.r, c.g, c.b, ERASER.radius);
     }
-    this.drawEmitters(batch);
-    this.drawWells(batch, false);
+    // Bodies have no clip, so they belong to the faded-out world while focused.
+    const bodies = focus.level < 0.5;
+    if (bodies) {
+      this.drawEmitters(batch);
+      this.drawWells(batch, false);
+    }
     this.drawParticles(dt, batch);
-    this.drawWells(batch, true);
-    this.drawBombs(batch);
-    this.drawSparks(batch);
+    if (bodies) {
+      this.drawWells(batch, true);
+      this.drawBombs(batch);
+      this.drawSparks(batch);
+    }
   }
 
   private emitterPoint(name: string): Point {
@@ -633,13 +663,16 @@ export class World {
   }
 
   /** Flies a dot into the emitter, then frees it. */
-  private retire(i: number, emitter: string, delay = 0): void {
+  private retire(i: number, emitter: string, delay = 0, quick = false): void {
     const e = this.emitterPoint(emitter);
     const p = this.particles;
     p.clearLink(i);
     p.clearFix(i);
     const x = randomRange(e.x - EMITTER.width / 2, e.x + EMITTER.width / 2);
-    if (FLIGHT.style === 'spiral') {
+    if (quick) {
+      p.flags[i] |= QUICK;
+      p.flyTo(i, x, e.y, this.quickDuration(i, x, e.y), ARRIVE_DESTROY, this.flightBend(), delay);
+    } else if (FLIGHT.style === 'spiral') {
       p.flyTo(i, x, e.y, p.spDuration[i], ARRIVE_DESTROY, p.spRadius[i]);
     } else {
       p.flyTo(i, x, e.y, this.flightDuration(i, x, e.y), ARRIVE_DESTROY, this.flightBend(), delay);
@@ -946,6 +979,8 @@ export class World {
     const p = this.particles;
     const triggerDistance = BOMB.triggerDistance;
     const armed = this.bombs.filter((bomb) => bomb.flying && !bomb.triggered);
+    const focusClip = this.focus.clip;
+    const unfocused = 1 - this.focus.level;
 
     for (let i = 0; i < p.end; i++) {
       const flags = p.flags[i];
@@ -953,6 +988,8 @@ export class World {
 
       if (flags & COLOR_FADING) fadeColorStep(p, i, p.fadeSpeed[i] * dt);
       const c = p.clip[i];
+      const fade = c === focusClip ? 1 : unfocused;
+      if (fade <= 0) continue;
       if (c) {
         const r = this.clips[c];
         const x = p.x[i];
@@ -960,7 +997,7 @@ export class World {
         if (x < r.x || y < r.y || x > r.x + r.width || y > r.y + r.height) continue;
       }
       const size = flags & ROUND ? -p.size[i] : p.size[i];
-      (flags & GLOW ? batch.glow : batch.points).push(p.x[i], p.y[i], p.r[i], p.g[i], p.b[i], p.alpha[i], size);
+      (flags & GLOW ? batch.glow : batch.points).push(p.x[i], p.y[i], p.r[i], p.g[i], p.b[i], p.alpha[i] * fade, size);
 
       if ((flags & (LINKED | SPIRALING)) !== LINKED) continue;
       const n = p.link[i];
@@ -980,7 +1017,7 @@ export class World {
           bomb.triggered = true;
         }
       }
-      batch.line(p.x[i], p.y[i], p.x[n], p.y[n], p.r[i], p.g[i], p.b[i], p.r[n], p.g[n], p.b[n], alpha);
+      batch.line(p.x[i], p.y[i], p.x[n], p.y[n], p.r[i], p.g[i], p.b[i], p.r[n], p.g[n], p.b[n], alpha * fade);
     }
   }
 }

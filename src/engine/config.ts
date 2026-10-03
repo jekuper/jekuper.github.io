@@ -7,6 +7,9 @@ export const MAX_FRAME_DT = 0.25;
 
 export const BACKGROUND = rgb(13, 12, 13);
 
+/** Seconds for everything outside a focused clip to fade out, or back in. */
+export const FOCUS_FADE = 0.35;
+
 export const PARTICLE = {
   size: 3,
   spiralDuration: 3,
