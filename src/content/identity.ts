@@ -1,4 +1,4 @@
-import type { EngineHelp, Identity, SocialLink } from './types';
+import type { EngineHelp, Identity, MetricsData, SocialLink } from './types';
 
 export const identity: Identity = {
   name: 'Joe Sharipov',
@@ -20,4 +20,11 @@ export const engineHelp: EngineHelp = {
     { input: 'Left Mouse Hold and Move', effect: 'Bomb' },
     { input: 'Right Mouse Click', effect: 'Eraser' },
   ],
+};
+
+export const metrics: MetricsData = {
+  clarityId: 'yryy1lloz0',
+  message: 'Every dot on this page is counted. With your OK, clicks are too: anonymous stats via Microsoft Clarity.',
+  acceptLabel: 'Count me in',
+  declineLabel: 'No thanks',
 };

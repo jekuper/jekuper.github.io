@@ -161,6 +161,14 @@ export interface EngineHelp {
 }
 
 /** One page of the site, e.g. a role-specific portfolio. */
+/** Site-wide usage metrics, loaded only after the visitor accepts the toast. */
+export interface MetricsData {
+  clarityId: string;
+  message: string;
+  acceptLabel: string;
+  declineLabel: string;
+}
+
 /** A menu entry that scrolls to the first section of its type. */
 export interface NavItem {
   label: string;

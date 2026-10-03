@@ -1,5 +1,7 @@
 import { MotionConfig } from 'framer-motion';
 import { useRef } from 'react';
+import { MetricsToast } from '../components/MetricsToast';
+import { metrics } from '../content/identity';
 import { useLayout } from '../hooks/useMediaQuery';
 import { EngineStage } from '../react/EngineStage';
 import { Hero } from '../sections/hero/Hero';
@@ -23,6 +25,7 @@ export default function App() {
           <SectionList entries={profile.sections} layout={layout} />
         </main>
       </EngineStage>
+      <MetricsToast data={metrics} />
     </MotionConfig>
   );
 }

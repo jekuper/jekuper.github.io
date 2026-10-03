@@ -60,6 +60,12 @@ its key becomes its URL path.
 To add a new kind of section, add its data type in `src/content/types.ts` and
 its component to `src/sections/registry.tsx`.
 
+## Usage metrics
+
+Microsoft Clarity collects anonymous usage stats, but only after the visitor accepts the
+small toast in the corner; declining loads nothing, and the answer is remembered. The
+project id and the toast text are in `metrics` in `src/content/identity.ts`.
+
 ## Fonts
 
 Three commercial fonts are expected in `public/fonts/`. The page falls back to

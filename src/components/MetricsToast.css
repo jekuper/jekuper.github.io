@@ -1,0 +1,73 @@
+.metrics-toast {
+  position: fixed;
+  right: 16px;
+  /* Clears the desktop controls hint bar at the bottom of the hero. */
+  bottom: calc(5vh + 12px);
+  z-index: 1000;
+  width: 260px;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid #2e2a38;
+  border-radius: 6px;
+  background: rgba(16, 14, 20, 0.92);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.6);
+  font-family: var(--font-mono);
+}
+
+.metrics-toast p {
+  margin: 0 0 10px;
+  color: #a6a6a6;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.metrics-toast-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.metrics-toast button {
+  padding: 5px 10px;
+  border: 1px solid #3a3a3a;
+  border-radius: 999px;
+  background: none;
+  color: #a6a6a6;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  cursor: pointer;
+  transition:
+    color 0.2s ease-in-out,
+    border-color 0.2s ease-in-out,
+    background-color 0.2s ease-in-out;
+}
+
+.metrics-toast button:hover,
+.metrics-toast button:focus-visible {
+  color: white;
+}
+
+.metrics-toast .metrics-toast-accept {
+  border-color: #6b4fd8;
+  color: #e6e0ff;
+}
+
+.metrics-toast .metrics-toast-accept:hover,
+.metrics-toast .metrics-toast-accept:focus-visible {
+  border-color: #9670ff;
+  background-color: rgba(150, 110, 255, 0.12);
+}
+
+/* Hidden while the menu covers the page. */
+.menu-open .metrics-toast {
+  visibility: hidden;
+}
+
+@media screen and (max-width: 470px) {
+  .metrics-toast {
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+    width: auto;
+  }
+}
