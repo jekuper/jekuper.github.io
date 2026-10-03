@@ -213,6 +213,22 @@ export class World {
     });
   }
 
+  /**
+   * Shifts the group's free dots by a per-dot fraction (0.4 to 1) of (dx, dy).
+   * The fraction is fixed per slot, so shifting back undoes it.
+   */
+  drift(name: string, dx: number, dy: number): void {
+    const group = this.groups.get(name);
+    if (!group) return;
+    const p = this.particles;
+    this.forEachMember(group, (i) => {
+      if (p.flags[i] & (FIX_ACTIVE | SPIRALING)) return;
+      const k = 0.4 + 0.6 * (((i * 2654435761) >>> 0) / 4294967296);
+      p.x[i] += dx * k;
+      p.y[i] += dy * k;
+    });
+  }
+
   hasGroup(name: string): boolean {
     return this.groups.has(name);
   }

@@ -190,6 +190,11 @@ export class Engine {
     this.world.moveGroup(group, dx * this.dpr, dy * this.dpr);
   }
 
+  /** Shifts the group's free dots by varying fractions of (dx, dy), CSS pixels; see World.drift. */
+  drift(group: string, dx: number, dy: number): void {
+    this.world.drift(group, dx * this.dpr, dy * this.dpr);
+  }
+
   release(group: string): void {
     this.world.release(group);
   }

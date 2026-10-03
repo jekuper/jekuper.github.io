@@ -179,6 +179,21 @@ describe('World', () => {
     expect(ys).toEqual([-50, -50, -40, -40]);
   });
 
+  it('drifts free dots by varying amounts and undoes it when drifted back', () => {
+    const world = new World();
+    world.setBounds(800, 600);
+    world.seedField('f', { x: 0, y: 0, width: 400, height: 300 }, 50, 0);
+    const p = world.particles;
+    const before = aliveSlots(world).map((i) => p.y[i]);
+    world.drift('f', 0, 100);
+    const moved = aliveSlots(world).map((i, k) => p.y[i] - before[k]);
+    expect(Math.min(...moved)).toBeGreaterThanOrEqual(40 - 1e-3);
+    expect(Math.max(...moved)).toBeLessThanOrEqual(100 + 1e-3);
+    expect(new Set(moved.map(Math.round)).size).toBeGreaterThan(10);
+    world.drift('f', 0, -100);
+    aliveSlots(world).forEach((i, k) => expect(p.y[i]).toBeCloseTo(before[k], 3));
+  });
+
   it('keeps a galaxy on stable orbits, out of reach of the cursor and user wells', () => {
     const world = new World();
     world.setBounds(1600, 900);
