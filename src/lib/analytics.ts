@@ -1,11 +1,12 @@
-/** Visitor's answer to the metrics toast; null until they pick one. */
+/** Visitor's answer to the metrics toast. */
 export type Consent = 'accepted' | 'declined';
 
+// Also read by the Clarity snippet in index.html, which applies a stored answer before the app starts.
 const STORAGE_KEY = 'metrics-consent';
 
 declare global {
   interface Window {
-    clarity?: ((...args: unknown[]) => void) & { q?: unknown[][] };
+    clarity?: (...args: unknown[]) => void;
   }
 }
 
@@ -26,14 +27,7 @@ export function storeConsent(consent: Consent): void {
   }
 }
 
-/** Loads Microsoft Clarity and grants it consent. Only called after the visitor agreed. */
-export function startClarity(projectId: string): void {
-  if (window.clarity) return;
-  const queue: unknown[][] = [];
-  window.clarity = Object.assign((...args: unknown[]) => void queue.push(args), { q: queue });
-  const script = document.createElement('script');
-  script.async = true;
-  script.src = `https://www.clarity.ms/tag/${projectId}`;
-  document.head.appendChild(script);
-  window.clarity('consent');
+/** Tells Clarity whether it may use cookies; without them it still records, with less detail. */
+export function sendConsent(consent: Consent): void {
+  window.clarity?.('consentv2', { ad_Storage: 'denied', analytics_Storage: consent === 'accepted' ? 'granted' : 'denied' });
 }

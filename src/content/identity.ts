@@ -23,8 +23,7 @@ export const engineHelp: EngineHelp = {
 };
 
 export const metrics: MetricsData = {
-  clarityId: 'yryy1lloz0',
-  message: 'Every dot on this page is counted. With your OK, clicks are too: anonymous stats via Microsoft Clarity.',
+  message: 'Every dot on this page is counted, and so are visits: anonymous stats via Microsoft Clarity. OK to use cookies for a fuller picture?',
   acceptLabel: 'Count me in',
   declineLabel: 'No thanks',
 };

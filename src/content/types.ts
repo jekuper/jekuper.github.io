@@ -161,9 +161,8 @@ export interface EngineHelp {
 }
 
 /** One page of the site, e.g. a role-specific portfolio. */
-/** Site-wide usage metrics, loaded only after the visitor accepts the toast. */
+/** The metrics consent toast. The Clarity snippet itself is in index.html. */
 export interface MetricsData {
-  clarityId: string;
   message: string;
   acceptLabel: string;
   declineLabel: string;

@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import type { MetricsData } from '../content/types';
 import { MOBILE_QUERY } from '../hooks/useMediaQuery';
-import { startClarity, storeConsent, storedConsent, type Consent } from '../lib/analytics';
+import { sendConsent, storeConsent, storedConsent, type Consent } from '../lib/analytics';
 import './MetricsToast.css';
 
 // Waits until the hero has drawn itself, so the toast is not the first thing seen.
@@ -10,14 +10,12 @@ const SHOW_DELAY_MS = 2500;
 // On phones the name sits where the toast goes, so it also waits until the first screen is scrolled past.
 const PHONE_SCROLL_FRACTION = 1;
 
-/** Asks once, in a corner, whether usage metrics may be collected; nothing loads before a yes. */
+/** Asks once, in a corner, whether usage metrics may use cookies; the answer is passed to Clarity. */
 export function MetricsToast({ data }: { data: MetricsData }) {
   const [asking, setAsking] = useState(false);
 
   useEffect(() => {
-    const consent = storedConsent();
-    if (consent === 'accepted') startClarity(data.clarityId);
-    if (consent) return;
+    if (storedConsent()) return;
     let waited = false;
     const phone = window.matchMedia(MOBILE_QUERY).matches;
     const scrolledEnough = () => !phone || window.scrollY > window.innerHeight * PHONE_SCROLL_FRACTION;
@@ -33,11 +31,11 @@ export function MetricsToast({ data }: { data: MetricsData }) {
       window.clearTimeout(timer);
       window.removeEventListener('scroll', check);
     };
-  }, [data.clarityId]);
+  }, []);
 
   const answer = (consent: Consent) => {
     storeConsent(consent);
-    if (consent === 'accepted') startClarity(data.clarityId);
+    sendConsent(consent);
     setAsking(false);
   };
 

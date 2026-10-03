@@ -62,9 +62,10 @@ its component to `src/sections/registry.tsx`.
 
 ## Usage metrics
 
-Microsoft Clarity collects anonymous usage stats, but only after the visitor accepts the
-small toast in the corner; declining loads nothing, and the answer is remembered. The
-project id and the toast text are in `metrics` in `src/content/identity.ts`.
+Microsoft Clarity collects anonymous usage stats. It runs without cookies until the visitor
+accepts the small toast in the corner, which sends Clarity the consent signal; the answer is
+remembered and applied on later visits. The snippet and project id are in `index.html`, the
+toast text in `metrics` in `src/content/identity.ts`.
 
 ## Fonts
 
