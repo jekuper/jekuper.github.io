@@ -65,13 +65,21 @@ export function pickColor(preset: ScenePreset): Rgb {
 
 let dotsPerMs: number | null = null;
 
+function measuredDots(layout: Layout): number {
+  dotsPerMs ??= estimateDotBudget(1);
+  return dotsPerMs * FIELD_BUDGET[layout].ms;
+}
+
 /** Field size for this device, overridable with `?dots=N` for stress testing. */
 export function fieldDots(layout: Layout): number {
   const requested = Number(new URLSearchParams(window.location.search).get('dots'));
   if (requested > 0) return Math.min(Math.floor(requested), MAX_FIELD_DOTS);
-  const { ms, max } = FIELD_BUDGET[layout];
-  dotsPerMs ??= estimateDotBudget(1);
-  return Math.max(FIELD_DOTS, Math.min(max, Math.floor(dotsPerMs * ms)));
+  return Math.max(FIELD_DOTS, Math.min(FIELD_BUDGET[layout].max, Math.floor(measuredDots(layout))));
+}
+
+/** How much of the layout's full dot budget this device can afford, from `floor` to 1. */
+export function deviceScale(layout: Layout, floor = 0.3): number {
+  return Math.max(floor, Math.min(1, measuredDots(layout) / FIELD_BUDGET[layout].max));
 }
 
 /** Denser fields get fainter dots so overlaps glow instead of turning into a solid sheet. */
