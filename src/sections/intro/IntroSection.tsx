@@ -3,12 +3,14 @@ import { useState } from 'react';
 import { riseIn, wipeIn } from '../../components/motion';
 import { RichText } from '../../components/Text';
 import type { IntroData, Layout } from '../../content/types';
+import { useFinePointer } from '../../hooks/useMediaQuery';
 import { useArtShowcase } from '../hero/useArtShowcase';
 import './IntroSection.css';
 
 export function IntroSection({ data, layout }: { data: IntroData; layout: Layout }) {
   const art = useArtShowcase();
   const [showing, setShowing] = useState(false);
+  const finePointer = useFinePointer();
 
   const roll = () => {
     art.show();
@@ -27,7 +29,7 @@ export function IntroSection({ data, layout }: { data: IntroData; layout: Layout
       <div className="section-left" />
       <div className="section-right">
         <motion.p {...wipeIn(0.5, layout === 'desktop')}>
-          <RichText source={data.body} />
+          <RichText source={finePointer ? data.body : data.touchBody} />
         </motion.p>
         <motion.div {...riseIn(0.8)} className="intro-actions">
           <button type="button" className="intro-button" onClick={roll}>

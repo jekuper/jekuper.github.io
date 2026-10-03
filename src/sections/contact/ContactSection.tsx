@@ -4,6 +4,7 @@ import { DotText } from '../../components/DotText';
 import { riseIn } from '../../components/motion';
 import { SocialLinks } from '../../components/SocialLinks';
 import type { ContactData, ContactTopic } from '../../content/types';
+import { useFinePointer } from '../../hooks/useMediaQuery';
 import './ContactSection.css';
 
 const TOPIC_MS = 4000;
@@ -11,6 +12,7 @@ const TOPIC_MS = 4000;
 const MAIL_DELAY_MS = 2200;
 
 export function ContactSection({ data }: { data: ContactData }) {
+  const finePointer = useFinePointer();
   const [hovered, setHovered] = useState(false);
   // Stays until the pointer leaves, so the confirmation does not flicker back to the email.
   const [copied, setCopied] = useState(false);
@@ -74,7 +76,7 @@ export function ContactSection({ data }: { data: ContactData }) {
         }}
       />
       <motion.p {...riseIn(0.1)} className="contact-hint">
-        {data.hint}
+        {finePointer ? data.hint : data.touchHint}
       </motion.p>
       <motion.div {...riseIn(0.2)} className="contact-topics">
         {data.topics.map((topic) => (

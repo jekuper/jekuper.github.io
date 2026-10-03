@@ -23,6 +23,8 @@ export interface IntroData {
   title: string;
   /** `*word*` is highlighted, a blank line is a paragraph break. */
   body: string;
+  /** Replaces `body` on touch screens, where the engine is not interactive. */
+  touchBody: string;
   rollLabel: string;
   rollAgainLabel: string;
   releaseLabel: string;
@@ -128,6 +130,7 @@ export interface ContactData {
   heading: string;
   /** Shown under the heading: how to play with it. */
   hint: string;
+  touchHint: string;
   copiedLabel: string;
   topics: ContactTopic[];
   email: string;
@@ -155,8 +158,6 @@ export type SectionType = SectionEntry['type'];
 
 export interface EngineHelp {
   hint: { input: string; effect: string }[];
-  touchTitle: string;
-  touch: string[];
 }
 
 /** One page of the site, e.g. a role-specific portfolio. */

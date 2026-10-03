@@ -6,6 +6,10 @@ export const intro: IntroData = {
   body:
     'Website is a self-written game engine. It has *physics*, *destruction system* and *cool animations*.\n\n' +
     '*Roll a figure* and watch the dots draw it.',
+  touchBody:
+    'Website is a self-written game engine. It has *physics*, *destruction system* and *cool animations*. ' +
+    'Open it on a computer to play with them.\n\n' +
+    '*Roll a figure* and watch the dots draw it.',
   rollLabel: 'Roll a figure',
   rollAgainLabel: 'Roll another',
   releaseLabel: 'Let it go',
@@ -161,6 +165,7 @@ export const projects: ProjectsData = {
 export const contact: ContactData = {
   heading: "LET'S TALK",
   hint: 'Hover to see my email, click to copy it.',
+  touchHint: 'Tap to copy my email.',
   copiedLabel: 'COPIED',
   topics: [
     { label: 'Hiring', word: 'HIRING?', subject: 'Hiring' },

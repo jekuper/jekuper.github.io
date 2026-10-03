@@ -90,6 +90,11 @@
 }
 
 @media screen and (max-width: 1200px) {
+  .contact {
+    min-height: 0;
+    padding-bottom: 3vh;
+  }
+
   .contact-title {
     font-size: 13vw;
   }
@@ -116,6 +121,7 @@
   }
 
   .contact-footer {
+    margin-top: 12vh;
     font-size: 3vw;
   }
 }
