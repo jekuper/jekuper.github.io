@@ -224,6 +224,22 @@ describe('World', () => {
     expect(world.particles.live).toBe(0);
   });
 
+  it('turns scatter into recall and skips drift when calm', () => {
+    const world = new World();
+    world.setBounds(800, 600);
+    world.calm = true;
+    world.morph('box', target(squareArt()));
+    run(world, 6);
+    const p = world.particles;
+    const ys = aliveSlots(world).map((i) => p.y[i]);
+    world.drift('box', 0, 100);
+    expect(aliveSlots(world).map((i) => p.y[i])).toEqual(ys);
+    world.scatter('box');
+    expect(world.hasGroup('box')).toBe(false);
+    run(world, 1);
+    expect(world.particles.live).toBe(0);
+  });
+
   it('fades out dots outside the focused clip', () => {
     const world = new World();
     world.setBounds(800, 600);

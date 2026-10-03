@@ -3,6 +3,7 @@ import { createBomb, createWell, type Bomb, type Emitter, type Spark, type Well 
 import {
   BACKGROUND,
   BOMB,
+  CALM,
   CURSOR,
   EMITTER,
   ERASER,
@@ -127,6 +128,8 @@ export class World {
   /** The cursor gently pulls nearby dots while it is over the canvas. */
   cursorActive = false;
   eraserVisible = false;
+  /** Reduced motion, see CALM. */
+  calm = false;
   shakeX = 0;
   shakeY = 0;
 
@@ -232,7 +235,7 @@ export class World {
    */
   drift(name: string, dx: number, dy: number): void {
     const group = this.groups.get(name);
-    if (!group) return;
+    if (!group || this.calm) return;
     const p = this.particles;
     this.forEachMember(group, (i) => {
       if (p.flags[i] & (FIX_ACTIVE | SPIRALING)) return;
@@ -254,6 +257,7 @@ export class World {
 
   /** A grid of drifting dots with a well in each corner of `rect`. */
   seedField(name: string, rect: Rect, count: number, wellMagnitude: number, options: FieldOptions = {}): void {
+    if (this.calm) wellMagnitude *= CALM.fieldPull;
     const alpha = options.alpha ?? 1;
     const clip = this.clipId(options.clip);
     const wrapTop = Math.floor(rect.y / this.height) * this.height;
@@ -313,6 +317,7 @@ export class World {
    */
   seedGalaxy(name: string, cx: number, cy: number, radius: number, count: number, magnitude: number, options: GalaxyOptions): void {
     this.removeGroup(name);
+    if (this.calm) magnitude *= CALM.galaxyPull;
     const well = this.addWell(cx, cy, magnitude, false, Math.floor(cy / this.height) * this.height);
     well.hidden = true;
     well.group = name;
@@ -356,6 +361,7 @@ export class World {
 
   /** Re-forms the group's dots into `target`, spawning or retiring dots as needed. */
   morph(name: string, target: MorphTarget): void {
+    if (this.calm) target = { ...target, quick: true };
     let group = this.groups.get(name);
     if (!group) {
       group = { slots: [], gens: [], phase: 'fading', timer: 0, target, emitter: DEFAULT_EMITTER, clip: 0 };
@@ -391,6 +397,10 @@ export class World {
 
   /** Cuts the group's lines at once and throws its dots away from its center. */
   scatter(name: string, speed = SCATTER_SPEED): void {
+    if (this.calm) {
+      this.recall(name);
+      return;
+    }
     const group = this.groups.get(name);
     if (!group) return;
     const p = this.particles;
@@ -897,7 +907,7 @@ export class World {
           age: 0,
         });
       }
-      this.shakeTime = SHAKE.duration;
+      if (!this.calm) this.shakeTime = SHAKE.duration;
     }
   }
 

@@ -7,6 +7,12 @@ export const MAX_FRAME_DT = 0.25;
 
 export const BACKGROUND = rgb(13, 12, 13);
 
+/** Reduced motion: weaker pulls for slower drift, and no explosions, shake or scroll drift. */
+export const CALM = {
+  fieldPull: 0.15,
+  galaxyPull: 0.1,
+};
+
 /** Seconds for everything outside a focused clip to fade out, or back in. */
 export const FOCUS_FADE = 0.35;
 

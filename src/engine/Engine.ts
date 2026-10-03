@@ -120,6 +120,11 @@ export class Engine {
     this.world.defineClip(name, { x: rect.x * d, y: rect.y * d, width: rect.width * d, height: rect.height * d });
   }
 
+  /** Calmer motion for visitors who ask for less of it; applies to scenes seeded afterwards too. */
+  setReducedMotion(reduced: boolean): void {
+    this.world.calm = reduced;
+  }
+
   /** Fades out every dot not drawn in the named clip; null brings them back. */
   focus(clip: string | null): void {
     this.world.setFocus(clip);
