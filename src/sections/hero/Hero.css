@@ -109,12 +109,26 @@
 
   .title-wrapper {
     margin-bottom: 7vh;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .hero-title .h1-title {
+    font-size: 8vw;
+  }
+
+  .hero-title .occupation-title {
+    margin: 1.3vh 0 0;
+    font-size: 3.6vw;
   }
 }
 
 @media screen and (max-width: 470px) {
-  .title-wrapper {
-    align-items: center;
-    flex-direction: column;
+  .hero-title .h1-title {
+    font-size: 9.4vw;
+  }
+
+  .hero-title .occupation-title {
+    font-size: 5vw;
   }
 }
