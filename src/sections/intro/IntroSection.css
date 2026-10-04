@@ -1,3 +1,7 @@
+.intro-body {
+  display: contents;
+}
+
 .section-right {
   padding-right: 1vw;
 }
@@ -63,8 +67,33 @@
 
   .intro-section .section-title {
     grid-column: auto;
+    margin-bottom: 3vh;
     font-size: 8vw;
     text-align: left;
+  }
+
+  /* A rolled figure is drawn right behind the text on phones; frosted glass keeps it readable. */
+  .intro-body {
+    display: block;
+    position: relative;
+    isolation: isolate;
+  }
+
+  .intro-body::before {
+    content: '';
+    position: absolute;
+    inset: -3vh -4vw;
+    z-index: -1;
+    border-radius: 3vw;
+    background: rgba(13, 12, 13, 0.58);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    transition: opacity 0.6s ease-in-out;
+    pointer-events: none;
+  }
+
+  .intro-section.is-showing .intro-body::before {
+    opacity: 1;
   }
 
   .section-right p {

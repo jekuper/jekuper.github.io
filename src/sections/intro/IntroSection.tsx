@@ -25,27 +25,30 @@ export function IntroSection({ data, layout }: { data: IntroData; layout: Layout
   };
 
   return (
-    <div className="section intro-section">
-      <motion.h1 {...riseIn(0.5)} className="section-title">
-        {data.title}
-      </motion.h1>
-      <div className="section-left" />
-      <div className="section-right">
-        <motion.p {...wipeIn(0.5, layout === 'desktop')}>
-          <RichText source={finePointer ? data.body : data.touchBody} />
-        </motion.p>
-        <motion.div {...riseIn(0.8)} className="intro-actions">
-          <button type="button" className="intro-button" onClick={roll}>
-            {showing ? data.rollAgainLabel : data.rollLabel}
-            <span className="skill-underline" />
-          </button>
-          {showing && (
-            <button type="button" className="intro-button intro-button--quiet" onClick={release}>
-              {data.releaseLabel}
+    <div className={`section intro-section ${showing ? 'is-showing' : ''}`}>
+      {/* No box of its own on desktop; on phones it frames the frosted panel shown behind a figure. */}
+      <div className="intro-body">
+        <motion.h1 {...riseIn(0.5)} className="section-title">
+          {data.title}
+        </motion.h1>
+        <div className="section-left" />
+        <div className="section-right">
+          <motion.p {...wipeIn(0.5, layout === 'desktop')}>
+            <RichText source={finePointer ? data.body : data.touchBody} />
+          </motion.p>
+          <motion.div {...riseIn(0.8)} className="intro-actions">
+            <button type="button" className="intro-button" onClick={roll}>
+              {showing ? data.rollAgainLabel : data.rollLabel}
               <span className="skill-underline" />
             </button>
-          )}
-        </motion.div>
+            {showing && (
+              <button type="button" className="intro-button intro-button--quiet" onClick={release}>
+                {data.releaseLabel}
+                <span className="skill-underline" />
+              </button>
+            )}
+          </motion.div>
+        </div>
       </div>
     </div>
   );
