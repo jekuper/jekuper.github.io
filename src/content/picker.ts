@@ -7,4 +7,5 @@ export const picker: PickerData = {
       'which is basically reverse engineering. Respect. Might as well look at all of me.',
   ],
   listLabel: 'Choose your fighter',
+  description: 'Game developer or backend developer? Pick a version of me. A portfolio running on a particle engine written from scratch in WebGL.',
 };

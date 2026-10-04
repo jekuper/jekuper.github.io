@@ -18,6 +18,7 @@ export const profiles: Record<string, Profile> = {
   gamedev: {
     id: 'gamedev',
     tagline: 'Unity, netcode and games I actually shipped.',
+    description: 'Unity developer: multiplayer netcode, shipped games, and a portfolio running on a particle engine written from scratch in WebGL.',
     theme: purple,
     identity: { ...identity, title: 'Game Developer' },
     links,
@@ -38,6 +39,7 @@ export const profiles: Record<string, Profile> = {
   backend: {
     id: 'backend',
     tagline: 'Rust services, CI/CD and servers that stay up.',
+    description: 'Backend developer: Rust services, game servers on AWS and EdgeGap, CI/CD, and a portfolio running on a particle engine written from scratch in WebGL.',
     theme: orange,
     identity: { ...identity, title: 'Backend Developer' },
     links,

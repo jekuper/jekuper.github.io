@@ -32,8 +32,10 @@ Set `BASE_PATH` (default `/`) to serve from a subpath instead.
 Append `?dots=50000` to the URL to stress test the engine with a bigger field, and
 `?stats` to show frame rate, CPU time per frame and the live dot count.
 
-`npm run preview:image` (with the dev server running) re-captures `public/og-image.png`,
-the image shown in link previews. It uses an installed Edge or Chrome.
+`npm run preview:image` (with the dev server running) re-captures the link preview images:
+`public/og/<profile>.png` for each profile and `public/og-image.png` for the picker at the root.
+It uses an installed Edge or Chrome. The build writes each page's title, description and image
+into its own copy of the HTML, so every link previews its own page.
 
 ## Structure
 

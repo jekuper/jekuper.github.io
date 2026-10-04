@@ -193,6 +193,8 @@ export interface PickerData {
   body: string[];
   /** Above the list of profiles. */
   listLabel: string;
+  /** Link preview text for the site root. */
+  description: string;
 }
 
 /** A profile's accent family; the CSS reads it as --accent, --accent-deep, --accent-tint and --accent-soft. */
@@ -217,6 +219,8 @@ export interface Profile {
   id: string;
   /** One line about the role, shown on the picker at the site root. */
   tagline: string;
+  /** Link preview text (og:description), written into the page's HTML at build time. */
+  description: string;
   theme: Theme;
   identity: Identity;
   links: SocialLink[];
