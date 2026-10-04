@@ -1,0 +1,31 @@
+Copyright (c) 2026 Joe Sharipov. All rights reserved.
+
+This repository and everything in it that the copyright holder created, including the
+source code, the particle engine, the website, its text, images, line art, portrait and
+other assets (the "Work"), is proprietary. It is published only so that it can be viewed.
+
+No license is granted. Without prior written permission from the copyright holder, you
+may not, in whole or in part, for any purpose, commercial or non-commercial, including
+personal, educational and hobby use:
+
+  1. use, run, host or deploy the Work;
+  2. copy, reproduce or download the Work, except for the temporary copies a web browser
+     or the GitHub website makes while you view it;
+  3. modify the Work, translate it, or create derivative works based on it;
+  4. distribute, publish, sublicense, sell, rent or otherwise make the Work available
+     to anyone;
+  5. use the Work, or any part of it, to train, fine-tune or evaluate machine learning
+     models, or include it in datasets.
+
+Viewing the Work on GitHub, and the forking that GitHub's Terms of Service allow on
+GitHub itself, do not grant any right to use the Work in any of the ways listed above.
+
+Third-party material in this repository, such as fonts, libraries and icons, belongs to
+its respective owners, remains under their own licenses, and is not covered by this
+notice.
+
+THE WORK IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED. IN NO
+EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE WORK.
+
+For permission requests, contact joesharipov@gmail.com.

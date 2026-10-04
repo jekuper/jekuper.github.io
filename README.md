@@ -80,3 +80,8 @@ events to filter recordings by: `engine-black-hole`, `engine-anti-black-hole`,
 
 Three commercial fonts are expected in `public/fonts/`. The page falls back to
 open fonts without them. See `public/fonts/README.md`.
+
+## License
+
+All rights reserved. The code and assets are published for viewing only; no use, copying,
+modification or distribution is permitted, commercial or personal. See [LICENSE](LICENSE).

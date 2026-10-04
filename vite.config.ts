@@ -77,11 +77,24 @@ function profilePages(): Plugin {
   };
 }
 
+/** The dev server leaves out the Clarity snippet, so working on the site locally is not recorded. */
+function noLocalMetrics(): Plugin {
+  return {
+    name: 'no-local-metrics',
+    apply: 'serve',
+    transformIndexHtml(html) {
+      const block = /\s*<!-- metrics:start -->[\s\S]*?<!-- metrics:end -->/;
+      if (!block.test(html)) throw new Error('index.html has no metrics:start / metrics:end block to leave out');
+      return html.replace(block, '');
+    },
+  };
+}
+
 export default defineConfig({
   // Absolute, because profile pages live one level down. Set BASE_PATH to serve from a subpath.
   base: process.env.BASE_PATH ?? '/',
   build: { outDir: OUT_DIR },
-  plugins: [react(), profilePages()],
+  plugins: [react(), profilePages(), noLocalMetrics()],
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts'],

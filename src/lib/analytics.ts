@@ -10,6 +10,11 @@ declare global {
   }
 }
 
+/** False on the dev server, which leaves the Clarity snippet out of the page. */
+export function metricsEnabled(): boolean {
+  return typeof window.clarity === 'function';
+}
+
 export function storedConsent(): Consent | null {
   try {
     const value = window.localStorage.getItem(STORAGE_KEY);

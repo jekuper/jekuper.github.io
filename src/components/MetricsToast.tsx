@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import type { MetricsData } from '../content/types';
 import { MOBILE_QUERY } from '../hooks/useMediaQuery';
-import { sendConsent, storeConsent, storedConsent, type Consent } from '../lib/analytics';
+import { metricsEnabled, sendConsent, storeConsent, storedConsent, type Consent } from '../lib/analytics';
 import './MetricsToast.css';
 
 // Waits until the hero has drawn itself, so the toast is not the first thing seen.
@@ -12,7 +12,10 @@ const PHONE_SCROLL_FRACTION = 1;
 
 /** Asks once, in a corner, whether usage metrics may use cookies; the answer is passed to Clarity. */
 export function MetricsToast({ data }: { data: MetricsData }) {
-  const [phase, setPhase] = useState<'waiting' | 'asking' | 'answered'>(() => (storedConsent() ? 'answered' : 'waiting'));
+  // Nothing to ask about where metrics are off, such as the dev server.
+  const [phase, setPhase] = useState<'waiting' | 'asking' | 'answered'>(() =>
+    !metricsEnabled() || storedConsent() ? 'answered' : 'waiting',
+  );
 
   // Listens only while waiting, so nothing can bring the toast back once it was shown.
   useEffect(() => {
