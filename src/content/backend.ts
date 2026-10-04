@@ -81,35 +81,17 @@ export const backendProjects: ProjectsData = {
       description: 'Per-match game servers for a real-money skill-gaming platform.',
       details:
         'I designed the server-authoritative setup: a Rust backend starts a headless Unity server for each match, first on AWS EC2 with autoscaling, now on EdgeGap with logs piped to AWS and results reported back by match ID. I also wrote the CI/CD that builds and ships to TestFlight, WebGL and EdgeGap, and wired Sentry into clients and servers.',
-      image: 'images/projects/wagr-servers.webp',
-      links: [],
+      image: 'images/projects/wagr.webp',
+      links: [{ href: 'https://wagr.co/', label: 'Visit wagr.co' }],
     },
     {
-      title: 'EmFit',
+      title: 'Release Portal',
       year: '2026',
-      description: 'Instant file search and disk treemap for Windows, read straight from the NTFS MFT.',
+      description: "Public downloads for the DA office's private forensic tools.",
       details:
-        'Rust and Tauri; I wrote the whole v2 codebase. It sweeps a 3.4M-file drive in 11 to 14 s and reloads from its cache with USN journal replay in a median 2.3 s. An incremental sort repair runs 19x faster than a rebuild and was checked identical over 1,000 random patches.',
-      image: 'images/projects/emfit.webp',
-      links: [],
-    },
-    {
-      title: 'FENDER',
-      year: '2026',
-      description: 'Pulls GPS and trip evidence out of vehicle infotainment images.',
-      details:
-        'A Rust rewrite of a Python tool, with 10 decoders for 9 car makers behind one trait. Hand-written QNX6 and ext4 parsers replace The Sleuth Kit and scan multi-GB images through memory maps without copying. Every report carries SHA-256 hashes of the input, the output and the binary itself.',
-      image: 'images/projects/fender.webp',
-      links: [{ href: wcdaht('FENDER'), label: 'Read the README' }],
-    },
-    {
-      title: 'qnx_driver',
-      year: '2026',
-      description: 'Mounts QNX6 car head-unit images as a read-only Windows drive.',
-      details:
-        'A from-scratch QNX6 parser in Rust behind a WinFsp file system, with both checksums bit-exact to the Linux kernel. It reads all 8 block sizes up to 64 KB, including the large ones Linux refuses to mount, and streams multi-GB files without buffering them.',
-      image: 'images/projects/qnx-driver.webp',
-      links: [],
+        'Releasing a private tool repo updates a public GitHub Pages site: a GitHub App mints a token and dispatches the site workflow, which pulls the binaries and READMEs and merges them into a manifest with jq. The builds run on self-hosted Windows and Linux runners I set up.',
+      image: 'images/projects/release-portal.webp',
+      links: [{ href: 'https://wcdaht.github.io/index.html', label: 'Visit the site' }],
     },
     {
       title: 'AutoApplyBot',
@@ -121,31 +103,49 @@ export const backendProjects: ProjectsData = {
       links: [],
     },
     {
-      title: 'Release Portal',
+      title: 'EmFit',
       year: '2026',
-      description: "Public downloads for the DA office's private forensic tools.",
+      description: 'Instant file search and disk treemap for Windows, read straight from the NTFS MFT.',
       details:
-        'Releasing a private tool repo updates a public GitHub Pages site: a GitHub App mints a token and dispatches the site workflow, which pulls the binaries and READMEs and merges them into a manifest with jq. The builds run on self-hosted Windows and Linux runners I set up.',
-      image: 'images/projects/release-portal.webp',
-      links: [{ href: 'https://wcdaht.github.io/', label: 'Visit the site' }],
+        'Rust and Tauri; I wrote the whole v2 codebase. It sweeps a 3.4M-file drive in 11 to 14 s and reloads from its cache with USN journal replay in a median 2.3 s. An incremental sort repair runs 19x faster than a rebuild and was checked identical over 1,000 random patches.',
+      image: 'images/projects/emfit.webp',
+      links: [{ href: 'https://github.com/WCDAHT/EmFit/tree/staging', label: 'View on GitHub' }],
     },
     {
-      title: 'NECCDC Tryouts Lab',
+      title: 'COMRADE',
       year: '2026',
-      description: 'An infrastructure-as-code cyber-defense lab with automated grading.',
+      description: 'A link-analysis board for investigators: people, notes and how they connect.',
       details:
-        'Bash, PowerShell and Python rebuild 4 pods for 16 candidates: Incus containers, a Windows Server 2022 domain controller and seeded faults. 47 automated assertions grade the work, and the grader itself is tested against known-good and known-broken boxes.',
+        "A Rust, Tauri and Svelte rewrite of a Python tool, worked on at the DA's office. A headless Rust core traces how any two subjects connect with BFS shortest paths, flags likely duplicate people with Jaro-Winkler matching, and saves case files atomically with crash-recovery autosave. Board exports go through a hand-written PDF writer with no dependencies.",
+      image: 'images/projects/comrade.webp',
+      links: [{ href: wcdaht('COMRADE'), label: 'Read the README' }],
+    },
+    {
+      title: 'Message Maestro',
+      year: '2026',
+      description: 'A forensic viewer for chat exports, with court-ready PDF reports.',
+      details:
+        "Another Rust, Tauri and Svelte rewrite from the DA's office. Five parsers read AXIOM, Discord, Kik, Snapchat and Twitter exports, streaming multi-GB XML at constant memory. Every derived file carries a SHA-256 provenance manifest, and one statistics engine feeds both the dashboard and the PDF, so they never disagree.",
+      image: 'images/projects/message-maestro.webp',
+      links: [{ href: wcdaht('Message-Maestro'), label: 'Read the README' }],
+    },
+    {
+      title: 'NECCDC Labs',
+      year: '2026',
+      description: "Blue-team training and tryout labs for Pace's cyber defense team.",
+      details:
+        'First a 13-VM, dual-stack IPv4/IPv6 training lab across four subnets (pfSense, Active Directory, Teleport, Grafana, Falco), built in a month with Ansible hardening. Then an infrastructure-as-code tryouts lab: 4 pods for 16 candidates, graded by 47 automated assertions that are themselves tested against known-good and known-broken boxes.',
       image: 'images/projects/tryouts-lab.webp',
-      links: [],
+      links: [{ href: 'https://github.com/seidenbergcybersec/Pace-University-NECCDC-2026/tree/master/joe', label: 'View my scripts' }],
     },
     {
-      title: 'musicBotCutter',
-      year: '2024',
-      description: 'A Telegram bot that cuts albums into tagged tracks.',
+      title: 'chaptercut',
+      year: '2025',
+      description: 'A self-hosted Telegram bot that turns album uploads into tagged tracks.',
       details:
-        "Deployed on an Ubuntu server. An asyncio job queue keeps downloads and FFmpeg off the event loop, and files over Telegram's 50 MB limit go through my own FastAPI file service with authenticated uploads, random-token URLs and an hourly cleanup of anything older than a day.",
-      image: 'images/projects/musicbot.webp',
-      links: [],
+        'Python and asyncio, deployed with Docker Compose next to a self-hosted Telegram Bot API server that lifts the upload cap from 50 MB to 2 GB. Jobs run from a crash-safe SQLite queue, results land in an atomic on-disk cache, and yt-dlp and FFmpeg run as killable subprocesses. 514 tests, 89% coverage.',
+      image: 'images/projects/chaptercut.webp',
+      links: [{ href: 'https://github.com/jekuper/chaptercut', label: 'View source' }],
     },
   ],
 };
