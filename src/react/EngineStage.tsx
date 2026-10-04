@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
 import type { Layout } from '../content/types';
+import { useTheme } from '../app/themeContext';
 import { Engine } from '../engine';
 import { REDUCED_MOTION_QUERY, useFinePointer, useReducedMotion } from '../hooks/useMediaQuery';
 import { track } from '../lib/analytics';
@@ -35,6 +36,7 @@ export function EngineStage({ layout, pin, children }: EngineStageProps) {
   const pageHeight = useRef(0);
   const finePointer = useFinePointer();
   const reducedMotion = useReducedMotion();
+  const { well } = useTheme();
 
   useEffect(() => {
     if (!canvas) return;
@@ -47,6 +49,7 @@ export function EngineStage({ layout, pin, children }: EngineStageProps) {
     }
     // Set before any scene is seeded; children seed in effects that run before ours.
     instance.setReducedMotion(window.matchMedia(REDUCED_MOTION_QUERY).matches);
+    instance.setWellColor(well);
     instance.onAction((action) => track(`engine-${action}`));
     instance.setCamera(() => ({ x: 0, y: Math.max(0, window.scrollY - pinEnd.current) }));
     if (overscan > 1) instance.setCanvasOrigin(canvasPlacer(canvas, overscan, () => pinEnd.current, () => pageHeight.current));
@@ -55,7 +58,7 @@ export function EngineStage({ layout, pin, children }: EngineStageProps) {
       instance.dispose();
       setEngine(null);
     };
-  }, [canvas, overscan]);
+  }, [canvas, overscan, well]);
 
   useEffect(() => {
     const root = canvas?.parentElement;

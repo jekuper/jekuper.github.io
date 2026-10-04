@@ -130,6 +130,8 @@ export class World {
   eraserVisible = false;
   /** Reduced motion, see CALM. */
   calm = false;
+  /** Black hole color; pages can match it to their accent. */
+  wellColor = WELL.color;
   shakeX = 0;
   shakeY = 0;
 
@@ -931,7 +933,7 @@ export class World {
   }
 
   private drawWells(batch: DrawBatch, onTop: boolean): void {
-    const c = WELL.color;
+    const c = this.wellColor;
     for (const well of this.wells) {
       if (well.onTop === onTop && !well.hidden) batch.point(well.x, well.y, c.r, c.g, c.b, WELL.size);
     }

@@ -3,7 +3,7 @@ import { useRef } from 'react';
 import { onceInView, slideIn, wipeIn } from '../../components/motion';
 import { SplitText } from '../../components/Text';
 import type { AboutData, Layout } from '../../content/types';
-import { rgb } from '../../engine';
+import { useTheme } from '../../app/themeContext';
 import { useGalaxy } from '../../react/useGalaxy';
 import { EducationCard } from './EducationCard';
 import { Portrait } from './Portrait';
@@ -12,11 +12,11 @@ import './AboutSection.css';
 const WORD_REPEATS = 4;
 const GLASS_PANES = 6;
 const GALAXY_DOTS: Record<Layout, number> = { desktop: 4000, mobile: 1500 };
-const GALAXY_COLOR = rgb(170, 160, 225);
 
 export function AboutSection({ data, layout }: { data: AboutData; layout: Layout }) {
   const desktop = layout === 'desktop';
   const stage = useRef<HTMLDivElement>(null);
+  const { soft } = useTheme();
   useGalaxy(stage, {
     x: desktop ? 0.66 : 0.5,
     y: 0.5,
@@ -24,7 +24,7 @@ export function AboutSection({ data, layout }: { data: AboutData; layout: Layout
     count: GALAXY_DOTS[layout],
     magnitude: 1600,
     alpha: 0.6,
-    color: GALAXY_COLOR,
+    color: soft,
   });
 
   // The word rows and glass panes live in the stage so they cover the slogan, not the portrait.

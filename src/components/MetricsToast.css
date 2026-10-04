@@ -48,14 +48,14 @@
 }
 
 .metrics-toast .metrics-toast-accept {
-  border-color: #6b4fd8;
-  color: #e6e0ff;
+  border-color: rgba(var(--accent-rgb), 0.75);
+  color: var(--accent-tint);
 }
 
 .metrics-toast .metrics-toast-accept:hover,
 .metrics-toast .metrics-toast-accept:focus-visible {
-  border-color: #9670ff;
-  background-color: rgba(150, 110, 255, 0.12);
+  border-color: var(--accent);
+  background-color: rgba(var(--accent-rgb), 0.12);
 }
 
 /* Hidden while the menu covers the page. */

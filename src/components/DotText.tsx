@@ -21,6 +21,7 @@ interface DotTextProps extends ViewMorphOptions {
 
 
 const DEFAULT_COLOR = rgb(210, 210, 210);
+const NBSP = String.fromCharCode(160);
 
 /** Single-line text redrawn in dots at the exact spot of the real (now invisible) text. */
 export function DotText({
@@ -55,7 +56,7 @@ export function DotText({
   return (
     <Tag ref={ref} className={`dot-text ${formed ? 'is-drawn' : ''} ${className}`} {...elementProps}>
       {/* A lone icon still needs a line box, or the heading would collapse. */}
-      {text || ' '}
+      {text || NBSP}
     </Tag>
   );
 }

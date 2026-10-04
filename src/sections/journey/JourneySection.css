@@ -47,7 +47,7 @@
 }
 
 .milestone-year {
-  color: #9670ff;
+  color: var(--accent);
   font-family: var(--font-mono);
   font-size: 1.2vw;
 }

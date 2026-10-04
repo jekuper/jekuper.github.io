@@ -29,8 +29,8 @@
 }
 
 .profile-card:hover {
-  border-color: #5a4a8a;
-  background-color: rgba(150, 110, 255, 0.04);
+  border-color: rgba(var(--accent-rgb), 0.5);
+  background-color: rgba(var(--accent-rgb), 0.04);
 }
 
 .profile-platform {
@@ -59,7 +59,7 @@
 
 .profile-detail {
   margin-top: 1.2vh;
-  color: #9670ff;
+  color: var(--accent);
   font-family: var(--font-mono);
   font-size: 1.15vw;
 }
@@ -89,7 +89,7 @@
 }
 
 .award-year {
-  color: #9670ff;
+  color: var(--accent);
   font-family: var(--font-mono);
   font-size: 1.15vw;
 }

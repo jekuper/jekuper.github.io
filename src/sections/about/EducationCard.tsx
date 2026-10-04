@@ -3,10 +3,9 @@ import { useState } from 'react';
 import { DotText } from '../../components/DotText';
 import { onceInView } from '../../components/motion';
 import type { Education } from '../../content/types';
-import { rgb } from '../../engine';
+import { useTheme } from '../../app/themeContext';
 import { asset } from '../../lib/asset';
 
-const GPA_COLOR = rgb(232, 230, 240);
 
 function initials(name: string): string {
   return name
@@ -20,6 +19,7 @@ function initials(name: string): string {
 /** School, degree and a GPA drawn in dots. */
 export function EducationCard({ education }: { education: Education }) {
   const [logoMissing, setLogoMissing] = useState(false);
+  const { tint } = useTheme();
 
   // Opacity only: the GPA is measured for its dots, so its box must not move.
   return (
@@ -44,7 +44,7 @@ export function EducationCard({ education }: { education: Education }) {
         </div>
       </div>
       <div className="education-gpa">
-        <DotText as="span" className="education-gpa-value" text={education.gpa} spacing={2.5} fill={5} color={GPA_COLOR} showEmitter={false} />
+        <DotText as="span" className="education-gpa-value" text={education.gpa} spacing={2.5} fill={5} color={tint} showEmitter={false} />
         <span className="education-gpa-label">GPA / {education.gpaScale}</span>
       </div>
     </motion.div>

@@ -5,6 +5,12 @@
   --font-alliance: 'Alliance No.1', 'Space Grotesk', sans-serif;
   --font-space: 'Space Grotesk', sans-serif;
   --font-mono: 'Jura', sans-serif;
+  /* Accent family, overridden per profile by applyThemeCss. */
+  --accent: #9670ff;
+  --accent-rgb: 150, 110, 255;
+  --accent-deep: #43158c;
+  --accent-tint: #ece8f8;
+  --accent-soft: #b9a9e0;
 }
 
 html,

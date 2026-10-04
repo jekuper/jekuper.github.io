@@ -113,7 +113,7 @@
 }
 
 .menu-button.is-open circle {
-  fill: #ece8f8;
+  fill: var(--accent-tint);
 }
 
 /* Under the canvas (which is transparent), so the menu dots draw on top of it. */
@@ -121,7 +121,7 @@
   position: fixed;
   inset: 0;
   z-index: -1;
-  background: #43158c;
+  background: var(--accent-deep);
   clip-path: circle(0 at var(--menu-x, 100%) var(--menu-y, 0));
   transition: clip-path 0.55s cubic-bezier(0.7, 0, 0.2, 1);
   pointer-events: none;
@@ -192,7 +192,7 @@
   padding: 0;
   border: 0;
   background: none;
-  color: #ece8f8;
+  color: var(--accent-tint);
   font-family: var(--font-grotesk);
   font-size: min(5vw, 8vh);
   font-weight: 400;
@@ -227,7 +227,7 @@
 
 .menu-address {
   margin: 0;
-  color: #b9a9e0;
+  color: var(--accent-soft);
   font-family: var(--font-mono);
   font-size: 1vw;
   line-height: 1.4;

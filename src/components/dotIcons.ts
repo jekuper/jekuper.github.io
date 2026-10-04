@@ -9,6 +9,7 @@ export const DOT_ICONS: Record<DotIcon, string> = {
   gamepad:
     'M7 8h10a5 5 0 0 1 5 5v1a3 3 0 0 1-5.4 1.8L15 14H9l-1.6 1.8A3 3 0 0 1 2 14v-1a5 5 0 0 1 5-5z' +
     'M7 10.5v3M5.5 12h3M15.5 11h.01M18 13h.01',
+  terminal: 'M4 4h16a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zM7 9l3 3l-3 3M12 15h5',
   smile: 'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18zM8.5 9.5v.01M15.5 9.5v.01M8 14a5 5 0 0 0 8 0',
   envelope: 'M3 6h18v12H3zM3 6l9 7l9-7',
 };

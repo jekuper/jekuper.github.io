@@ -55,8 +55,8 @@
 
 .contact-topic:hover {
   color: white;
-  border-color: #9670ff;
-  background-color: rgba(150, 110, 255, 0.08);
+  border-color: var(--accent);
+  background-color: rgba(var(--accent-rgb), 0.08);
 }
 
 .contact-links {

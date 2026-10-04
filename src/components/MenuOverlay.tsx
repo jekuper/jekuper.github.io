@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { Identity, NavItem, SectionType, SocialLink } from '../content/types';
-import { rgb } from '../engine';
+import { useTheme } from '../app/themeContext';
 import { useReducedMotion } from '../hooks/useMediaQuery';
 import { track } from '../lib/analytics';
 import { sectionAnchor } from '../lib/anchors';
@@ -12,8 +12,6 @@ import { SocialLinks } from './SocialLinks';
 const MENU_CLIP = 'menu';
 // Lets the picked name visibly blow apart before the page scrolls away from it.
 const SCROLL_DELAY_MS = 350;
-const ITEM_COLOR = rgb(236, 232, 248);
-const HOVER_COLOR = rgb(255, 150, 120);
 
 // Icon dots in a 28 by 28 box: two bars when closed, a cross when open.
 const ICON_DOTS = 12;
@@ -36,6 +34,7 @@ interface MenuOverlayProps {
  */
 export function MenuOverlay({ identity, links, nav }: MenuOverlayProps) {
   const engine = useEngine();
+  const { tint, hover } = useTheme();
   const reducedMotion = useReducedMotion();
   const [open, setOpen] = useState(false);
   const [chosen, setChosen] = useState<SectionType | null>(null);
@@ -141,7 +140,7 @@ export function MenuOverlay({ identity, links, nav }: MenuOverlayProps) {
                   className={`menu-item ${hovered === item.target ? 'is-hovered' : ''}`}
                   text={item.label}
                   spacing={2.5}
-                  color={hovered === item.target ? HOVER_COLOR : ITEM_COLOR}
+                  color={hovered === item.target ? hover : tint}
                   active={open}
                   quick
                   hide={chosen === item.target ? 'scatter' : 'recall'}

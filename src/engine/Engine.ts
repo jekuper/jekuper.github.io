@@ -146,6 +146,10 @@ export class Engine {
     this.world.calm = reduced;
   }
 
+  setWellColor(color: Rgb): void {
+    this.world.wellColor = color;
+  }
+
   /** Fades out every dot not drawn in the named clip; null brings them back. */
   focus(clip: string | null): void {
     this.world.setFocus(clip);

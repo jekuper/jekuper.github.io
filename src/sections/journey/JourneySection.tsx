@@ -2,12 +2,12 @@ import { motion } from 'framer-motion';
 import { useRef } from 'react';
 import { onceInView, riseIn } from '../../components/motion';
 import type { JourneyData, Layout, Milestone } from '../../content/types';
-import { rgb, type Point } from '../../engine';
+import { useTheme } from '../../app/themeContext';
+import { rgb, type Point, type Rgb } from '../../engine';
 import { ring, shapesToArt, trace, type Shape } from '../../lib/dotPaths';
 import { useViewMorph, type ViewArt } from '../../react/useViewMorph';
 import './JourneySection.css';
 
-const NODE_COLOR = rgb(150, 110, 255);
 const PATH_COLOR = rgb(170, 170, 170);
 const NODE_RADIUS = 7;
 const INNER_RADIUS = 3;
@@ -20,7 +20,7 @@ function center(el: Element): Point {
 }
 
 /** Node rings plus the dotted path back up to the previous milestone, in viewport coordinates. */
-function buildStep(row: HTMLElement): ViewArt | null {
+function buildStep(row: HTMLElement, nodeColor: Rgb): ViewArt | null {
   const node = row.querySelector('.journey-node');
   if (!node) return null;
   const here = center(node);
@@ -30,15 +30,16 @@ function buildStep(row: HTMLElement): ViewArt | null {
     const from = center(prevNode);
     shapes.push({ points: trace(from.x, from.y + NODE_RADIUS, here.x, here.y - NODE_RADIUS), closed: false, color: PATH_COLOR });
   }
-  shapes.push({ points: ring(here.x, here.y, NODE_RADIUS), closed: true, color: NODE_COLOR });
-  shapes.push({ points: ring(here.x, here.y, INNER_RADIUS), closed: true, color: NODE_COLOR });
+  shapes.push({ points: ring(here.x, here.y, NODE_RADIUS), closed: true, color: nodeColor });
+  shapes.push({ points: ring(here.x, here.y, INNER_RADIUS), closed: true, color: nodeColor });
   const art = shapesToArt(shapes);
   return { art, left: art.offsetX, top: art.offsetY, width: art.width, height: art.height, color: PATH_COLOR };
 }
 
 function MilestoneRow({ milestone, index }: { milestone: Milestone; index: number }) {
   const ref = useRef<HTMLLIElement>(null);
-  useViewMorph(ref, async (el) => buildStep(el), {
+  const { accent } = useTheme();
+  useViewMorph(ref, async (el) => buildStep(el, accent), {
     rootMargin: ROOT_MARGIN,
     // The path grows out of the previous milestone and retracts into it.
     emitter: () => {

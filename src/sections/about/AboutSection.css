@@ -38,7 +38,7 @@
   align-items: center;
   z-index: 3;
   position: relative;
-  background-color: #43158c;
+  background-color: var(--accent-deep);
 }
 
 .section-about .purple-background h2 {

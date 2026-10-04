@@ -1,3 +1,5 @@
+import type { Rgb } from '../engine';
+
 export type Layout = 'desktop' | 'mobile';
 
 /** Text whose `tail` moves to its own line on narrow screens. */
@@ -126,7 +128,7 @@ export interface ProjectsData {
 }
 
 /** Small drawings DotText can form, defined in components/dotIcons. */
-export type DotIcon = 'briefcase' | 'blocks' | 'gamepad' | 'smile' | 'envelope';
+export type DotIcon = 'briefcase' | 'blocks' | 'gamepad' | 'terminal' | 'smile' | 'envelope';
 
 export interface ContactTopic {
   label: string;
@@ -184,8 +186,27 @@ export interface NavItem {
   target: SectionType;
 }
 
+/** A profile's accent family; the CSS reads it as --accent, --accent-deep, --accent-tint and --accent-soft. */
+export interface Theme {
+  /** Highlights, hover borders, journey nodes. */
+  accent: Rgb;
+  /** Fills behind light text: the about bar, the menu panel. */
+  deep: Rgb;
+  /** Portrait shadows; darker than `deep` when `deep` is bright. */
+  shade: Rgb;
+  /** Near-white text on deep fills, portrait highlights. */
+  tint: Rgb;
+  /** Muted light tone: menu details, the about galaxy. */
+  soft: Rgb;
+  /** Black holes in the engine. */
+  well: Rgb;
+  /** Menu item under the pointer; must stand out on `deep` and from `tint`. */
+  hover: Rgb;
+}
+
 export interface Profile {
   id: string;
+  theme: Theme;
   identity: Identity;
   links: SocialLink[];
   engineHelp: EngineHelp;
