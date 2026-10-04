@@ -17,6 +17,7 @@ const nav: NavItem[] = [
 export const profiles: Record<string, Profile> = {
   gamedev: {
     id: 'gamedev',
+    tagline: 'Unity, netcode and games I actually shipped.',
     theme: purple,
     identity: { ...identity, title: 'Game Developer' },
     links,
@@ -36,6 +37,7 @@ export const profiles: Record<string, Profile> = {
   },
   backend: {
     id: 'backend',
+    tagline: 'Rust services, CI/CD and servers that stay up.',
     theme: orange,
     identity: { ...identity, title: 'Backend Developer' },
     links,
@@ -54,6 +56,3 @@ export const profiles: Record<string, Profile> = {
     ],
   },
 };
-
-/** Where the site root redirects. */
-export const DEFAULT_PROFILE = 'gamedev';

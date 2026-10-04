@@ -23,8 +23,8 @@ npm test           # engine unit tests
 npm run lint
 ```
 
-Each profile is a page at `/<profile id>/` (the game dev one is `/gamedev/`); the root
-redirects there. The build puts a copy of the page in each profile folder, so it works on
+Each profile is a page at `/<profile id>/` (`/gamedev/`, `/backend/`); the root shows a
+picker that lists them all, and unknown paths land there too. The build puts a copy of the page in each profile folder, so it works on
 static hosts like GitHub Pages. The build goes to `docs/` and is committed: Pages serves it
 with Settings > Pages > Deploy from a branch, folder `/docs`, at https://jekuper.github.io/.
 Set `BASE_PATH` (default `/`) to serve from a subpath instead.

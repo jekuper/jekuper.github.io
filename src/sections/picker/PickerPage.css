@@ -1,0 +1,234 @@
+.picker {
+  position: relative;
+  min-height: 100vh;
+  box-sizing: border-box;
+  /* The glow reaches past the right edge; no sideways scrolling on phones. */
+  overflow-x: clip;
+  padding: 12vh 10vw 8vh;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+
+/* A soft wash of the active accent; CSS variables do not animate, the computed color does. */
+.picker-glow {
+  position: absolute;
+  top: 20%;
+  right: 8%;
+  width: 38vw;
+  height: 38vw;
+  border-radius: 50%;
+  background-color: rgba(var(--accent-rgb), 0.1);
+  filter: blur(9vw);
+  transition: background-color 0.8s ease-in-out;
+  z-index: -1;
+}
+
+.picker-kicker {
+  margin: 0 0 2vh;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 1.1vw;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  transition: color 0.4s ease-in-out;
+}
+
+.picker-title {
+  align-self: stretch;
+  margin: 0;
+  color: #d2d2d2;
+  font-family: var(--font-display);
+  font-size: 6.4vw;
+  font-weight: 400;
+  letter-spacing: 0.6vw;
+}
+
+.picker-body {
+  max-width: 46vw;
+  margin-top: 3vh;
+  color: #8a8a8a;
+  font-family: var(--font-grotesk);
+  font-size: 1.25vw;
+  line-height: 1.55;
+}
+
+.picker-body p {
+  margin: 0 0 0.8em;
+}
+
+.picker-label {
+  margin: 6vh 0 1.5vh;
+  color: #5e5c5c;
+  font-family: var(--font-mono);
+  font-size: 1vw;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.picker-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-width: 64vw;
+  pointer-events: auto;
+}
+
+.picker-profile {
+  display: grid;
+  grid-template-columns: 4vw 1fr auto;
+  align-items: center;
+  gap: 2vw;
+  padding: 2.6vh 0;
+  border-top: 1px solid #2a2a2a;
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.4s ease-in-out;
+}
+
+.picker-list li:last-child .picker-profile {
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.picker-profile.is-active {
+  border-color: rgba(var(--accent-rgb), 0.5);
+}
+
+.picker-index {
+  color: #5e5c5c;
+  font-family: var(--font-mono);
+  font-size: 1.1vw;
+  transition: color 0.4s ease-in-out;
+}
+
+.picker-profile.is-active .picker-index {
+  color: var(--accent);
+}
+
+.picker-role-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8vh;
+  /* Lets a long role shrink its column instead of pushing the arrow out. */
+  min-width: 0;
+}
+
+.picker-role {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  color: #d2d2d2;
+  font-family: var(--font-grotesk);
+  font-size: 3.2vw;
+  font-weight: 400;
+  letter-spacing: 0.3vw;
+}
+
+.picker-tagline {
+  color: #7a7a7a;
+  font-family: var(--font-grotesk);
+  font-size: 1.1vw;
+}
+
+.picker-arrow {
+  color: #5e5c5c;
+  font-family: var(--font-mono);
+  font-size: 2vw;
+  transition:
+    color 0.4s ease-in-out,
+    transform 0.3s ease-in-out;
+}
+
+.picker-profile.is-active .picker-arrow {
+  color: var(--accent);
+  transform: translateX(0.6vw);
+}
+
+.picker-links {
+  display: flex;
+  gap: 2vw;
+  margin-top: auto;
+  padding-top: 8vh;
+  pointer-events: auto;
+}
+
+.picker-links .img-container {
+  width: 4.5vh;
+  height: 4.5vh;
+}
+
+.picker-links img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: filter 0.5s ease-in-out;
+}
+
+.picker-links img:hover {
+  filter: brightness(2);
+}
+
+@media screen and (max-width: 1200px) {
+  .picker {
+    padding: 10vh 6vw 6vh;
+  }
+
+  .picker-glow {
+    top: 30%;
+    right: -10%;
+    width: 80vw;
+    height: 80vw;
+    filter: blur(18vw);
+  }
+
+  .picker-kicker {
+    font-size: 3vw;
+  }
+
+  .picker-title {
+    font-size: 11vw;
+  }
+
+  .picker-body {
+    max-width: none;
+    font-size: 4vw;
+  }
+
+  .picker-label {
+    font-size: 3vw;
+  }
+
+  .picker-list {
+    max-width: none;
+  }
+
+  .picker-profile {
+    grid-template-columns: 8vw 1fr auto;
+    gap: 3vw;
+  }
+
+  .picker-index {
+    font-size: 3vw;
+  }
+
+  .picker-role {
+    font-size: 6.4vw;
+  }
+
+  .picker-tagline {
+    font-size: 3.4vw;
+  }
+
+  .picker-arrow {
+    font-size: 5vw;
+  }
+
+  .picker-links {
+    gap: 6vw;
+  }
+
+  .picker-links .img-container {
+    width: 10vw;
+    height: 10vw;
+  }
+}

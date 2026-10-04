@@ -188,6 +188,10 @@ export class Engine {
     this.world.removeGroup(group);
   }
 
+  tint(group: string, color: Rgb, seconds: number): void {
+    this.world.tint(group, color, seconds);
+  }
+
   clearBodies(): void {
     this.world.clearBodies();
   }

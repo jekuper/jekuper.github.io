@@ -201,6 +201,13 @@ export class World {
     this.groups.delete(name);
   }
 
+  /** Fades every dot of a group to one color over `time` seconds. */
+  tint(name: string, color: Rgb, time: number): void {
+    const group = this.groups.get(name);
+    if (!group) return;
+    this.forEachMember(group, (i) => this.particles.fadeColor(i, color, time));
+  }
+
   /** Removes wells, bombs and sparks. */
   clearBodies(): void {
     this.wells.length = 0;

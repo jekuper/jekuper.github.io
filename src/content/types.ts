@@ -186,6 +186,15 @@ export interface NavItem {
   target: SectionType;
 }
 
+/** The site root, shown when the link names no profile. */
+export interface PickerData {
+  heading: string;
+  /** Paragraphs under the heading. */
+  body: string[];
+  /** Above the list of profiles. */
+  listLabel: string;
+}
+
 /** A profile's accent family; the CSS reads it as --accent, --accent-deep, --accent-tint and --accent-soft. */
 export interface Theme {
   /** Highlights, hover borders, journey nodes. */
@@ -206,6 +215,8 @@ export interface Theme {
 
 export interface Profile {
   id: string;
+  /** One line about the role, shown on the picker at the site root. */
+  tagline: string;
   theme: Theme;
   identity: Identity;
   links: SocialLink[];

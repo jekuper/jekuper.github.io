@@ -213,6 +213,16 @@ describe('World', () => {
     expect(world.particles.live).toBe(400);
   });
 
+  it('tints a group to a new color over time', () => {
+    const world = new World();
+    world.setBounds(1600, 900);
+    world.seedGalaxy('g', 800, 450, 300, 50, 1500, { color: { r: 200, g: 200, b: 200 } });
+    world.tint('g', { r: 255, g: 120, b: 30 }, 0.5);
+    run(world, 1);
+    const p = world.particles;
+    for (const i of aliveSlots(world)) expect([p.r[i], p.g[i], p.b[i]]).toEqual([255, 120, 30]);
+  });
+
   it('recalls a formed group into its emitter at once', () => {
     const world = new World();
     world.setBounds(800, 600);

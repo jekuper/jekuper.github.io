@@ -17,8 +17,8 @@ export interface GalaxyPlacement {
 
 const FADE_IN = 1.2;
 
-/** A slowly turning spiral of dots behind an element, only while it is on screen. */
-export function useGalaxy(ref: RefObject<HTMLElement | null>, placement: GalaxyPlacement): void {
+/** A slowly turning spiral of dots behind an element, only while it is on screen. Returns its group name. */
+export function useGalaxy(ref: RefObject<HTMLElement | null>, placement: GalaxyPlacement): string {
   const engine = useEngine();
   const group = `galaxy-${useId()}`;
   const { x, y, radius, count, magnitude, alpha, color } = placement;
@@ -39,4 +39,6 @@ export function useGalaxy(ref: RefObject<HTMLElement | null>, placement: GalaxyP
       engine.removeGroup(group);
     };
   }, [engine, group, ref, x, y, radius, count, magnitude, alpha, color]);
+
+  return group;
 }

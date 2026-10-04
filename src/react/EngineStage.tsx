@@ -49,7 +49,6 @@ export function EngineStage({ layout, pin, children }: EngineStageProps) {
     }
     // Set before any scene is seeded; children seed in effects that run before ours.
     instance.setReducedMotion(window.matchMedia(REDUCED_MOTION_QUERY).matches);
-    instance.setWellColor(well);
     instance.onAction((action) => track(`engine-${action}`));
     instance.setCamera(() => ({ x: 0, y: Math.max(0, window.scrollY - pinEnd.current) }));
     if (overscan > 1) instance.setCanvasOrigin(canvasPlacer(canvas, overscan, () => pinEnd.current, () => pageHeight.current));
@@ -58,7 +57,9 @@ export function EngineStage({ layout, pin, children }: EngineStageProps) {
       instance.dispose();
       setEngine(null);
     };
-  }, [canvas, overscan, well]);
+  }, [canvas, overscan]);
+
+  useEffect(() => engine?.setWellColor(well), [engine, well]);
 
   useEffect(() => {
     const root = canvas?.parentElement;
