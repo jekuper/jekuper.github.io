@@ -24,7 +24,7 @@
     <link href="/fonts/fonts.css" rel="stylesheet" />
     <title>Joe Sharipov</title>
     <!-- metrics:start -->
-    <!-- Microsoft Clarity. Runs without cookies until the visitor accepts the metrics toast (see src/lib/analytics.ts). -->
+    <!-- Microsoft Clarity, recording every visit in full from the first page load. -->
     <!-- Left out by the dev server (vite.config.ts), so local visits are not recorded. -->
     <script type="text/javascript">
       (function (c, l, a, r, i, t, y) {
@@ -32,20 +32,7 @@
         t = l.createElement(r); t.async = 1; t.src = 'https://www.clarity.ms/tag/' + i;
         y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
       })(window, document, 'clarity', 'script', 'yryy1lloz0');
-      (function () {
-        var granted = false;
-        try {
-          // ?reset-consent forgets the answer, so the toast shows again (for testing).
-          var url = new URL(location.href);
-          if (url.searchParams.has('reset-consent')) {
-            localStorage.removeItem('metrics-consent');
-            url.searchParams.delete('reset-consent');
-            history.replaceState(null, '', url.pathname + url.search + url.hash);
-          }
-          granted = localStorage.getItem('metrics-consent') === 'accepted';
-        } catch (e) {}
-        clarity('consentv2', { ad_Storage: 'denied', analytics_Storage: granted ? 'granted' : 'denied' });
-      })();
+      clarity('consentv2', { ad_Storage: 'denied', analytics_Storage: 'granted' });
     </script>
     <!-- metrics:end -->
   </head>
