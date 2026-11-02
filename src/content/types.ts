@@ -173,13 +173,6 @@ export interface EngineHelp {
 }
 
 /** One page of the site, e.g. a role-specific portfolio. */
-/** The metrics consent toast. The Clarity snippet itself is in index.html. */
-export interface MetricsData {
-  message: string;
-  acceptLabel: string;
-  declineLabel: string;
-}
-
 /** A menu entry that scrolls to the first section of its type. */
 export interface NavItem {
   label: string;

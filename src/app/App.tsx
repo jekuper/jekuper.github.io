@@ -1,7 +1,6 @@
 import { MotionConfig } from 'framer-motion';
 import { useRef } from 'react';
-import { MetricsToast } from '../components/MetricsToast';
-import { links, metrics } from '../content/identity';
+import { links } from '../content/identity';
 import { picker } from '../content/picker';
 import { profiles } from '../content/profiles';
 import type { Layout, Profile } from '../content/types';
@@ -26,7 +25,6 @@ export default function App() {
       ) : (
         <PickerPage data={picker} profiles={Object.values(profiles)} links={links} layout={layout} />
       )}
-      <MetricsToast data={metrics} />
     </MotionConfig>
   );
 }
